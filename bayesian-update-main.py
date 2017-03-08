@@ -155,7 +155,8 @@ def update_counts(base_counts, selected_mapping):
         base_counts[mapping_start_pos + index][base_index[base]] += 1
     return True
 
-def bayesian_update(ref_genome_file, sam_file):
+
+def bayesian_update(ref_genome_file, sam_file, output_file):
     """
     Assigning a multi-read to a mapping location using Bayesian update
     :param ref_genome_file:
@@ -187,7 +188,7 @@ def bayesian_update(ref_genome_file, sam_file):
     random.seed(123)
 
     # For each multi-read selected by random
-    for i in range(1000):
+    for i in range(5000):
         read_id = random.choice(multi_reads)
         # For each of its mapping location, we calculate the posterior probability
         mapping_probs = []  # (probability, position, read_seq)
@@ -200,17 +201,22 @@ def bayesian_update(ref_genome_file, sam_file):
         selected_mapping = select_mapping(mapping_probs)
 
         # For tracking convergence: latest probabilities, first
-        multi_read_probs[read_id].insert(0, [mapping[0] for mapping in mapping_probs])
+        multi_read_probs[read_id].append([mapping[0] for mapping in mapping_probs])
 
         # Updating base counts for selected location
         update_counts(base_counts, selected_mapping)
 
-    print("Done!")
-    for read_id, normalized_probs in multi_read_probs.items():
-        print(normalized_probs)
+    with open(output_file, 'w') as out_file:
+        for read_id, normalized_probs in multi_read_probs.items():
+            out_file.write("*** {} ***\n\n".format(read_id))
+            for prob in normalized_probs:
+                out_file.write("{}\n".format(prob))
+            out_file.write("\n")
 
+    print("Done!")
     return True
 
 
-bayesian_update("./read-mapping/mtb-genome-extract.fna", "./read-mapping/mtb-single-end-mapping-report-all.sam")
+bayesian_update("./read-mapping/mtb-genome-extract.fna", "./read-mapping/mtb-single-end-mapping-report-all.sam",
+                "mtb-normalised-probs.txt")
 
