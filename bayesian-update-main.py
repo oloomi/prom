@@ -1,4 +1,5 @@
 from collections import defaultdict
+from samfile import *
 import random
 import math
 
@@ -28,45 +29,6 @@ def initial_counts(ref_genome_file):
     return base_counts
 
 
-def read_sam_file(sam_file_name):
-    # A dictionary like: {read_id: [list of mappings]}
-    read_alignments_dict = defaultdict(list)
-
-    total_reads = 0
-    not_mapped_reads = 0  # Number of reads that are not mapped to any location
-    invalid_cigars = 0  # Number of read mapping locations that contain indels, etc.
-
-    # Reading the SAM file and creating a dictionary of read_id : alignment
-    with open(sam_file_name) as sam_file:
-        for line in sam_file:
-            # Skip header lines
-            if line[0] == "@":
-                continue
-
-            total_reads += 1
-            fields = line.rstrip().split("\t")
-            read_id = fields[0]  # QNAME: Query template NAME
-            cigar = fields[5]  # CIGAR string (ie. alignment)
-            pos = int(fields[3])  # 1-based leftmost mapping POSition
-            md_z = fields[-2]  # Alignment
-            read_seq = fields[9]    # Read sequence
-            # * means no alignment for a read
-            if cigar != "*":
-                if cigar == '150M':
-                    # Store all alignments of a read
-                    read_alignments_dict[read_id].append((pos, cigar, md_z, read_seq))
-                else:
-                    # print("Invalid CIGAR:", cigar)
-                    invalid_cigars += 1
-            else:
-                not_mapped_reads += 1
-    print("Total number of reads:", total_reads)
-    print("Number of reads with non 150M CIGAR:", invalid_cigars)
-    print("Number of reads not mapped:", not_mapped_reads)
-    print("Number of reads in use:", len(read_alignments_dict))
-    return read_alignments_dict
-
-
 def calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq):
     """
     Calculates mapping probability for one read to one location
@@ -81,28 +43,6 @@ def calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq):
     return log_mapping_prob
 
 
-def best_mapping(mapping_probs):
-    """
-     Selecting the most probable mapping among candidate locations for a multi-read
-    """
-    mapping_probs = sorted(mapping_probs, reverse=True)
-    selected_prob = mapping_probs[0]
-    last_tie_index = 0
-
-    # All max probabilities appear at the beginning of the list; find the index of last one
-    for mapping in mapping_probs[1:]:
-        # If it has the same probability as highest probability
-        if mapping[0] == selected_prob[0]:
-            last_tie_index += 1
-        else:
-            break
-
-    if last_tie_index > 0:
-        selected_prob = mapping_probs[random.randrange(last_tie_index + 1)]
-
-    return selected_prob
-
-#
 def logAdd(a, b):
     """
     return log(exp(a) + exp(b))
@@ -135,7 +75,7 @@ def select_mapping(mapping_probs):
     log_probs = [mapping[0] for mapping in mapping_probs]
     log_probs_total = logSum(log_probs)
     for mapping in mapping_probs:
-        # Normalizing log likelihood ? Should I subtract?
+        # Normalizing log likelihood
         mapping[0] = math.exp(mapping[0] - log_probs_total)
 
     rand_num = random.uniform(0, 1)
@@ -143,6 +83,34 @@ def select_mapping(mapping_probs):
         if rand_num < mapping[0]:
             return mapping
     return mapping_probs[-1]
+
+
+def best_mapping(mapping_probs):
+    """
+     Selecting the best mapping among candidate locations for a multi-read after last iteration
+    """
+    mapping_probs = sorted(mapping_probs, reverse=True)
+    selected_prob = mapping_probs[0]
+    last_tie_index = 0
+
+    # All max probabilities appear at the beginning of the list; find the index of last one
+    for mapping in mapping_probs[1:]:
+        # If it has the same probability as highest probability
+        if mapping[0] == selected_prob[0]:
+            last_tie_index += 1
+        else:
+            break
+    # If there are multiple locations with the same probability
+    if last_tie_index > 0:
+        selected_prob = mapping_probs[random.randrange(last_tie_index + 1)]
+
+    # For probability normalisation
+    log_probs = [mapping[0] for mapping in mapping_probs]
+    log_probs_total = logSum(log_probs)
+
+    selected_prob[0] = math.exp(selected_prob[0] - log_probs_total)
+
+    return selected_prob
 
 
 def update_counts(base_counts, selected_mapping):
@@ -213,7 +181,29 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
                 out_file.write("{}\n".format(prob))
             out_file.write("\n")
 
-    print("Done!")
+    # Find the final mapping location
+    multi_reads_final_location = defaultdict(int)
+    for read_id in multi_reads:
+        # For each of its mapping location, we find the mapping probability
+        mapping_probs = []  # (probability, position, read_seq)
+        for mapping in reads_dict[read_id]:
+            (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
+            mapping_probs.append([calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq),
+                                  mapping_start_pos, read_seq])
+
+        # Selecting one location statistically
+        best_mapping_location = best_mapping(mapping_probs)
+        multi_reads_final_location[read_id] = best_mapping_location[1] + 1
+
+        print("_______________________")
+        print(read_id, best_mapping_location[1] + 1, round(best_mapping_location[0], 4))
+        print(".......................")
+        for mapping in reads_dict[read_id]:
+            print(mapping[0:3])
+
+    # Writing final results to a SAM file
+    write_sam_file(multi_reads_final_location, sam_file, "corrected-mappings-mtb.sam")
+
     return True
 
 
