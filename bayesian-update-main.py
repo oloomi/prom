@@ -113,6 +113,27 @@ def best_mapping(mapping_probs):
     return selected_prob
 
 
+def select_final_mapping(mapping_probs):
+    """
+    Returns the most probable mapping location after all runs
+    """
+    mapping_probs = sorted(mapping_probs, reverse=True)
+    selected_prob = mapping_probs[0]
+    last_tie_index = 0
+
+    # All max probabilities appear at the beginning of the list; find the index of last one
+    for mapping in mapping_probs[1:]:
+        # If it has the same probability as highest probability
+        if mapping[0] == selected_prob[0]:
+            last_tie_index += 1
+        else:
+            break
+    # If there are multiple locations with the same probability
+    if last_tie_index > 0:
+        selected_prob = mapping_probs[random.randrange(last_tie_index + 1)]
+    return selected_prob
+
+
 def update_counts(base_counts, selected_mapping):
     """
     Updates base counts for each position at reference
@@ -131,9 +152,8 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     :param sam_file:
     :return:
     """
-    base_counts = initial_counts(ref_genome_file)
+    initial_base_counts = initial_counts(ref_genome_file)
     reads_dict = read_sam_file(sam_file)
-    multi_read_probs = defaultdict(list)
 
     # Updating the prior (initial counts) for uniquely mapped reads
     unique_reads = []
@@ -145,7 +165,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             for pos_in_read, base in enumerate(read_seq):
                 # We find the base counts for that position in reference genome and
                 # we update it by incrementing the count for the base in the read
-                base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
+                initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
 
     # Removing uniquely mapped reads
     for read_id in unique_reads:
@@ -153,56 +173,98 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 
     multi_reads = sorted(reads_dict.keys())
     print("Number of multi-reads:", len(multi_reads))
-    random.seed(123)
 
-    # For each multi-read selected by random
-    for i in range(5000):
-        read_id = random.choice(multi_reads)
-        # For each of its mapping location, we calculate the posterior probability
-        mapping_probs = []  # (probability, position, read_seq)
-        for mapping in reads_dict[read_id]:
-            (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
-            mapping_probs.append([calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq),
-                                  mapping_start_pos, read_seq])
 
-        # Selecting one location statistically
-        selected_mapping = select_mapping(mapping_probs)
+    # {read_id: {run_number: [probabilities]}, ...}
+    # multi_read_probs = defaultdict(lambda: defaultdict(list))
+    # [[(pos, prob),...], ... ] for run 1, 2, 3, etc.
+    multi_read_probs = defaultdict(list)
+    random_seeds = [12, "Hi", 110]
 
-        # For tracking convergence: latest probabilities, first
-        multi_read_probs[read_id].append([mapping[0] for mapping in mapping_probs])
+    # 3 Runs with 5000 iterations in each
+    for run_number in range(3):
+        random.seed(random_seeds[run_number])
+        base_counts = initial_base_counts[:]
 
-        # Updating base counts for selected location
-        update_counts(base_counts, selected_mapping)
+        # Iterations
+        for i in range(5000):
+            # For a multi-read selected by random from the set of multi-reads
+            read_id = random.choice(multi_reads)
+            # [(probability, position, read_seq), ...] where read_seq is needed for updating counts later on
+            mapping_probs = []
 
-    with open(output_file, 'w') as out_file:
-        for read_id, normalized_probs in multi_read_probs.items():
-            out_file.write("*** {} ***\n\n".format(read_id))
-            for prob in normalized_probs:
-                out_file.write("{}\n".format(prob))
-            out_file.write("\n")
+            # For each of its mapping location, we calculate the posterior probability
+            for mapping in reads_dict[read_id]:
+                (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
+                # Find the likelihood
+                mapping_probs.append([calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq),
+                                      mapping_start_pos, read_seq])
 
-    # Find the final mapping location
-    multi_reads_final_location = defaultdict(int)
-    for read_id in multi_reads:
+            # Selecting one location statistically
+            # After select_mapping, the list `mapping_probs` is modified and contains probabilities instead of log-probs
+            selected_mapping = select_mapping(mapping_probs)
+
+            # For tracking convergence: latest probabilities, first
+            # multi_read_probs[read_id][run_number].append([mapping[0] for mapping in mapping_probs])
+
+            # Updating base counts for selected location
+            update_counts(base_counts, selected_mapping)
+
+        # After all iterations are done
+        # Save the probabilities for each multi-read and each of it's mapping locations
+        for read_id in multi_reads:
         # For each of its mapping location, we find the mapping probability
-        mapping_probs = []  # (probability, position, read_seq)
-        for mapping in reads_dict[read_id]:
-            (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
-            mapping_probs.append([calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq),
-                                  mapping_start_pos, read_seq])
+            mapping_probs = []  # [(position, probability), ...]
+            for mapping in reads_dict[read_id]:
+                (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
+                mapping_probs.append([calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq),
+                                      mapping_start_pos, read_seq])
+            # Just run select_mapping to normalize probabilities
+            select_mapping(mapping_probs)
+            pos_prob_list = [(mp[1], mp[0]) for mp in mapping_probs]
+            # Sorted by position
+            multi_read_probs[read_id].append(sorted(pos_prob_list))
 
-        # Selecting one location statistically
-        best_mapping_location = best_mapping(mapping_probs)
+    # After all runs are done
+    final_multiread_probs = defaultdict(list)
+    # For each multi-read, find the average probabilities for each mapping location
+    for read_id, mapping_probs_list in multi_read_probs.items():
+        # mapping_probs_list
+        # [[run_1], [run_2], [run_3], ...]
+        # [[(pos, prob), (pos, prob), ...], [run_2], ...]
+        avg_probs = [0 for i in range(len(mapping_probs_list[0]))]
+        # Sum of probabilities at each position over runs
+        for mapping_probs in mapping_probs_list:
+            for i, pos_prob in enumerate(mapping_probs):
+                avg_probs[i] += pos_prob[1]
+        # Average at each position over all runs
+        for i in range(len(avg_probs)):
+            avg_probs[i] /= len(mapping_probs_list)
+        # Normalizes probabilities found after averaging over runs
+        sum_probs = sum(avg_probs)
+        for i, pos_prob in enumerate(mapping_probs_list[0]):
+            # (normalized probability, position)
+            avg_probs[i] = (avg_probs[i] / sum_probs, pos_prob[0])
+        final_multiread_probs[read_id] = avg_probs
+
+    # The final selected mapping location for reach multi-read
+    multi_reads_final_location = defaultdict(int)
+
+    for read_id, mapping_probs in final_multiread_probs.items():
+        best_mapping_location = select_final_mapping(mapping_probs)
         multi_reads_final_location[read_id] = best_mapping_location[1] + 1
 
-        print("_______________________")
-        print(read_id, best_mapping_location[1] + 1, round(best_mapping_location[0], 4))
-        print(".......................")
-        for mapping in reads_dict[read_id]:
-            print(mapping[0:3])
+        print("________________")
+        print(read_id)
+        print(multi_reads_final_location[read_id])
+        print("................")
+        print(final_multiread_probs[read_id])
+        print("................")
+        for run_log in multi_read_probs[read_id]:
+            print(run_log)
 
     # Writing final results to a SAM file
-    write_sam_file(multi_reads_final_location, sam_file, "corrected-mappings-mtb.sam")
+    write_sam_file(multi_reads_final_location, sam_file, "corrected-mappings-mtb-v2.sam")
 
     return True
 

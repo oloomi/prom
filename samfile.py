@@ -33,10 +33,12 @@ def read_sam_file(sam_file_name):
                     invalid_cigars += 1
             else:
                 not_mapped_reads += 1
+
     print("Total number of reads:", total_reads)
     print("Number of reads with non 150M CIGAR:", invalid_cigars)
     print("Number of reads not mapped:", not_mapped_reads)
     print("Number of reads in use:", len(read_alignments_dict))
+
     return read_alignments_dict
 
 
