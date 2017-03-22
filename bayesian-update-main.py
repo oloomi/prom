@@ -5,6 +5,7 @@ import math
 
 base_index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
+
 def initial_counts(ref_genome_file):
     """
     If we see a G in reference genome, we set its initial count (prior) to [1,1,10,1]
@@ -22,11 +23,24 @@ def initial_counts(ref_genome_file):
 
     base_counts = []
     for base in genome_seq:
-        initial_base_count = [1, 1, 1, 1]
-        initial_base_count[base_index[base]] = 10
+        # initial_base_count = [1, 1, 1, 1]
+        initial_base_count = [100, 100, 100, 100]
+        # initial_base_count[base_index[base]] = 10
+        initial_base_count[base_index[base]] = 700
         base_counts.append(initial_base_count)
 
     return base_counts
+
+
+def update_counts(base_counts, selected_mapping):
+    """
+    Updates base counts for each position at reference
+    """
+    mapping_start_pos = selected_mapping[1]
+    read_seq = selected_mapping[2]
+    for index, base in enumerate(read_seq):
+        base_counts[mapping_start_pos + index][base_index[base]] += 5
+    return True
 
 
 def calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq):
@@ -134,17 +148,6 @@ def select_final_mapping(mapping_probs):
     return selected_prob
 
 
-def update_counts(base_counts, selected_mapping):
-    """
-    Updates base counts for each position at reference
-    """
-    mapping_start_pos = selected_mapping[1]
-    read_seq = selected_mapping[2]
-    for index, base in enumerate(read_seq):
-        base_counts[mapping_start_pos + index][base_index[base]] += 1
-    return True
-
-
 def bayesian_update(ref_genome_file, sam_file, output_file):
     """
     Assigning a multi-read to a mapping location using Bayesian update
@@ -179,10 +182,10 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     # multi_read_probs = defaultdict(lambda: defaultdict(list))
     # [[(pos, prob),...], ... ] for run 1, 2, 3, etc.
     multi_read_probs = defaultdict(list)
-    random_seeds = [12, "Hi", 110]
+    random_seeds = [12, "Hi", 110, "Bye", 1, 33, 5, 14, 313, 777]
 
     # 3 Runs with 5000 iterations in each
-    for run_number in range(3):
+    for run_number in range(10):
         random.seed(random_seeds[run_number])
         base_counts = initial_base_counts[:]
 
@@ -264,11 +267,14 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             print(run_log)
 
     # Writing final results to a SAM file
-    write_sam_file(multi_reads_final_location, sam_file, "corrected-mappings-mtb-v2.sam")
+    write_sam_file(multi_reads_final_location, sam_file, output_file)
 
     return True
 
 
-bayesian_update("./read-mapping/mtb-genome-extract.fna", "./read-mapping/mtb-single-end-mapping-report-all.sam",
-                "mtb-normalised-probs.txt")
+# bayesian_update("./read-mapping/mtb-genome-extract.fna", "./read-mapping/mtb-single-end-mapping-report-all.sam",
+#                 "mtb-normalised-probs.txt")
 
+bayesian_update("./read-mapping/mtb-mutated/mtb-genome-extract.fna",
+                "./read-mapping/mtb-mutated/mtb-single-end-mapping-report-all.sam",
+                "./read-mapping/mtb-mutated/corrected-mappings-mtb-10-runs-ref-base-700-1000.sam")
