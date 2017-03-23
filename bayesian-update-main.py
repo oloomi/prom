@@ -272,9 +272,10 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     return True
 
 
-# bayesian_update("./read-mapping/mtb-genome-extract.fna", "./read-mapping/mtb-single-end-mapping-report-all.sam",
-#                 "mtb-normalised-probs.txt")
+# bayesian_update("./data/genomes/mtb-genome-extract.fna",
+#                 "./read-mapping/mtb-normal/mtb-normal-se-mapping-report-all.sam",
+#                 "./read-mapping/mtb-normal/corrected-mappings-mtb-normal-700-100-5.sam")
 
-bayesian_update("./read-mapping/mtb-mutated/mtb-genome-extract.fna",
-                "./read-mapping/mtb-mutated/mtb-single-end-mapping-report-all.sam",
-                "./read-mapping/mtb-mutated/corrected-mappings-mtb-10-runs-ref-base-700-1000.sam")
+bayesian_update("./data/genomes/mtb-genome-extract-mutated.fna",
+                "./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam",
+                "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-5.sam")
