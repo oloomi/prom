@@ -2,6 +2,7 @@ from collections import defaultdict
 from samfile import *
 import random
 import math
+import copy
 
 base_index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
@@ -187,12 +188,17 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     # 3 Runs with 5000 iterations in each
     for run_number in range(10):
         random.seed(random_seeds[run_number])
-        base_counts = initial_base_counts[:]
+        base_counts = copy.deepcopy(initial_base_counts)
 
         # Iterations
         for i in range(5000):
             # For a multi-read selected by random from the set of multi-reads
             read_id = random.choice(multi_reads)
+
+            # !!! For debugging !!!
+            # if read_id == 'gi|20000|ref|NC_000962.3|3930000_3949999|-497':
+            #     print('\n', run_number, i)
+
             # [(probability, position, read_seq), ...] where read_seq is needed for updating counts later on
             mapping_probs = []
 
@@ -206,6 +212,11 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # Selecting one location statistically
             # After select_mapping, the list `mapping_probs` is modified and contains probabilities instead of log-probs
             selected_mapping = select_mapping(mapping_probs)
+
+            # !!! For debugging !!!
+            # if read_id == 'gi|20000|ref|NC_000962.3|3930000_3949999|-497':
+            #     print([(mp[0], mp[1])for mp in mapping_probs])
+            #     print(base_counts[3641], base_counts[4244])
 
             # For tracking convergence: latest probabilities, first
             # multi_read_probs[read_id][run_number].append([mapping[0] for mapping in mapping_probs])
@@ -279,3 +290,5 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 bayesian_update("./data/genomes/mtb-genome-extract-mutated.fna",
                 "./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam",
                 "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-5.sam")
+
+# unique_reads("./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam")

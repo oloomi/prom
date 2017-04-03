@@ -22,7 +22,7 @@ def read_sam_file(sam_file_name):
             cigar = fields[5]  # CIGAR string (ie. alignment)
             pos = int(fields[3])  # 1-based leftmost mapping POSition
             md_z = fields[-2]  # Alignment
-            read_seq = fields[9]    # Read sequence
+            read_seq = fields[9]  # Read sequence
             # * means no alignment for a read
             if cigar != "*":
                 if cigar == '150M':
@@ -71,7 +71,41 @@ def write_sam_file(multi_reads_correct_mapping, input_sam_file_name, output_sam_
                         else:
                             out_sam_file.write(line)
                     else:
-                        continue    # ignore mappings with indels at the moment
+                        continue  # ignore mappings with indels at the moment
                 else:
                     out_sam_file.write(line)
     return True
+
+
+def unique_reads(sam_file_name):
+    # A dictionary like: {read_id: [list of mappings]}
+    read_alignments_dict = defaultdict(list)
+
+    # Reading the SAM file and creating a dictionary of read_id : alignment
+    with open(sam_file_name) as sam_file:
+        for line in sam_file:
+            # Skip header lines
+            if line[0] == "@":
+                continue
+
+            fields = line.rstrip().split("\t")
+            read_id = fields[0]  # QNAME: Query template NAME
+            cigar = fields[5]  # CIGAR string (ie. alignment)
+            # * means no alignment for a read
+            if cigar != "*":
+                # Store all alignments of a read
+                read_alignments_dict[read_id].append(cigar)
+
+    with open(sam_file_name) as in_sam_file:
+        with open("{}-unique.sam".format(sam_file_name[:-4]), 'w') as out_sam_file:
+            for line in in_sam_file:
+                # Write header lines directly from input file to output file
+                if line[0] == "@":
+                    out_sam_file.write(line)
+                    continue
+
+                fields = line.rstrip().split("\t")
+                read_id = fields[0]  # QNAME: Query template NAME
+                if read_id in read_alignments_dict and len(read_alignments_dict[read_id]) == 1 and \
+                                read_alignments_dict[read_id][0] == "150M":
+                    out_sam_file.write(line)
