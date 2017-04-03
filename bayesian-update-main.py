@@ -187,7 +187,8 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 
     # 3 Runs with 5000 iterations in each
     for run_number in range(10):
-        random.seed(random_seeds[run_number])
+        # random.seed(random_seeds[run_number])
+        random.seed(run_number)
         base_counts = copy.deepcopy(initial_base_counts)
 
         # Iterations
