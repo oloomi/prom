@@ -56,6 +56,7 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
 
             # Adding this range to ranges of repeat positions
             repeats_ranges.add(range(start, start + length))
+            repeats_ranges.add(range(end, end + length))
 
     # print("Repeats:", len(repeats_list))
     # for lst in repeats_list:
