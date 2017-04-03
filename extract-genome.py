@@ -85,7 +85,7 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
         final_position = mapping_location + base_position
         # Mutating the base
         possible_snps = nucleotides - set(genome_sequence[final_position])
-        new_genome_seq[final_position] = random.choice(list(possible_snps))
+        new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
         # Saving this mutation characteristics
         mutations_list.append((final_position + 1, genome_sequence[final_position], new_genome_seq[final_position],
                                region))
@@ -104,7 +104,7 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
         if not in_repeats and final_position not in normal_mutations:
             # Mutating the base
             possible_snps = nucleotides - set(genome_sequence[final_position])
-            new_genome_seq[final_position] = random.choice(list(possible_snps))
+            new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
             # Saving the mutation characteristics
             mutations_list.append(
                 (final_position + 1, genome_sequence[final_position], new_genome_seq[final_position]))
