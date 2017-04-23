@@ -25,6 +25,7 @@ def initial_counts(ref_genome_file):
     base_counts = []
     for base in genome_seq:
         # initial_base_count = [1, 1, 1, 1]
+        # initial_base_count[base_index[base]] = 2
         initial_base_count = [100, 100, 100, 100]
         # initial_base_count[base_index[base]] = 10
         initial_base_count[base_index[base]] = 700
@@ -40,7 +41,8 @@ def update_counts(base_counts, selected_mapping):
     mapping_start_pos = selected_mapping[1]
     read_seq = selected_mapping[2]
     for index, base in enumerate(read_seq):
-        base_counts[mapping_start_pos + index][base_index[base]] += 5
+        # base_counts[mapping_start_pos + index][base_index[base]] += 5
+        base_counts[mapping_start_pos + index][base_index[base]] += 1
     return True
 
 
@@ -185,7 +187,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     multi_read_probs = defaultdict(list)
     random_seeds = [12, "Hi", 110, "Bye", 1, 33, 5, 14, 313, 777]
 
-    # 3 Runs with 5000 iterations in each
+    # 10 Runs with 5000 iterations in each
     for run_number in range(10):
         # random.seed(random_seeds[run_number])
         random.seed(run_number)
@@ -290,6 +292,6 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 
 bayesian_update("./data/genomes/mtb-genome-extract-mutated.fna",
                 "./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam",
-                "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-5.sam")
+                "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs.sam")
 
 # unique_reads("./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam")
