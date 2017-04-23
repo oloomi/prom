@@ -13,6 +13,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     :param output_file:
     :return:
     """
+    # 1. Finding initial counts
     initial_base_counts = initial_counts(ref_genome_file)
     reads_dict = read_sam_file(sam_file)
 
@@ -41,6 +42,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     multi_read_probs = defaultdict(list)
     # random_seeds = [12, "Hi", 110, "Bye", 1, 33, 5, 14, 313, 777]
 
+    # 2. Sampling
     # 10 Runs with 5000 iterations in each
     for run_number in range(10):
         # random.seed(random_seeds[run_number])
@@ -51,10 +53,6 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
         for i in range(5000):
             # For a multi-read selected by random from the set of multi-reads
             read_id = random.choice(multi_reads)
-
-            # !!! For debugging !!!
-            # if read_id == 'gi|20000|ref|NC_000962.3|3930000_3949999|-497':
-            #     print('\n', run_number, i)
 
             # [(probability, position, read_seq), ...] where read_seq is needed for updating counts later on
             mapping_probs = []
@@ -70,21 +68,13 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # After select_mapping, the list `mapping_probs` is modified and contains probabilities instead of log-probs
             selected_mapping = select_mapping(mapping_probs)
 
-            # !!! For debugging !!!
-            # if read_id == 'gi|20000|ref|NC_000962.3|3930000_3949999|-497':
-            #     print([(mp[0], mp[1])for mp in mapping_probs])
-            #     print(base_counts[3641], base_counts[4244])
-
-            # For tracking convergence: latest probabilities, first
-            # multi_read_probs[read_id][run_number].append([mapping[0] for mapping in mapping_probs])
-
             # Updating base counts for selected location
             update_counts(base_counts, selected_mapping)
 
         # After all iterations are done
         # Save the probabilities for each multi-read and each of it's mapping locations
         for read_id in multi_reads:
-        # For each of its mapping location, we find the mapping probability
+            # For each of its mapping location, we find the mapping probability
             mapping_probs = []  # [(position, probability), ...]
             for mapping in reads_dict[read_id]:
                 (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
@@ -96,6 +86,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # Sorted by position
             multi_read_probs[read_id].append(sorted(pos_prob_list))
 
+    # 3. Finding average probability over runs and selecting one location
     # After all runs are done
     final_multiread_probs = defaultdict(list)
     # For each multi-read, find the average probabilities for each mapping location
@@ -123,7 +114,8 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
         multi_reads_final_location = defaultdict(int)
         for read_id, mapping_probs in final_multiread_probs.items():
             # Selecting final mapping location
-            best_mapping_location = select_final_mapping(mapping_probs)
+            # best_mapping_location = select_final_mapping(mapping_probs)
+            best_mapping_location = select_final_mapping_stochastic(mapping_probs)
             multi_reads_final_location[read_id] = best_mapping_location[1] + 1
 
             # Writing log to file
@@ -146,6 +138,6 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 
 bayesian_update("./data/genomes/mtb-genome-extract-mutated.fna",
                 "./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam",
-                "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs.sam")
+                "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs-fs.sam")
 
 # find_unique_reads("./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam")

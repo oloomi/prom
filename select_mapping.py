@@ -69,22 +69,14 @@ def select_final_mapping(mapping_probs):
         selected_prob = mapping_probs[random.randrange(last_tie_index + 1)]
     return selected_prob
 
+
 def select_final_mapping_stochastic(mapping_probs):
     """
-    Returns the most probable mapping location after all runs
+    Returns a mapping location after all runs stochastically based on normalised probabilities
     """
-    mapping_probs = sorted(mapping_probs, reverse=True)
-    selected_prob = mapping_probs[0]
-    last_tie_index = 0
-
-    # All max probabilities appear at the beginning of the list; find the index of last one
-    for mapping in mapping_probs[1:]:
-        # If it has the same probability as highest probability
-        if mapping[0] == selected_prob[0]:
-            last_tie_index += 1
-        else:
-            break
-    # If there are multiple locations with the same probability
-    if last_tie_index > 0:
-        selected_prob = mapping_probs[random.randrange(last_tie_index + 1)]
-    return selected_prob
+    mapping_probs_sorted = sorted(mapping_probs)
+    rand_num = random.uniform(0, 1)
+    for mapping in mapping_probs_sorted[:-1]:
+        if rand_num < mapping[0]:
+            return mapping
+    return mapping_probs_sorted[-1]
