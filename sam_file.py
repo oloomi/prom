@@ -77,7 +77,7 @@ def write_sam_file(multi_reads_correct_mapping, input_sam_file_name, output_sam_
     return True
 
 
-def unique_reads(sam_file_name):
+def find_unique_reads(sam_file_name):
     # A dictionary like: {read_id: [list of mappings]}
     read_alignments_dict = defaultdict(list)
 
