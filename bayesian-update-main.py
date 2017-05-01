@@ -143,11 +143,6 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 
 # find_unique_reads("./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam")
 
-# print(read_benchmark_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-genome-extract-mutated-mutations.txt"))
-# print(read_vcf_file("/home/mohammad/variant-calling-test/calls-haploid.vcf"))
-# print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-genome-extract-mutated-mutations.txt",
-#                        "/home/mohammad/variant-calling-test/calls-haploid.vcf", "variants-comparison.txt"))
-
 print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-genome-extract-mutated-mutations.txt",
                        "/mnt/e/Codes/bayesian-update/read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs-fs.sorted-variants.vcf",
                        "variants-comparison.txt"))

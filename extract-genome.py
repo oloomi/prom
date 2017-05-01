@@ -49,14 +49,18 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
             fields = line.split()
             # Deducting start_pos to make absolute positions for the new genome extract
             (start, end, length) = (int(fields[0]) - start_pos, int(fields[1]) - start_pos, int(fields[2]))
-            if repeats_list and repeats_list[-1][0] == length and repeats_list[-1][1] == start:
-                repeats_list[-1].append(end)
-            else:
-                repeats_list.append([length, start, end])
+            # Filtering repeats that are smaller than read length
+            if length > 150:
+                # Some repeat coordinates may exceed the extract of the genome we are looking for
+                if start + length < genome_length and end + length < genome_length:
+                    if repeats_list and repeats_list[-1][0] == length and repeats_list[-1][1] == start:
+                        repeats_list[-1].append(end)
+                    else:
+                        repeats_list.append([length, start, end])
 
-            # Adding this range to ranges of repeat positions
-            repeats_ranges.add(range(start, start + length))
-            repeats_ranges.add(range(end, end + length))
+                    # Adding this range to ranges of repeat positions
+                    repeats_ranges.add(range(start, start + length))
+                    repeats_ranges.add(range(end, end + length))
 
     # print("Repeats:", len(repeats_list))
     # for lst in repeats_list:
@@ -77,12 +81,14 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
     mutations_list = []
 
     # 10 SNPs in repeated regions
+    print(len(repeats_list))
     selected_regions = random.sample(repeats_list, 10)
     nucleotides = set(['A', 'C', 'G', 'T'])
     for region in selected_regions:
         mapping_location = random.choice(region[1:])
         base_position = random.choice(range(region[0]))
         final_position = mapping_location + base_position
+        print(region, mapping_location, base_position, final_position)
         # Mutating the base
         possible_snps = nucleotides - set(genome_sequence[final_position])
         new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
@@ -128,6 +134,6 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
 #                "./data/genomes/mtb-genome-extract.fna")
 
 extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 3930000, 20000,
-               "./data/genomes/mtb-genome-extract-mutated.fna", mutate=True,
+               "./data/genomes/mtb-genome-extract-mutated-long-repeats.fna", mutate=True,
                repeats_file_name="./data/genomes/mtb-selected-region-repeats.txt")
 
