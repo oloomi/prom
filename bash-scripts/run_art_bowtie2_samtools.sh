@@ -6,14 +6,14 @@ art="art_illumina"
 
 # the genome from where synthetic reads are generated
 #reads_genome="../data/genomes/mtb-genome-extract.fna"
-reads_genome="../data/genomes/mtb-genome-extract-mutated.fna"
+reads_genome="../data/genomes/mtb-genome-extract-mutated-long-repeats.fna"
 
 # the reference genome sequence used for read mapping
 ref_genome="../data/genomes/mtb-genome-extract.fna"
 
 #out_dir="../read-mapping/mtb-normal/"
 #file_prefix="mtb-normal-se"
-out_dir="../read-mapping/mtb-mutated/"
+out_dir="../read-mapping/mtb-mutated-long-repeats/"
 file_prefix="mtb-mutated-se"
 
 # ==== Generating synthetic reads ====
@@ -40,17 +40,17 @@ echo "\n=== Read mapping DONE! ===\n"
 
 # Creating BAM files for MTB ArtIllumina benchmark
 samtools view -bS $out_dir$file_prefix.sam -o $out_dir$file_prefix.bam
-samtools sort $out_dir$file_prefix.bam $out_dir$file_prefix-sorted
+samtools sort $out_dir$file_prefix.bam -o $out_dir$file_prefix-sorted.bam
 samtools index $out_dir$file_prefix-sorted.bam
 
 # Creating BAM files for MTB best-match
 samtools view -bS $out_dir$file_prefix-mapping-best-match.sam -o $out_dir$file_prefix-mapping-best-match.bam
-samtools sort $out_dir$file_prefix-mapping-best-match.bam $out_dir$file_prefix-mapping-best-match-sorted
+samtools sort $out_dir$file_prefix-mapping-best-match.bam -o $out_dir$file_prefix-mapping-best-match-sorted.bam
 samtools index $out_dir$file_prefix-mapping-best-match-sorted.bam
 
 # Creating BAM files for MTB report-all
 samtools view -bS $out_dir$file_prefix-mapping-report-all.sam -o $out_dir$file_prefix-mapping-report-all.bam
-samtools sort $out_dir$file_prefix-mapping-report-all.bam $out_dir$file_prefix-mapping-report-all-sorted
+samtools sort $out_dir$file_prefix-mapping-report-all.bam -o $out_dir$file_prefix-mapping-report-all-sorted.bam
 samtools index $out_dir$file_prefix-mapping-report-all-sorted.bam
 
 

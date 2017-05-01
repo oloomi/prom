@@ -97,25 +97,25 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
                                region))
 
     # 10 SNPs in normal regions
-    num_normal_mutations = 10
-    normal_mutations = []
-    i = 0
-    while i < num_normal_mutations:
-        final_position = random.choice(range(genome_length))
-        in_repeats = False
-        for repeat_range in repeats_ranges:
-            if final_position in repeat_range:
-                in_repeats = True
-                break
-        if not in_repeats and final_position not in normal_mutations:
-            # Mutating the base
-            possible_snps = nucleotides - set(genome_sequence[final_position])
-            new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
-            # Saving the mutation characteristics
-            mutations_list.append(
-                (final_position + 1, genome_sequence[final_position], new_genome_seq[final_position]))
-            normal_mutations.append(final_position)
-            i += 1
+    # num_normal_mutations = 10
+    # normal_mutations = []
+    # i = 0
+    # while i < num_normal_mutations:
+    #     final_position = random.choice(range(genome_length))
+    #     in_repeats = False
+    #     for repeat_range in repeats_ranges:
+    #         if final_position in repeat_range:
+    #             in_repeats = True
+    #             break
+    #     if not in_repeats and final_position not in normal_mutations:
+    #         # Mutating the base
+    #         possible_snps = nucleotides - set(genome_sequence[final_position])
+    #         new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
+    #         # Saving the mutation characteristics
+    #         mutations_list.append(
+    #             (final_position + 1, genome_sequence[final_position], new_genome_seq[final_position]))
+    #         normal_mutations.append(final_position)
+    #         i += 1
 
     # Writing mutation locations to file
     mutations_list.sort()

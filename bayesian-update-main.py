@@ -141,8 +141,12 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs-fs.sam")
 
-# find_unique_reads("./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam")
+bayesian_update("./data/genomes/mtb-genome-extract.fna",
+                "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
+                "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
-print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-genome-extract-mutated-mutations.txt",
-                       "/mnt/e/Codes/bayesian-update/read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs-fs.sorted-variants.vcf",
-                       "variants-comparison.txt"))
+# find_unique_reads("./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam")
+
+# print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-genome-extract-mutated-mutations.txt",
+#                        "/mnt/e/Codes/bayesian-update/read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs-fs.sorted-variants.vcf",
+#                        "variants-comparison.txt"))
