@@ -141,12 +141,22 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs-fs.sam")
 
-bayesian_update("./data/genomes/mtb-genome-extract.fna",
-                "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
-                "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
+# bayesian_update("./data/genomes/mtb-genome-extract.fna",
+#                 "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
+#                 "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
 # find_unique_reads("./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam")
 
-# print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-genome-extract-mutated-mutations.txt",
-#                        "/mnt/e/Codes/bayesian-update/read-mapping/mtb-mutated/corrected-mappings-mtb-mutated-700-100-1-10runs-fs.sorted-variants.vcf",
-#                        "variants-comparison.txt"))
+file_path = "./read-mapping/mtb-mutated-long-repeats/"
+vcf_files = ["mtb-mutated-se-sorted",
+             "mtb-mutated-se-mapping-best-match-sorted",
+             "mtb-mutated-se-mapping-report-all-sorted",
+             "corrected-other.mmr.sorted",
+             "corrected-other-3mis.mmr.sorted",
+             "corrected-other-best.mmr.sorted",
+             "corrected-mappings-mtb-mutated-700-100-1-10runs.sorted"]
+for i in range(len(vcf_files)):
+    vcf_files[i] = file_path + vcf_files[i] + "-variants-freebayes.vcf"
+
+print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-genome-extract-mutated-long-repeats-mutations.txt",
+                       vcf_files, "variants-comparison-long-repeats-freebayes.txt"))

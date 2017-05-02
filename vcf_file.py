@@ -33,25 +33,40 @@ def read_benchmark_variants(benchmark_variants_file):
     return variants
 
 
-def compare_variants(benchmark_variants_file, vcf_file_name, output_file_name):
+def compare_variants(benchmark_variants_file, vcf_files_list, output_file_name):
     """
     Compares two benchmark variants with the variants found by variant calling
     :return: Number of false positive, true positive, variants
     """
+    output_file = open(output_file_name, 'w')
+    output_file.write("Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\n")
+
+    # Reading benchmark variants
     benchmark_variants = set(read_benchmark_variants(benchmark_variants_file))
-    called_variants = set(read_vcf_file(vcf_file_name))
 
-    true_positives = benchmark_variants & called_variants
-    false_positives = called_variants - benchmark_variants
-    false_negatives = benchmark_variants - called_variants
-    # true_negatives: rest of the genome
+    for vcf_file_name in vcf_files_list:
+        # If the extension is missing
+        if vcf_file_name[-4:].lower() != ".vcf":
+            vcf_file_name += ".vcf"
+        called_variants = set()
+        # Reading variants for this mapping
+        called_variants = set(read_vcf_file(vcf_file_name))
+        # Measures
+        true_positives = benchmark_variants & called_variants
+        tp = len(true_positives)
+        false_positives = called_variants - benchmark_variants
+        fp = len(false_positives)
+        false_negatives = benchmark_variants - called_variants
+        fn = len(false_negatives)
+        # true_negatives: rest of the genome
 
-    with open(output_file_name, 'w') as output_file:
-        output_file.write("True Positives\t{}\n".format(len(true_positives)))
-        output_file.write("{}\n".format(true_positives))
-        output_file.write("False Positives\t{}\n".format(len(false_positives)))
-        output_file.write("{}\n".format(false_positives))
-        output_file.write("False Negatives\t{}\n".format(len(false_negatives)))
-        output_file.write("{}\n".format(false_negatives))
+        precision = tp / (tp + fp)
+        recall = tp / (tp + fn)
+        if precision + recall > 0:
+            f1_score = 2 * precision * recall / (precision + recall)
+        else:
+            f1_score = 0
+
+        output_file.write("{}\t{}\t{}\t{}\t{:.2f}\n".format(vcf_file_name.split("/")[-1][:-4], tp, fp, fn, f1_score))
 
     # return (true_positives, false_positives, false_negatives)
