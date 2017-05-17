@@ -25,6 +25,9 @@ def read_benchmark_variants(benchmark_variants_file):
     variants = []
     with open(benchmark_variants_file) as benchmark_variants:
         for line in benchmark_variants:
+            # Skip header line
+            if line[0].isalpha():
+                continue
             fields = line.rstrip().split("\t")
             pos = fields[0]
             alt = fields[2]
