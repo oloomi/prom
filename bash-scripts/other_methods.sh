@@ -2,8 +2,8 @@
 # Running other multi-mapping resolution methods
 
 reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
-alignments="../read-mapping/mtb-whole-genome-mutated/mtb-wg-mutated-se-mapping-report-all"
-outfile="../read-mapping/mtb-whole-genome-mutated/corrected-other-3mis"
+alignments="../read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all"
+outfile="../read-mapping/mtb-whole-genome-mutated-70-140/corrected-other-3mis"
 
 #reference="../data/genomes/mtb-genome-extract.fna"
 #alignments="../read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all"

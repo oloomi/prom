@@ -146,30 +146,35 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
-# start_time = timeit.default_timer()
-#
-# bayesian_update("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
-#                 "./read-mapping/mtb-whole-genome-mutated/mtb-wg-mutated-se-mapping-report-all.sam",
-#                 "./read-mapping/mtb-whole-genome-mutated/corrected-mtb-wg-mutated-se-mapping.sam")
-#
-# run_time = timeit.default_timer() - start_time
-#
-# print("Bayesian update running time: {} seconds = {} minutes".format(round(run_time, 2), round(run_time / 60, 2)))
+phase = 2
+
+if phase == 1:
+    start_time = timeit.default_timer()
+
+    bayesian_update("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+                    "./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam",
+                    "./read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-u30.sam")
+
+    run_time = timeit.default_timer() - start_time
+
+    print("Bayesian update running time: {} seconds = {} minutes".format(round(run_time, 2), round(run_time / 60, 2)))
 
 # find_unique_reads("./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam")
 
-file_path = "./read-mapping/mtb-whole-genome-mutated/"
-vcf_files = ["mtb-wg-mutated-se-sorted",
-             "mtb-wg-mutated-se-mapping-best-match-sorted",
-             "mtb-wg-mutated-se-mapping-report-all-sorted",
-             "corrected-other-3mis-mmr-sorted",
-             "corrected-mtb-wg-mutated-se-mapping-sorted"]
-for i in range(len(vcf_files)):
-    # vcf_files[i] = file_path + vcf_files[i] + "-variants-freebayes.vcf"
-    vcf_files[i] = file_path + vcf_files[i] + "-variants-consensus-p0.5.vcf"
+elif phase == 2:
+    file_path = "./read-mapping/mtb-whole-genome-mutated-70-140/"
+    vcf_files_names = ["mtb-wg-mutated-se-sorted",
+                 "mtb-wg-mutated-se-mapping-best-match-sorted",
+                 "mtb-wg-mutated-se-mapping-report-all-sorted",
+                 "corrected-other-3mis-mmr-sorted",
+                 "corrected-mtb-wg-mutated-se-mapping-sorted"]
 
-# print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-mutations.txt",
-#                        vcf_files, "variants-comparison-MTB-wg-freebayes.txt"))
+    for variant_caller in ["freebayes", "consensus-p0.1", "consensus-p0.5"]:
+        vcf_files = copy.deepcopy(vcf_files_names)
+        for i in range(len(vcf_files)):
+            vcf_files[i] = file_path + vcf_files[i] + "-variants-{}.vcf".format(variant_caller)
+        print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-70-140-mutations.txt",
+                               vcf_files, "variants-comparison-MTB-wg-70-140-merged-{}.txt".format(variant_caller)))
 
-print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-mutations.txt",
-                       vcf_files, "variants-comparison-MTB-wg-variants-consensus-p0.5.txt"))
+
+# find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")

@@ -5,7 +5,8 @@ export PATH=$PATH:/home/mohammad/Applications/art_bin_MountRainier/
 art="art_illumina"
 
 # the genome from where synthetic reads are generated
-reads_genome="../data/genomes/mtb-whole-genome-mutated.fna"
+reads_genome="../data/genomes/mtb-whole-genome-mutated-70-140.fna"
+#reads_genome="../data/genomes/mtb-whole-genome-mutated.fna"
 #reads_genome="../data/genomes/mtb-genome-extract.fna"
 #reads_genome="../data/genomes/mtb-genome-extract-mutated-long-repeats.fna"
 
@@ -14,8 +15,8 @@ ref_genome="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.
 #ref_genome="../data/genomes/mtb-genome-extract.fna"
 
 
-
-out_dir="../read-mapping/mtb-whole-genome-mutated/"
+out_dir="../read-mapping/mtb-whole-genome-mutated-70-140/"
+#out_dir="../read-mapping/mtb-whole-genome-mutated/"
 file_prefix="mtb-wg-mutated-se"
 #out_dir="../read-mapping/mtb-mutated-long-repeats/"
 #file_prefix="mtb-mutated-se"
@@ -25,7 +26,8 @@ file_prefix="mtb-wg-mutated-se"
 # ==== Generating synthetic reads ====
 
 #Simulation of single-end reads of 150 bp with coverage 10; with max number of indels = 0 (-k 0)
-$art -ss HS25 -sam -i $reads_genome -l 150 -f 10 -k 0 -rs 12345 -o $out_dir$file_prefix
+#$art -ss HS25 -sam -i $reads_genome -l 150 -f 10 -k 0 -rs 12345 -o $out_dir$file_prefix
+$art -ss HS25 -sam -i $reads_genome -l 150 -f 25 -k 0 -rs 12345 -o $out_dir$file_prefix
 
 echo "\n==== Generating synthetic reads DONE! ====\n"
 
