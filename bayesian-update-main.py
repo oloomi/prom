@@ -6,9 +6,36 @@ import random
 import copy
 import timeit
 
+
+def filter_alignments(mappings, threshold):
+    """
+    Filters mapping locations of a multi-read that have more edit operations than the best-match + threshold
+    :param mappings: Initial list of multi-mappings
+    :param threshold: an integer
+    :return: A list of filtered mappings
+    """
+    mdz_lst = [m[2] for m in mappings]
+    edit_ops = []
+
+    # Finding best match
+    for mdz in mdz_lst:
+        num_edits = mdz.count('A') + mdz.count('C') + mdz.count('G') + mdz.count('T')
+        edit_ops.append(num_edits)
+    min_ops = min(edit_ops)
+
+    filtered_mappings = []
+    for mapping in mappings:
+        mdz = mapping[2]
+        num_edits = mdz.count('A') + mdz.count('C') + mdz.count('G') + mdz.count('T')
+        # If this alignment is not too different from the best match
+        if num_edits <= min_ops + threshold:
+            filtered_mappings.append(mapping)
+
+    return filtered_mappings
+
 def bayesian_update(ref_genome_file, sam_file, output_file):
     """
-    Assigning a multi-read to a mapping location using Bayesian update
+    Assigning a multi-read to a mapping location using Bayesian updating
     :param ref_genome_file:
     :param sam_file:
     :param output_file:
@@ -18,8 +45,14 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     initial_base_counts = initial_counts(ref_genome_file)
     reads_dict = read_sam_file(sam_file)
 
+    multi_reads_final_location = defaultdict(int)
+
     # Updating the prior (initial counts) for uniquely mapped reads
+    # New: and also filtering
     unique_reads = []
+    initially_resolved_multireads = []
+    random.seed(12)
+
     for read_id, mappings in reads_dict.items():
         if len(mappings) == 1:
             unique_reads.append(read_id)
@@ -29,13 +62,49 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
                 # We find the base counts for that position in reference genome and
                 # we update it by incrementing the count for the base in the read
                 initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
+        else:
+            mappings_filtered = filter_alignments(mappings, 3)
+            # Removing rubbish alignments, it has turned to a unique mapping
+            if len(mappings_filtered) == 1:
+                multi_reads_final_location[read_id] = mappings_filtered[0][0]
+                initially_resolved_multireads.append(read_id)
+                # We treat it like a unique read and update counts
+                mapping_start_pos = mappings_filtered[0][0] - 1
+                read_seq = mappings_filtered[0][3]
+                for pos_in_read, base in enumerate(read_seq):
+                    initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
+            else:
+                mdz_lst = [m[2] for m in mappings_filtered]
+                # Those that map exactly with the same alignment to all locations
+                if len(set(mdz_lst)) == 1:
+                    # Select one location randomly
+                    mapping_location = random.choice(mappings_filtered)[0]
+                    multi_reads_final_location[read_id] = mapping_location
+                    initially_resolved_multireads.append(read_id)
+                else:
+                    # It is a multi-mapping that needs to be resolved by Bayesian updating
+                    # However, rubbish mapping locations should be removed
+                    reads_dict[read_id] = mappings_filtered
 
     # Removing uniquely mapped reads
     for read_id in unique_reads:
         del reads_dict[read_id]
 
+    print("Number of multireads: {}".format(len(reads_dict)))
+
+    # Removing initially resolved multireads
+    for read_id in initially_resolved_multireads:
+        del reads_dict[read_id]
+
+    print("Number of initially resolved multireads: {}".format(len(initially_resolved_multireads)))
+
+    with open("multireads.txt", "w") as multireads_file:
+        for key, value in reads_dict.items():
+            mdz_s = [lst[2] for lst in value]
+            multireads_file.write("{}\t{}\n".format(key, mdz_s))
+
     multi_reads = sorted(reads_dict.keys())
-    print("Number of multi-reads:", len(multi_reads))
+    print("Number of multi-reads requiring resolution:", len(multi_reads))
 
     # {read_id: {run_number: [probabilities]}, ...}
     # multi_read_probs = defaultdict(lambda: defaultdict(list))
@@ -113,7 +182,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 
     # The final selected mapping location for reach multi-read and write the log in file
     with open("{}-log.txt".format(output_file[:-4]), 'w') as log_file:
-        multi_reads_final_location = defaultdict(int)
+        # multi_reads_final_location = defaultdict(int)
         for read_id, mapping_probs in final_multiread_probs.items():
             # Selecting final mapping location
             # best_mapping_location = select_final_mapping(mapping_probs)
@@ -151,9 +220,13 @@ phase = 2
 if phase == 1:
     start_time = timeit.default_timer()
 
+    # bayesian_update("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna",
+    #                 "./read-mapping/ot-whole-genome-mutated-70-140/ot-wg-mutated-se-mapping-report-all.sam",
+    #                 "./read-mapping/ot-whole-genome-mutated-70-140/corrected-ot-wg-mutated-se-mapping-filter.sam")
+
     bayesian_update("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
                     "./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam",
-                    "./read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-u30.sam")
+                    "./read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-filter.sam")
 
     run_time = timeit.default_timer() - start_time
 
@@ -167,14 +240,26 @@ elif phase == 2:
                  "mtb-wg-mutated-se-mapping-best-match-sorted",
                  "mtb-wg-mutated-se-mapping-report-all-sorted",
                  "corrected-other-3mis-mmr-sorted",
-                 "corrected-mtb-wg-mutated-se-mapping-sorted"]
+                 "corrected-mtb-wg-mutated-se-mapping-merged-sorted",
+                 "corrected-mtb-wg-mutated-se-mapping-filter-sorted"]
+
+    # file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
+    # vcf_files_names = ["ot-wg-mutated-se-sorted",
+    #                    "ot-wg-mutated-se-mapping-best-match-sorted",
+    #                    "ot-wg-mutated-se-mapping-report-all-sorted",
+    #                    "corrected-other-3mis-mmr-sorted",
+    #                    "corrected-ot-wg-mutated-se-mapping-filter-sorted"]
 
     for variant_caller in ["freebayes", "consensus-p0.1", "consensus-p0.5"]:
         vcf_files = copy.deepcopy(vcf_files_names)
         for i in range(len(vcf_files)):
             vcf_files[i] = file_path + vcf_files[i] + "-variants-{}.vcf".format(variant_caller)
         print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-70-140-mutations.txt",
-                               vcf_files, "variants-comparison-MTB-wg-70-140-merged-{}.txt".format(variant_caller)))
+                               vcf_files, "./results/variants-comparison-MTB-wg-70-140-merged-filter-{}.txt".format(variant_caller)))
+        # print(
+        #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
+        #                      vcf_files,
+        #                      "./results/variants-comparison-OT-wg-70-140-merged-filter-{}.txt".format(variant_caller)))
 
 
 # find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")

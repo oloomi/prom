@@ -1,9 +1,13 @@
 #!/bin/bash
 # Running other multi-mapping resolution methods
 
-reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
-alignments="../read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all"
-outfile="../read-mapping/mtb-whole-genome-mutated-70-140/corrected-other-3mis"
+reference="../data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna"
+alignments="../read-mapping/ot-whole-genome-mutated-70-140/ot-wg-mutated-se-mapping-report-all"
+outfile="../read-mapping/ot-whole-genome-mutated-70-140/corrected-other-3mis"
+
+#reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
+#alignments="../read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all"
+#outfile="../read-mapping/mtb-whole-genome-mutated-70-140/corrected-other-3mis"
 
 #reference="../data/genomes/mtb-genome-extract.fna"
 #alignments="../read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all"

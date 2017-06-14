@@ -21,7 +21,7 @@ def read_sam_file(sam_file_name):
             read_id = fields[0]  # QNAME: Query template NAME
             cigar = fields[5]  # CIGAR string (ie. alignment)
             pos = int(fields[3])  # 1-based leftmost mapping POSition
-            md_z = fields[-2]  # Alignment
+            md_z = fields[-2][5:]  # Alignment eg. MD:Z:118C31 -> 118C31
             read_seq = fields[9]  # Read sequence
             # * means no alignment for a read
             if cigar != "*":

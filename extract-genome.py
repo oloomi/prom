@@ -92,6 +92,7 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
     new_genome_seq = list(genome_sequence)
     mutations_list = []
 
+    # 25% of regions
     num_snps = len(merged_ranges) // 4
     selected_regions = random.sample(merged_ranges, num_snps)
     nucleotides = set(['A', 'C', 'G', 'T'])
@@ -166,9 +167,13 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
 # extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 3930000, 20000,
 #                "./data/genomes/mtb-genome-extract.fna")
 
-extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
-               "./data/genomes/mtb-whole-genome-mutated-70-140.fna", mutate=True,
-               repeats_file_name="./data/genomes/mtb-repeats-sorted.txt")
+# extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
+#                "./data/genomes/mtb-whole-genome-mutated-70-140.fna", mutate=True,
+#                repeats_file_name="./data/genomes/mtb-repeats-sorted.txt")
+
+extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
+               "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
+               repeats_file_name="./data/genomes/ot-repeats-sorted.txt")
 
 # def merge_ranges(ranges_file):
 #     ranges = []

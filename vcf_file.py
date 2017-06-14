@@ -71,8 +71,8 @@ def compare_variants(benchmark_variants_file, vcf_files_list, output_file_name):
             f1_score = 0
 
         output_file.write("{}\t{}\t{}\t{}\t{:.2f}\n".format(vcf_file_name.split("/")[-1][:-4], tp, fp, fn, f1_score))
-        if "corrected-mtb" in vcf_file_name:
-            output_file.write("\nFalse negatives:\n{}\n".format(false_negatives))
-            output_file.write("False positives:\n{}\n\n".format(false_positives))
+        # if "corrected-mtb" in vcf_file_name:
+        #     output_file.write("\nFalse negatives:\n{}\n".format(false_negatives))
+        #     output_file.write("False positives:\n{}\n\n".format(false_positives))
 
     # return (true_positives, false_positives, false_negatives)

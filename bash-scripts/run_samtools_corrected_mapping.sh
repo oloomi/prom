@@ -1,8 +1,9 @@
 #!/bin/bash
 # Running SAMTools for BAM file generation
 
-#sam_file="../read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-u30"
-sam_file="../read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all-unique"
+#sam_file="../read-mapping/ot-whole-genome-mutated-70-140/corrected-ot-wg-mutated-se-mapping-filter"
+sam_file="../read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-filter"
+#sam_file="../read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all-unique"
 #sam_file="../read-mapping/mtb-whole-genome-mutated/corrected-mtb-wg-mutated-se-mapping"
 
 # Creating BAM files for corrected mtb read mapping
