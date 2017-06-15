@@ -6,8 +6,8 @@ def read_sam_file(sam_file_name):
     read_alignments_dict = defaultdict(list)
 
     total_reads = 0
-    not_mapped_reads = 0  # Number of reads that are not mapped to any location
-    invalid_cigars = 0  # Number of read mapping locations that contain indels, etc.
+    not_mapped_reads = set()  # Number of reads that are not mapped to any location
+    invalid_cigars = set()  # Number of read mapping locations that contain indels, etc.
 
     # Reading the SAM file and creating a dictionary of read_id : alignment
     with open(sam_file_name) as sam_file:
@@ -16,7 +16,6 @@ def read_sam_file(sam_file_name):
             if line[0] == "@":
                 continue
 
-            total_reads += 1
             fields = line.rstrip().split("\t")
             read_id = fields[0]  # QNAME: Query template NAME
             cigar = fields[5]  # CIGAR string (ie. alignment)
@@ -30,13 +29,12 @@ def read_sam_file(sam_file_name):
                     read_alignments_dict[read_id].append((pos, cigar, md_z, read_seq))
                 else:
                     # print("Invalid CIGAR:", cigar)
-                    invalid_cigars += 1
+                    invalid_cigars.add(read_id)
             else:
-                not_mapped_reads += 1
+                not_mapped_reads.add(read_id)
 
-    print("Total number of reads:", total_reads)
-    print("Number of reads with non 150M CIGAR:", invalid_cigars)
-    print("Number of reads not mapped:", not_mapped_reads)
+    print("Number of reads with non 150M CIGAR:", len(invalid_cigars))
+    print("Number of reads not mapped:", len(not_mapped_reads))
     print("Number of reads in use:", len(read_alignments_dict))
 
     return read_alignments_dict

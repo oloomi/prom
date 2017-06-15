@@ -74,17 +74,17 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
                 for pos_in_read, base in enumerate(read_seq):
                     initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
             else:
-                mdz_lst = [m[2] for m in mappings_filtered]
-                # Those that map exactly with the same alignment to all locations
-                if len(set(mdz_lst)) == 1:
-                    # Select one location randomly
-                    mapping_location = random.choice(mappings_filtered)[0]
-                    multi_reads_final_location[read_id] = mapping_location
-                    initially_resolved_multireads.append(read_id)
-                else:
-                    # It is a multi-mapping that needs to be resolved by Bayesian updating
-                    # However, rubbish mapping locations should be removed
-                    reads_dict[read_id] = mappings_filtered
+                # mdz_lst = [m[2] for m in mappings_filtered]
+                # # Those that map exactly with the same alignment to all locations
+                # if len(set(mdz_lst)) == 1:
+                #     # Select one location randomly
+                #     mapping_location = random.choice(mappings_filtered)[0]
+                #     multi_reads_final_location[read_id] = mapping_location
+                #     initially_resolved_multireads.append(read_id)
+                # else:
+                #     # It is a multi-mapping that needs to be resolved by Bayesian updating
+                #     # However, rubbish mapping locations should be removed
+                reads_dict[read_id] = mappings_filtered
 
     # Removing uniquely mapped reads
     for read_id in unique_reads:
@@ -115,6 +115,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     # 2. Sampling
     # 10 Runs with 5000 iterations in each
     for run_number in range(10):
+        print("Run # {} ...".format(run_number))
         # random.seed(random_seeds[run_number])
         random.seed(run_number)
         base_counts = copy.deepcopy(initial_base_counts)
@@ -240,7 +241,6 @@ elif phase == 2:
                  "mtb-wg-mutated-se-mapping-best-match-sorted",
                  "mtb-wg-mutated-se-mapping-report-all-sorted",
                  "corrected-other-3mis-mmr-sorted",
-                 "corrected-mtb-wg-mutated-se-mapping-merged-sorted",
                  "corrected-mtb-wg-mutated-se-mapping-filter-sorted"]
 
     # file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
@@ -255,9 +255,9 @@ elif phase == 2:
         for i in range(len(vcf_files)):
             vcf_files[i] = file_path + vcf_files[i] + "-variants-{}.vcf".format(variant_caller)
         print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-70-140-mutations.txt",
-                               vcf_files, "./results/variants-comparison-MTB-wg-70-140-merged-filter-{}.txt".format(variant_caller)))
-        # print(
-        #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
+                               vcf_files,
+                               "./results/variants-comparison-MTB-wg-70-140-merged-filter2-{}.txt".format(variant_caller)))
+        # print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
         #                      vcf_files,
         #                      "./results/variants-comparison-OT-wg-70-140-merged-filter-{}.txt".format(variant_caller)))
 

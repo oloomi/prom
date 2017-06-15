@@ -2,12 +2,9 @@
 # Running BCFtools for variant calling
 
 #reference="../data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna"
-reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
-#reference="../data/genomes/mtb-genome-extract.fna"
-
 #file_path="../read-mapping/ot-whole-genome-mutated-70-140/"
-file_path="../read-mapping/mtb-whole-genome-mutated-70-140/"
-#file_path="../read-mapping/mtb-mutated-long-repeats/"
+
+#alignment_files="corrected-ot-wg-mutated-se-mapping-filter-sorted"
 
 #alignment_files="ot-wg-mutated-se-sorted
 #ot-wg-mutated-se-mapping-best-match-sorted
@@ -15,14 +12,16 @@ file_path="../read-mapping/mtb-whole-genome-mutated-70-140/"
 #corrected-other-3mis-mmr-sorted
 #corrected-ot-wg-mutated-se-mapping-filter-sorted"
 
+reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
+file_path="../read-mapping/mtb-whole-genome-mutated-70-140/"
+
+alignment_files="corrected-mtb-wg-mutated-se-mapping-filter-sorted"
+
 #alignment_files="mtb-wg-mutated-se-sorted
 #mtb-wg-mutated-se-mapping-best-match-sorted
 #mtb-wg-mutated-se-mapping-report-all-sorted
 #corrected-other-3mis-mmr-sorted
 #corrected-mtb-wg-mutated-se-mapping-sorted"
-
-#alignment_files="corrected-ot-wg-mutated-se-mapping-filter-sorted"
-alignment_files="corrected-mtb-wg-mutated-se-mapping-filter-sorted"
 
 
 #alignments="../read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs.sorted"
