@@ -164,16 +164,62 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
     return "".join(new_genome_seq)
 
 
-# extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 3930000, 20000,
-#                "./data/genomes/mtb-genome-extract.fna")
+
+def toy_genome(ref_genome_file, output_file, mutate=False):
+    """
+    Gets a Fasta file, extracts a part of genome, and writes it back to a new Fasta file as a new reference genome.
+    """
+    random.seed(12)
+    genome_seq = ""
+    with open(ref_genome_file) as ref_genome:
+        with open(output_file, 'w') as new_genome:
+            for line in ref_genome:
+                # Skip header lines
+                if line[0] == ">":
+                    # new_genome.write("{} {}-{}\n".format("|".join(header_line), start_pos, start_pos + length - 1))
+                    # new_genome.write("{}|{}_{}|\n".format("|".join(header_line[:4]),start_pos, start_pos + length - 1))
+                    #header_line = line.rstrip().split("|")
+                    new_genome.write(line)
+                else:
+                    genome_seq += line.rstrip()
+
+            # Extracted genome sequence
+            new_genome_seq = genome_seq[0:5000] + genome_seq[2000:3000] + genome_seq[6000:8000] \
+                             + genome_seq[2000:3000] + genome_seq[9000:11000]
+
+            new_genome_seq = list(new_genome_seq)
+
+            # Mutating the genome
+            if mutate:
+                nucleotides = set(['A', 'C', 'G', 'T'])
+                pos = 2139
+                print(new_genome_seq[pos])
+                possible_snps = nucleotides - set(new_genome_seq[pos])
+                new_genome_seq[pos] = random.choice(sorted(list(possible_snps)))
+                print(new_genome_seq[pos])
+
+            new_genome_seq = "".join(new_genome_seq)
+            # Writing the new genome sequence to file, 70 characters per line
+            length = 11000
+            line_width = 70
+            for i in range(length // line_width):
+                new_genome.write(new_genome_seq[i * line_width: (i + 1) * line_width])
+                new_genome.write("\n")
+            # Writing the last remainder part of genome
+            if length % line_width != 0:
+                new_genome.write(new_genome_seq[-(length % line_width):])
+    return True
+
+toy_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+           "./data/genomes/toy-genome-mutated.fna", mutate=True)
 
 # extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
 #                "./data/genomes/mtb-whole-genome-mutated-70-140.fna", mutate=True,
 #                repeats_file_name="./data/genomes/mtb-repeats-sorted.txt")
 
-extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
-               "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
-               repeats_file_name="./data/genomes/ot-repeats-sorted.txt")
+# extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
+#                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
+#                repeats_file_name="./data/genomes/ot-repeats-sorted.txt")
 
 # def merge_ranges(ranges_file):
 #     ranges = []
