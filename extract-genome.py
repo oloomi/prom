@@ -192,7 +192,7 @@ def toy_genome(ref_genome_file, output_file, mutate=False):
             # Mutating the genome
             if mutate:
                 nucleotides = set(['A', 'C', 'G', 'T'])
-                pos = 2139
+                pos = 2129
                 print(new_genome_seq[pos])
                 possible_snps = nucleotides - set(new_genome_seq[pos])
                 new_genome_seq[pos] = random.choice(sorted(list(possible_snps)))

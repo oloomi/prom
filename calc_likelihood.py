@@ -21,11 +21,11 @@ def initial_counts(ref_genome_file):
 
     base_counts = []
     for base in genome_seq:
-        # initial_base_count = [1, 1, 1, 1]
-        # initial_base_count[base_index[base]] = 2
-        initial_base_count = [100, 100, 100, 100]
-        # initial_base_count[base_index[base]] = 10
-        initial_base_count[base_index[base]] = 700
+        # The fifth one is the actual count of the base in the reference genome
+        initial_base_count = [1, 1, 1, 1, 12.5]
+        initial_base_count[base_index[base]] = 255
+        # initial_base_count = [100, 100, 100, 100]
+        # initial_base_count[base_index[base]] = 700
         base_counts.append(initial_base_count)
 
     return base_counts
@@ -38,8 +38,13 @@ def update_counts(base_counts, selected_mapping):
     mapping_start_pos = selected_mapping[1]
     read_seq = selected_mapping[2]
     for index, base in enumerate(read_seq):
-        # base_counts[mapping_start_pos + index][base_index[base]] += 5
-        base_counts[mapping_start_pos + index][base_index[base]] += 1
+        # We do not update the counts for exact matches to the reference
+        if base_counts[mapping_start_pos + index][base_index[base]] != 255:
+            base_counts[mapping_start_pos + index][base_index[base]] += 1
+            # @TODO: testing if it improves the method
+            if base_counts[mapping_start_pos + index][4] > 1:
+                base_counts[mapping_start_pos + index][4] -= 0.5
+
     return True
 
 
@@ -50,8 +55,15 @@ def calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq):
     """
     log_mapping_prob = 0
     for index, base in enumerate(read_seq):
-        base_prob = base_counts[mapping_start_pos + index][base_index[base]] / \
-                    sum(base_counts[mapping_start_pos + index])
+        # If there is a match with the reference genome at this position
+        if base_counts[mapping_start_pos + index][base_index[base]] == 255:
+            # base_prob = 0.12
+            # base_prob = 0.1
+            base_prob = base_counts[mapping_start_pos + index][4] / 100
+        else:
+            base_prob = base_counts[mapping_start_pos + index][base_index[base]] / 100
+        # base_prob = base_counts[mapping_start_pos + index][base_index[base]] / \
+        #             sum(base_counts[mapping_start_pos + index])
         log_mapping_prob += math.log(base_prob)
 
     return log_mapping_prob
