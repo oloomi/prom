@@ -104,6 +104,8 @@ def find_unique_reads(sam_file_name):
 
                 fields = line.rstrip().split("\t")
                 read_id = fields[0]  # QNAME: Query template NAME
-                if read_id in read_alignments_dict and len(read_alignments_dict[read_id]) == 1 and \
-                                read_alignments_dict[read_id][0] == "150M":
+                if read_id in read_alignments_dict and len(read_alignments_dict[read_id]) == 1:
+                    # if read_id in read_alignments_dict and len(read_alignments_dict[read_id]) == 1 and \
+                    #                 read_alignments_dict[read_id][0] == "150M":
                     out_sam_file.write(line)
+

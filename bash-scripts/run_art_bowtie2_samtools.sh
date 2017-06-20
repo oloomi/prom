@@ -5,24 +5,27 @@ export PATH=$PATH:/home/mohammad/Applications/art_bin_MountRainier/
 art="art_illumina"
 
 # the genome from where synthetic reads are generated
-reads_genome="../data/genomes/toy-genome-mutated.fna"
+#reads_genome="../data/genomes/toy-genome-mutated.fna"
 #reads_genome="../data/genomes/ot-whole-genome-mutated-70-140.fna"
 #reads_genome="../data/genomes/mtb-whole-genome-mutated-70-140.fna"
+reads_genome="../data/genomes/mtb-whole-genome-mutated-100-140-half.fna"
 #reads_genome="../data/genomes/mtb-whole-genome-mutated.fna"
 #reads_genome="../data/genomes/mtb-genome-extract.fna"
 #reads_genome="../data/genomes/mtb-genome-extract-mutated-long-repeats.fna"
 
 # the reference genome sequence used for read mapping
-ref_genome="../data/genomes/toy-genome.fna"
+#ref_genome="../data/genomes/toy-genome.fna"
 #ref_genome="../data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna"
-#ref_genome="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
+ref_genome="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
 #ref_genome="../data/genomes/mtb-genome-extract.fna"
 
 
-out_dir="../read-mapping/toy-genome-mutated/"
-file_prefix="toy-wg-mutated-se"
+#out_dir="../read-mapping/toy-genome-mutated/"
+#file_prefix="toy-wg-mutated-se"
 #out_dir="../read-mapping/ot-whole-genome-mutated-70-140/"
 #file_prefix="ot-wg-mutated-se"
+out_dir="../read-mapping/mtb-whole-genome-mutated-100-140/"
+file_prefix="mtb-wg-mutated-se"
 #out_dir="../read-mapping/mtb-whole-genome-mutated-70-140/"
 #out_dir="../read-mapping/mtb-whole-genome-mutated/"
 #file_prefix="mtb-wg-mutated-se"

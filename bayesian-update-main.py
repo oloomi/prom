@@ -110,6 +110,9 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     multi_read_probs = defaultdict(list)
     # random_seeds = [12, "Hi", 110, "Bye", 1, 33, 5, 14, 313, 777]
 
+    # Logging counts in each run
+    counts_log_file = open("{}-log-counts.txt".format(output_file[:-4]), 'w')
+
     # 2. Sampling
     # 10 Runs with 5000 iterations in each
     for run_number in range(10):
@@ -155,6 +158,13 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             pos_prob_list = [(mp[1], mp[0]) for mp in mapping_probs]
             # Sorted by position
             multi_read_probs[read_id].append(sorted(pos_prob_list))
+
+        # Log: writing counts to file for logging
+        counts_log_file.write("Run {}\n".format(run_number + 1))
+        for pos, base_vector in enumerate(base_counts):
+            counts_log_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(pos+1, base_vector[0], base_vector[1],
+                                                                    base_vector[2], base_vector[3], base_vector[4]))
+
 
     # 3. Finding average probability over runs and selecting one location
     # After all runs are done
@@ -214,22 +224,26 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
-phase = 1
+phase = 2
 
 if phase == 1:
     start_time = timeit.default_timer()
 
-    bayesian_update("./data/genomes/toy-genome.fna",
-                    "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam",
-                    "./read-mapping/toy-genome-mutated/corrected-toy-wg-mutated-se-mapping-filter-best-neg.sam")
+    # bayesian_update("./data/genomes/toy-genome.fna",
+    #                 "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam",
+    #                 "./read-mapping/toy-genome-mutated/corrected-toy-wg-mutated-se-mapping-filter-best-neg-mm1.sam")
 
     # bayesian_update("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna",
     #                 "./read-mapping/ot-whole-genome-mutated-70-140/ot-wg-mutated-se-mapping-report-all.sam",
-    #                 "./read-mapping/ot-whole-genome-mutated-70-140/corrected-ot-wg-mutated-se-mapping-filter.sam")
+    #                 "./read-mapping/ot-whole-genome-mutated-70-140/corrected-ot-wg-mutated-se-mapping-remu.sam")
 
     # bayesian_update("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
     #                 "./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam",
-    #                 "./read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-filter.sam")
+    #                 "./read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-remu.sam")
+
+    bayesian_update("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+                    "./read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all.sam",
+                    "./read-mapping/mtb-whole-genome-mutated-100-140/corrected-mtb-wg-mutated-se-mapping-remu.sam")
 
     run_time = timeit.default_timer() - start_time
 
@@ -238,30 +252,41 @@ if phase == 1:
 # find_unique_reads("./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam")
 
 elif phase == 2:
-    file_path = "./read-mapping/mtb-whole-genome-mutated-70-140/"
-    # vcf_files_names = ["mtb-wg-mutated-se-sorted",
-    #              "mtb-wg-mutated-se-mapping-best-match-sorted",
-    #              "mtb-wg-mutated-se-mapping-report-all-sorted",
-    #              "corrected-other-3mis-mmr-sorted",
-    #              "corrected-mtb-wg-mutated-se-mapping-filter-sorted"]
 
-    file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
-    vcf_files_names = ["ot-wg-mutated-se-sorted",
-                       "ot-wg-mutated-se-mapping-best-match-sorted",
-                       "ot-wg-mutated-se-mapping-report-all-sorted",
-                       "corrected-other-3mis-mmr-sorted",
-                       "corrected-ot-wg-mutated-se-mapping-filter-sorted"]
+    variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
 
-    for variant_caller in ["freebayes", "consensus-p0.1", "consensus-p0.5"]:
+    file_path = "./read-mapping/mtb-whole-genome-mutated-100-140/"
+
+    vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
+                       ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
+                       ["MMR", "corrected-other-3mis-mmr-sorted"],
+                       ["REMU","corrected-mtb-wg-mutated-se-mapping-remu-sorted"]]
+
+    evaluation_results = open("./results/variants-comparison-MTB-wg-100-140.txt", 'w')
+
+    # file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
+    #
+    # vcf_files_names = [["Bowtie2 best-match", "ot-wg-mutated-se-mapping-best-match-sorted"],
+    #                    ["Bowtie2 report-all", "ot-wg-mutated-se-mapping-report-all-sorted"],
+    #                    ["MMR", "corrected-other-3mis-mmr-sorted"],
+    #                    ["REMU", "corrected-ot-wg-mutated-se-mapping-remu-sorted"]]
+    #
+    # evaluation_results = open("./results/variants-comparison-OT-wg-70-140.txt", 'w')
+
+    for variant_caller in variant_caller_lst:
         vcf_files = copy.deepcopy(vcf_files_names)
         for i in range(len(vcf_files)):
-            vcf_files[i] = file_path + vcf_files[i] + "-variants-{}.vcf".format(variant_caller)
-        # print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-70-140-mutations.txt",
-        #                        vcf_files,
-        #                        "./results/variants-comparison-MTB-wg-70-140-merged-filter2-{}.txt".format(variant_caller)))
-        print(compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
-                             vcf_files,
-                             "./results/variants-comparison-OT-wg-70-140-merged-filter-{}.txt".format(variant_caller)))
+            vcf_files[i][1] = file_path + vcf_files[i][1] + "-variants-{}.vcf".format(variant_caller[1])
 
+        comparison_output = \
+            compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-100-140-half-mutations.txt",
+                             vcf_files)
+        # comparison_output = \
+        #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
+        #                      vcf_files)
+        evaluation_results.write("{}\n".format(variant_caller[0]))
+        evaluation_results.write(comparison_output)
+
+    evaluation_results.close()
 
 # find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")

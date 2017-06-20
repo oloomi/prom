@@ -13,7 +13,9 @@ def read_vcf_file(vcf_file_name):
             fields = line.rstrip().split("\t")
             pos = fields[1]
             alt = fields[4]
-            variants.append((pos, alt))
+            qual = float(fields[5])
+            if qual > 0:
+                variants.append((pos, alt))
 
     return variants
 
@@ -36,18 +38,20 @@ def read_benchmark_variants(benchmark_variants_file):
     return variants
 
 
-def compare_variants(benchmark_variants_file, vcf_files_list, output_file_name):
+def compare_variants(benchmark_variants_file, vcf_files_list):
     """
     Compares two benchmark variants with the variants found by variant calling
     :return: Number of false positive, true positive, variants
     """
-    output_file = open(output_file_name, 'w')
-    output_file.write("Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\n")
+    output = ""
+    output += "Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\n"
 
     # Reading benchmark variants
     benchmark_variants = set(read_benchmark_variants(benchmark_variants_file))
 
-    for vcf_file_name in vcf_files_list:
+    for vcf_file in vcf_files_list:
+        method_name = vcf_file[0]
+        vcf_file_name = vcf_file[1]
         # If the extension is missing
         if vcf_file_name[-4:].lower() != ".vcf":
             vcf_file_name += ".vcf"
@@ -70,9 +74,10 @@ def compare_variants(benchmark_variants_file, vcf_files_list, output_file_name):
         else:
             f1_score = 0
 
-        output_file.write("{}\t{}\t{}\t{}\t{:.2f}\n".format(vcf_file_name.split("/")[-1][:-4], tp, fp, fn, f1_score))
-        if "corrected-mtb" in vcf_file_name:
-            output_file.write("\nFalse negatives:\n{}\n".format(false_negatives))
-            output_file.write("False positives:\n{}\n\n".format(false_positives))
+        output += "{}\t{}\t{}\t{}\t{:.2f}\n".format(method_name, tp, fp, fn, f1_score)
+        if "remu" in vcf_file_name and True:
+            output += "\nFalse negatives:\n{}\n".format(false_negatives)
+            output += "False positives:\n{}\n\n".format(false_positives)
 
+    return output
     # return (true_positives, false_positives, false_negatives)

@@ -52,17 +52,17 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
             # Deducting start_pos to make absolute positions for the new genome extract
             (start, end, length) = (int(fields[0]) - start_pos, int(fields[1]) - start_pos, int(fields[2]))
             # Filtering repeats that are smaller than read length
-            if length > 150:
-                # Some repeat coordinates may exceed the extract of the genome we are looking for
-                if start + length < genome_length and end + length < genome_length:
-                    if repeats_list and repeats_list[-1][0] == length and repeats_list[-1][1] == start:
-                        repeats_list[-1].append(end)
-                    else:
-                        repeats_list.append([length, start, end])
+            #if length > 150:
+            # Some repeat coordinates may exceed the extract of the genome we are looking for
+            if start + length < genome_length and end + length < genome_length:
+                if repeats_list and repeats_list[-1][0] == length and repeats_list[-1][1] == start:
+                    repeats_list[-1].append(end)
+                else:
+                    repeats_list.append([length, start, end])
 
-                    # Adding this range to ranges of repeat positions
-                    repeats_ranges.add(range(start, start + length))
-                    repeats_ranges.add(range(end, end + length))
+                # Adding this range to ranges of repeat positions
+                repeats_ranges.add(range(start, start + length))
+                repeats_ranges.add(range(end, end + length))
 
     # Saving repeat ranges to file
     ranges_list = []
@@ -88,17 +88,25 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
             repeats_ranges_file.write("{}\t{}\t{}\n".format(rng[0], rng[1], rng[2]))
 
 
+    long_repeats = []
+    for rng in merged_ranges:
+        if rng[2] > 150:
+            long_repeats.append(rng)
+
     # Mutating genome
     new_genome_seq = list(genome_sequence)
     mutations_list = []
 
     # 25% of regions
-    num_snps = len(merged_ranges) // 4
-    selected_regions = random.sample(merged_ranges, num_snps)
+    # num_snps = len(merged_ranges) // 4
+    num_snps = len(long_repeats) // 2
+    # selected_regions = random.sample(merged_ranges, num_snps)
+    selected_regions = random.sample(long_repeats, num_snps)
     nucleotides = set(['A', 'C', 'G', 'T'])
     for region in selected_regions:
         mapping_location = region[0]
-        base_position = random.choice(range(70, 140))
+        base_position = random.choice(range(100, 140))
+        # base_position = 140
         final_position = mapping_location + base_position
         print(region, mapping_location, base_position, final_position)
         # Mutating the base
@@ -106,59 +114,14 @@ def mutate_genome(repeats_file_name, genome_sequence, start_pos, genome_length, 
         new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
         # Saving this mutation characteristics
         mutations_list.append((final_position + 1, genome_sequence[final_position], new_genome_seq[final_position],
-                               region))
-
-
-    #     # 10 SNPs in repeated regions
-    # print("Number of repeat elements larger than 150 bp:", len(repeats_list))
-    # # num_snps = 10
-    # num_snps = len(repeats_list) // 5
-    # selected_regions = random.sample(repeats_list, num_snps)
-    # nucleotides = set(['A', 'C', 'G', 'T'])
-    # for region in selected_regions:
-    #     mapping_location = random.choice(region[1:])
-    #     # base_position = random.choice(range(region[0]))
-    #     base_position = random.choice(range(70, 140))
-    #     final_position = mapping_location + base_position
-    #     print(region, mapping_location, base_position, final_position)
-    #     # Mutating the base
-    #     possible_snps = nucleotides - set(genome_sequence[final_position])
-    #     new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
-    #     # Saving this mutation characteristics
-    #     mutations_list.append((final_position + 1, genome_sequence[final_position], new_genome_seq[final_position],
-    #                            region))
-
-    # 10 SNPs in normal regions
-    # num_normal_mutations = 10
-    # normal_mutations = []
-    # i = 0
-    # while i < num_normal_mutations:
-    #     final_position = random.choice(range(genome_length))
-    #     in_repeats = False
-    #     for repeat_range in repeats_ranges:
-    #         if final_position in repeat_range:
-    #             in_repeats = True
-    #             break
-    #     if not in_repeats and final_position not in normal_mutations:
-    #         # Mutating the base
-    #         possible_snps = nucleotides - set(genome_sequence[final_position])
-    #         new_genome_seq[final_position] = random.choice(sorted(list(possible_snps)))
-    #         # Saving the mutation characteristics
-    #         mutations_list.append(
-    #             (final_position + 1, genome_sequence[final_position], new_genome_seq[final_position]))
-    #         normal_mutations.append(final_position)
-    #         i += 1
+                               base_position, region))
 
     # Writing mutation locations to file
     mutations_list.sort()
     with open(mutation_locations_file, "w") as mutations_file:
         mutations_file.write("Number of mutations: {}\n".format(num_snps))
         for item in mutations_list:
-            mutations_file.write("{}\t{}\t{}\t{}\n".format(item[0], item[1], item[2], item[3]))
-            # if len(item) > 3:
-            #     mutations_file.write("{}\t{}\t{}\t{}\t{}\n".format(item[0], item[1], item[2], item[3][0], item[3][1:]))
-            # else:
-            #     mutations_file.write("{}\t{}\t{}\n".format(item[0], item[1], item[2]))
+            mutations_file.write("{}\t{}\t{}\t{}\t{}\n".format(item[0], item[1], item[2], item[3], item[4]))
 
     # Returning mutated genome sequence
     return "".join(new_genome_seq)
@@ -210,12 +173,12 @@ def toy_genome(ref_genome_file, output_file, mutate=False):
                 new_genome.write(new_genome_seq[-(length % line_width):])
     return True
 
-toy_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
-           "./data/genomes/toy-genome-mutated.fna", mutate=True)
+# toy_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+#            "./data/genomes/toy-genome-mutated.fna", mutate=True)
 
-# extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
-#                "./data/genomes/mtb-whole-genome-mutated-70-140.fna", mutate=True,
-#                repeats_file_name="./data/genomes/mtb-repeats-sorted.txt")
+extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
+               "./data/genomes/mtb-whole-genome-mutated-100-140-half.fna", mutate=True,
+               repeats_file_name="./data/genomes/mtb-repeats-sorted.txt")
 
 # extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
 #                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
