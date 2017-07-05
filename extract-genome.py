@@ -173,12 +173,101 @@ def toy_genome(ref_genome_file, output_file, mutate=False):
                 new_genome.write(new_genome_seq[-(length % line_width):])
     return True
 
+
+def merge_repeat_ranges(repeats_file_name):
+    #[[length, start_1, start_2, ...], ...]
+    repeats_list = []
+    # [range(start, start + length), ...]
+    repeats_ranges = set()
+    with open(repeats_file_name) as repeats_file:
+        for line in repeats_file:
+            fields = line.split()
+            # Skip header lines
+            if not fields[0].isdigit():
+                continue
+            # For repeats on reverse strand, remove 'r' from end position
+            if fields[1][-1] == 'r':
+                fields[1] = fields[1][:-1]
+            # Deducting start_pos to make absolute positions for the new genome extract
+            (start, end, length) = (int(fields[0]), int(fields[1]), int(fields[2]))
+            # Filtering repeats that are smaller than read length
+            # if length > 150:
+            if repeats_list and repeats_list[-1][0] == length and repeats_list[-1][1] == start:
+                repeats_list[-1].append(end)
+            else:
+                repeats_list.append([length, start, end])
+
+            # Adding this range to ranges of repeat positions
+            repeats_ranges.add(range(start, start + length))
+            repeats_ranges.add(range(end, end + length))
+
+    # Saving repeat ranges to file
+    ranges_list = []
+    for rng in repeats_ranges:
+        ranges_list.append((list(rng)[0], list(rng)[-1], list(rng)[-1] - list(rng)[0] + 1))
+    ranges_list.sort()
+    with open("{}-ranges.txt".format(repeats_file_name[:-4]), "w") as repeats_ranges_file:
+        for rng in ranges_list:
+            repeats_ranges_file.write("{}\t{}\t{}\n".format(rng[0], rng[1], rng[2]))
+
+    # Merging repeat ranges and writing them to file
+    merged_ranges = []
+    for begin, end, rng_len in ranges_list:
+        if merged_ranges and merged_ranges[-1][1] >= begin - 1:
+            merged_ranges[-1][1] = max(merged_ranges[-1][1], end)
+            # Update repeat length
+            merged_ranges[-1][2] = merged_ranges[-1][1] - merged_ranges[-1][0] + 1
+        else:
+            merged_ranges.append([begin, end, end - begin + 1])
+
+    with open("{}-ranges-merged.txt".format(repeats_file_name[:-4]), "w") as repeats_ranges_file:
+        for rng in merged_ranges:
+            repeats_ranges_file.write("{}\t{}\t{}\n".format(rng[0], rng[1], rng[2]))
+
+    return merged_ranges
+
+
+def find_repeats_snp(seq1_repeats_file_name, seq2_repeats_file_name, snps_file_name):
+    seq1_merged_ranges = merge_repeat_ranges(seq1_repeats_file_name)
+    seq2_merged_ranges = merge_repeat_ranges(seq2_repeats_file_name)
+
+    with open(snps_file_name, 'r') as snps_file:
+        for line in snps_file:
+            fields = line.split()
+            # Skip header lines
+            if fields[0] == "SNP":
+                continue
+            seq1_pos = int(fields[3])
+            seq2_pos = int(fields[6])
+
+            snp_in_repeat = False
+
+            for start, end, length in seq1_merged_ranges:
+                if seq1_pos in range(start, end + 1):
+                    print("Seq 1 in repeat: {}-{} : {}".format(start, end, length))
+                    print("Distance from repeat margins: {}, {}".format(seq1_pos - start, end - seq1_pos))
+                    snp_in_repeat = True
+
+            for start, end, length in seq2_merged_ranges:
+                if seq2_pos in range(start, end + 1):
+                    print("Seq 2 in repeat: {}-{} : {}".format(start, end, length))
+                    print("Distance from repeat margins: {}, {}".format(seq2_pos - start, end - seq2_pos))
+                    snp_in_repeat = True
+
+            if snp_in_repeat:
+                print(line)
+
+
 # toy_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
 #            "./data/genomes/toy-genome-mutated.fna", mutate=True)
 
-extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
-               "./data/genomes/mtb-whole-genome-mutated-100-140-half.fna", mutate=True,
-               repeats_file_name="./data/genomes/mtb-repeats-sorted.txt")
+# extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
+#                "./data/genomes/mtb-whole-genome-mutated-100-140-half.fna", mutate=True,
+#                repeats_file_name="./data/genomes/mtb-repeats-sorted.txt")
+
+# merge_repeat_ranges("/home/mohammad/pneumoniae-genomes/h1repeats.txt")
+find_repeats_snp("/home/mohammad/pneumoniae-genomes/h1repeats.txt", "/home/mohammad/pneumoniae-genomes/h10repeats.txt",
+                 "/home/mohammad/pneumoniae-genomes/mauve-snps.txt")
 
 # extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
 #                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,

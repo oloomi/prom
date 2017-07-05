@@ -168,7 +168,7 @@ if phase == 1:
     #
     bayesian_resolution("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
                     "./read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all.sam",
-                    "./read-mapping/mtb-whole-genome-mutated-100-140/simple-bayesian-mtb-wg-mutated-se-mapping.sam")
+                    "./read-mapping/mtb-whole-genome-mutated-100-140/simple-bayesian-mtb-wg-mutated-se-mapping-25.sam")
 
     run_time = timeit.default_timer() - start_time
 
@@ -185,10 +185,14 @@ elif phase == 2:
     vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
                        ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
                        ["MMR", "corrected-other-3mis-mmr-sorted"],
-                       ["REMU","corrected-mtb-wg-mutated-se-mapping-remu-sorted"],
-                       ["Bayesian", "simple-bayesian-mtb-wg-mutated-se-mapping-sorted"]]
+                       ["Bayesian", "simple-bayesian-mtb-wg-mutated-se-mapping-sorted"],
+                       ["Bayesian-25", "simple-bayesian-mtb-wg-mutated-se-mapping-25-sorted"],
+                       ["REMU", "corrected-mtb-wg-mutated-se-mapping-remu-sorted"],
+                       ["REMU-25", "corrected-mtb-wg-mutated-se-mapping-remu-25-sorted"],
+                       ["REMU-25-pmu", "corrected-mtb-wg-mutated-se-mapping-remu-25-pmu-sorted"]
+                       ]
 
-    evaluation_results = open("./results/variants-comparison-MTB-wg-100-140-simple-bayesian.txt", 'w')
+    evaluation_results = open("./results/variants-comparison-MTB-wg-100-140-simple-bayesian-25-pmu.txt", 'w')
 
     # file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
     #
