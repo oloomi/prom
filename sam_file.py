@@ -24,7 +24,7 @@ def read_sam_file(sam_file_name):
             read_seq = fields[9]  # Read sequence
             # * means no alignment for a read
             if cigar != "*":
-                if cigar == '150M':
+                if (cigar == '150M') and ('N' not in read_seq):
                     # Store all alignments of a read
                     read_alignments_dict[read_id].append((pos, cigar, md_z, read_seq))
                 else:

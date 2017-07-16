@@ -148,7 +148,7 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
-phase = 2
+phase = 3
 
 if phase == 1:
     start_time = timeit.default_timer()
@@ -166,9 +166,13 @@ if phase == 1:
     #                 "./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam",
     #                 "./read-mapping/mtb-whole-genome-mutated-70-140/corrected-mtb-wg-mutated-se-mapping-remu.sam")
     #
-    bayesian_resolution("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
-                    "./read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all.sam",
-                    "./read-mapping/mtb-whole-genome-mutated-100-140/simple-bayesian-mtb-wg-mutated-se-mapping-25.sam")
+    # bayesian_resolution("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+    #                 "./read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all.sam",
+    #                 "./read-mapping/mtb-whole-genome-mutated-100-140/simple-bayesian-mtb-wg-mutated-se-mapping-25.sam")
+
+    bayesian_resolution("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated.fna",
+                    "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/kt-kpnih1-bm-report-all.sam",
+                    "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/prom-kt-kpnih1-bm-report-all.sam")
 
     run_time = timeit.default_timer() - start_time
 
@@ -220,3 +224,5 @@ elif phase == 2:
     evaluation_results.close()
 
 # find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")
+
+find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")

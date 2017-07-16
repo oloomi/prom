@@ -1,5 +1,6 @@
 import math
 
+coverage = 50
 
 base_index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
@@ -22,7 +23,7 @@ def initial_counts(ref_genome_file):
     base_counts = []
     for base in genome_seq:
         # The fifth one is the actual count of the base in the reference genome
-        initial_base_count = [1, 1, 1, 1, 25]
+        initial_base_count = [1, 1, 1, 1, coverage]
         initial_base_count[base_index[base]] = 255
         # initial_base_count = [100, 100, 100, 100]
         # initial_base_count[base_index[base]] = 700
@@ -40,14 +41,14 @@ def update_counts(base_counts, selected_mapping):
     for index, base in enumerate(read_seq):
         # We do not update the counts for exact matches to the reference
         if base_counts[mapping_start_pos + index][base_index[base]] != 255:
-            if base_counts[mapping_start_pos + index][base_index[base]] < 25:
+            if base_counts[mapping_start_pos + index][base_index[base]] < coverage:
                 base_counts[mapping_start_pos + index][base_index[base]] += 1
             # @TODO: testing if it improves the method
             if base_counts[mapping_start_pos + index][4] > 1:
                 base_counts[mapping_start_pos + index][4] -= 1
         # @TODO: now update the exact matches to see how it goes
         else:
-            if base_counts[mapping_start_pos + index][4] < 25:
+            if base_counts[mapping_start_pos + index][4] < coverage:
                 base_counts[mapping_start_pos + index][4] += 1
 
     return True
