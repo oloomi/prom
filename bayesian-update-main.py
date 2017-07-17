@@ -7,32 +7,6 @@ import copy
 import timeit
 
 
-def filter_alignments(mappings, threshold):
-    """
-    Filters mapping locations of a multi-read that have more edit operations than the best-match + threshold
-    :param mappings: Initial list of multi-mappings
-    :param threshold: an integer
-    :return: A list of filtered mappings
-    """
-    mdz_lst = [m[2] for m in mappings]
-    edit_ops = []
-
-    # Finding best match
-    for mdz in mdz_lst:
-        num_edits = mdz.count('A') + mdz.count('C') + mdz.count('G') + mdz.count('T')
-        edit_ops.append(num_edits)
-    min_ops = min(edit_ops)
-
-    filtered_mappings = []
-    for mapping in mappings:
-        mdz = mapping[2]
-        num_edits = mdz.count('A') + mdz.count('C') + mdz.count('G') + mdz.count('T')
-        # If this alignment is not too different from the best match
-        if num_edits <= min_ops + threshold:
-            filtered_mappings.append(mapping)
-
-    return filtered_mappings
-
 def bayesian_update(ref_genome_file, sam_file, output_file):
     """
     Assigning a multi-read to a mapping location using Bayesian updating
@@ -41,9 +15,16 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     :param output_file:
     :return:
     """
+    # 0. Reading reference genome FASTA file and mapping SAM file
+    genome_header, genome_seq = read_genome(ref_genome_file)
+    reads_dict = read_sam_file(sam_file, genome_seq)
+
+    # Estimated average depth of coverage
+    coverage = int(len(reads_dict) * 150 / len(genome_seq))
+    print("Estimated average depth of coverage according to mapped reads: {}".format(coverage))
+
     # 1. Finding initial counts
-    initial_base_counts = initial_counts(ref_genome_file)
-    reads_dict = read_sam_file(sam_file)
+    initial_base_counts = initial_counts(genome_seq, coverage)
 
     multi_reads_final_location = defaultdict(int)
 
@@ -59,7 +40,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             mapping_start_pos = mappings[0][0] - 1
             read_seq = mappings[0][3]
 
-            update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq])     # 0.99 won't be used
+            update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq], coverage)     # 0.99 won't be used
 
             # for pos_in_read, base in enumerate(read_seq):
             #     # We find the base counts for that position in reference genome and
@@ -75,7 +56,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
                 mapping_start_pos = mappings_filtered[0][0] - 1
                 read_seq = mappings_filtered[0][3]
 
-                update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq])
+                update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq], coverage)
 
                 # for pos_in_read, base in enumerate(read_seq):
                 #     initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
@@ -142,7 +123,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             selected_mapping = select_mapping(mapping_probs)
 
             # Updating base counts for selected location
-            update_counts(base_counts, selected_mapping)
+            update_counts(base_counts, selected_mapping, coverage)
 
         # After all iterations are done
         # Save the probabilities for each multi-read and each of it's mapping locations

@@ -7,32 +7,6 @@ import copy
 import timeit
 
 
-def filter_alignments(mappings, threshold):
-    """
-    Filters mapping locations of a multi-read that have more edit operations than the best-match + threshold
-    :param mappings: Initial list of multi-mappings
-    :param threshold: an integer
-    :return: A list of filtered mappings
-    """
-    mdz_lst = [m[2] for m in mappings]
-    edit_ops = []
-
-    # Finding best match
-    for mdz in mdz_lst:
-        num_edits = mdz.count('A') + mdz.count('C') + mdz.count('G') + mdz.count('T')
-        edit_ops.append(num_edits)
-    min_ops = min(edit_ops)
-
-    filtered_mappings = []
-    for mapping in mappings:
-        mdz = mapping[2]
-        num_edits = mdz.count('A') + mdz.count('C') + mdz.count('G') + mdz.count('T')
-        # If this alignment is not too different from the best match
-        if num_edits <= min_ops + threshold:
-            filtered_mappings.append(mapping)
-
-    return filtered_mappings
-
 def bayesian_resolution(ref_genome_file, sam_file, output_file):
     """
     Assigning a multi-read to a mapping location using Bayesian updating
@@ -41,25 +15,33 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
     :param output_file:
     :return:
     """
+
+    # 0. Reading reference genome FASTA file and mapping SAM file
+    genome_header, genome_seq = read_genome(ref_genome_file)
+    reads_dict = read_sam_file(sam_file, genome_seq)
+
+    # Estimated average depth of coverage
+    coverage = int(len(reads_dict) * 150 / len(genome_seq))
+    print("Estimated average depth of coverage according to mapped reads: {}".format(coverage))
+
     # 1. Finding initial counts
-    initial_base_counts = initial_counts(ref_genome_file)
-    reads_dict = read_sam_file(sam_file)
+    initial_base_counts = initial_counts(genome_seq, coverage)
 
     multi_reads_final_location = defaultdict(int)
 
     # Updating the prior (initial counts) for uniquely mapped reads
     # New: and also filtering may make a multi-read a unique read
-    unique_reads = []
-    initially_resolved_multireads = []
+    unique_reads = defaultdict(int)
+    initially_resolved_multireads = defaultdict(int)
     random.seed(12)
 
     for read_id, mappings in reads_dict.items():
         if len(mappings) == 1:
-            unique_reads.append(read_id)
+            unique_reads[read_id] = mappings[0][0]
             mapping_start_pos = mappings[0][0] - 1
             read_seq = mappings[0][3]
 
-            update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq])     # 0.99 won't be used
+            update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq], coverage)     # 0.99 won't be used
 
             # for pos_in_read, base in enumerate(read_seq):
             #     # We find the base counts for that position in reference genome and
@@ -70,12 +52,12 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
             # By removing rubbish alignments, it has turned to a unique mapping
             if len(mappings_filtered) == 1:
                 multi_reads_final_location[read_id] = mappings_filtered[0][0]
-                initially_resolved_multireads.append(read_id)
+                initially_resolved_multireads[read_id] = mappings_filtered[0][0]
                 # We treat it like a unique read and update counts
                 mapping_start_pos = mappings_filtered[0][0] - 1
                 read_seq = mappings_filtered[0][3]
 
-                update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq])
+                update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq], coverage)
 
                 # for pos_in_read, base in enumerate(read_seq):
                 #     initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
@@ -83,6 +65,11 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
                 # It is a multi-mapping that needs to be resolved by Bayesian updating
                 # However, rubbish mapping locations should be removed
                 reads_dict[read_id] = mappings_filtered
+
+    # Writing unique reads in SAM file
+    # unique_reads_write_sam(sam_file, unique_reads, initially_resolved_multireads)
+    # print("Writing unique reads done!")
+    # return True
 
     # Removing uniquely mapped reads
     for read_id in unique_reads:
@@ -148,7 +135,7 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
-phase = 3
+phase = 1
 
 if phase == 1:
     start_time = timeit.default_timer()
@@ -225,4 +212,4 @@ elif phase == 2:
 
 # find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")
 
-find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")
+# find_unique_reads("./read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all.sam")

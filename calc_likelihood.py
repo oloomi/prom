@@ -1,25 +1,14 @@
 import math
 
-coverage = 50
-
 base_index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
 
-def initial_counts(ref_genome_file):
+def initial_counts(genome_seq, coverage):
     """
     If we see a G in reference genome, we set its initial count (prior) to [1,1,10,1]
     :param ref_genome_file:
     :return: A list of lists
     """
-    genome_seq = ""
-    with open(ref_genome_file) as ref_genome:
-        for line in ref_genome:
-            # Skip header lines
-            if line[0] == ">":
-                continue
-            else:
-                genome_seq += line.rstrip()
-
     base_counts = []
     for base in genome_seq:
         # The fifth one is the actual count of the base in the reference genome
@@ -32,24 +21,23 @@ def initial_counts(ref_genome_file):
     return base_counts
 
 
-def update_counts(base_counts, selected_mapping):
+def update_counts(base_counts, selected_mapping, coverage):
     """
     Updates base counts for each position at reference
     """
     mapping_start_pos = selected_mapping[1]
     read_seq = selected_mapping[2]
     for index, base in enumerate(read_seq):
-        # We do not update the counts for exact matches to the reference
-        if base_counts[mapping_start_pos + index][base_index[base]] != 255:
+        # We treat N's as a match to the reference genome
+        if base != 'N' and base_counts[mapping_start_pos + index][base_index[base]] != 255:
             if base_counts[mapping_start_pos + index][base_index[base]] < coverage:
                 base_counts[mapping_start_pos + index][base_index[base]] += 1
-            # @TODO: testing if it improves the method
             if base_counts[mapping_start_pos + index][4] > 1:
                 base_counts[mapping_start_pos + index][4] -= 1
-        # @TODO: now update the exact matches to see how it goes
-        else:
+        else:   # If it's a match to reference
             if base_counts[mapping_start_pos + index][4] < coverage:
                 base_counts[mapping_start_pos + index][4] += 1
+
 
     return True
 
@@ -62,9 +50,7 @@ def calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq):
     log_mapping_prob = 0
     for index, base in enumerate(read_seq):
         # If there is a match with the reference genome at this position
-        if base_counts[mapping_start_pos + index][base_index[base]] == 255:
-            # base_prob = 0.12
-            # base_prob = 0.1
+        if base == 'N' or base_counts[mapping_start_pos + index][base_index[base]] == 255:
             base_prob = base_counts[mapping_start_pos + index][4] / 1000
         else:
             base_prob = base_counts[mapping_start_pos + index][base_index[base]] / 1000

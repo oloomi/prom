@@ -1,7 +1,43 @@
 from collections import defaultdict
+from genome_util import read_genome
 
 
-def read_sam_file(sam_file_name):
+def correct_seq_errors(seq_features, genome_seq):
+    (pos, md_z, read_seq, base_quals) = seq_features
+    num_edits = md_z.count('A') + md_z.count('C') + md_z.count('G') + md_z.count('T') + md_z.count('N')
+    read_seq = list(read_seq)
+    for i, base in enumerate(read_seq):
+        # Phred-scale quality score
+        if ord(base_quals[i]) - 33 < 20:
+            read_seq[i] = 'N'
+            # num_edits += 1
+
+    return ''.join(read_seq), num_edits
+
+
+def filter_alignments(mappings, threshold):
+    """
+    Filters mapping locations of a multi-read that have more edit operations than the best-match + threshold
+    :param mappings: Initial list of multi-mappings
+    :param threshold: an integer
+    :return: A list of filtered mappings
+    """
+    edit_ops = [m[2] for m in mappings]
+
+    # Finding best match
+    min_ops = min(edit_ops)
+
+    filtered_mappings = []
+    for mapping in mappings:
+        num_edits = mapping[2]
+        # If this alignment is not too different from the best match
+        if num_edits <= min_ops + threshold:
+            filtered_mappings.append(mapping)
+
+    return filtered_mappings
+
+
+def read_sam_file(sam_file_name, genome_seq):
     # A dictionary like: {read_id: [list of mappings]}
     read_alignments_dict = defaultdict(list)
 
@@ -22,11 +58,14 @@ def read_sam_file(sam_file_name):
             pos = int(fields[3])  # 1-based leftmost mapping POSition
             md_z = fields[-2][5:]  # Alignment eg. MD:Z:118C31 -> 118C31
             read_seq = fields[9]  # Read sequence
+            base_quals = fields[10]  # Base quality scores
             # * means no alignment for a read
             if cigar != "*":
-                if (cigar == '150M') and ('N' not in read_seq):
+                if cigar == '150M':
+                    # Correct sequencing errors in the read
+                    read_seq, num_edits = correct_seq_errors((pos, md_z, read_seq, base_quals), genome_seq)
                     # Store all alignments of a read
-                    read_alignments_dict[read_id].append((pos, cigar, md_z, read_seq))
+                    read_alignments_dict[read_id].append((pos, cigar, num_edits, read_seq))
                 else:
                     # print("Invalid CIGAR:", cigar)
                     invalid_cigars.add(read_id)
@@ -109,3 +148,23 @@ def find_unique_reads(sam_file_name):
                     #                 read_alignments_dict[read_id][0] == "150M":
                     out_sam_file.write(line)
 
+
+def unique_reads_write_sam(sam_file_name, unique_reads, initially_resolved_multireads):
+    with open(sam_file_name) as in_sam_file:
+        with open("{}-unique.sam".format(sam_file_name[:-4]), 'w') as out_sam_file:
+            for line in in_sam_file:
+                # Write header lines directly from input file to output file
+                if line[0] == "@":
+                    out_sam_file.write(line)
+                    continue
+
+                fields = line.rstrip().split("\t")
+                read_id = fields[0]  # QNAME: Query template NAME
+                cigar = fields[5]  # CIGAR string (ie. alignment)
+                pos = int(fields[3])  # 1-based leftmost mapping POSition
+                # * means no alignment for a read
+                if cigar == '150M':
+                        if read_id in unique_reads:
+                            out_sam_file.write(line)
+                        elif read_id in initially_resolved_multireads and pos == initially_resolved_multireads[read_id]:
+                            out_sam_file.write(line)
