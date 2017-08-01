@@ -144,6 +144,9 @@ if phase == 1:
     #                 "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam",
     #                 "./read-mapping/toy-genome-mutated/corrected-toy-wg-mutated-se-mapping-simple-bayesian.sam")
 
+    bayesian_resolution("./data/genomes/toy-genome.fna",
+                    "./read-mapping/toy-genome-mutated-middle/toy-wg-mutated-middle-se-mapping-report-all.sam",
+                    "./read-mapping/toy-genome-mutated-middle/corrected-toy-wg-mutated-middle-se-mapping-prom.sam")
 
     # bayesian_resolution("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna",
     #                 "./read-mapping/ot-whole-genome-mutated-70-140/ot-wg-mutated-se-mapping-report-all.sam",
@@ -157,9 +160,9 @@ if phase == 1:
     #                 "./read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all.sam",
     #                 "./read-mapping/mtb-whole-genome-mutated-100-140/simple-bayesian-mtb-wg-mutated-se-mapping-25.sam")
 
-    bayesian_resolution("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated.fna",
-                    "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/kt-kpnih1-bm-report-all.sam",
-                    "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/prom-kt-kpnih1-bm-report-all.sam")
+    # bayesian_resolution("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated.fna",
+    #                 "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/kt-kpnih1-bm-report-all.sam",
+    #                 "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/prom-kt-kpnih1-bm-report-all.sam")
 
     run_time = timeit.default_timer() - start_time
 

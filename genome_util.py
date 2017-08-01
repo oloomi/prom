@@ -1,4 +1,5 @@
 import random
+from collections import defaultdict
 
 
 def read_genome(genome_file):
@@ -26,6 +27,21 @@ def write_genome(genome_header, genome_seq, genome_file):
         # Writing the last remainder part of genome
         if length % line_width != 0:
             new_genome.write(genome_seq[-(length % line_width):])
+
+
+def reverse_complement(seq):
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+    return ''.join([complement[base] for base in seq[::-1]])
+
+
+def genome_slice(genome_file, locations):
+    genome_header, genome_seq = read_genome(genome_file)
+    for loc in locations:
+        # start_pos, length, direction
+        if loc[2] == 'P':
+            print(reverse_complement(genome_seq[loc[0] : loc[0]+loc[1]]))
+        else:
+            print(genome_seq[loc[0]: loc[0] + loc[1]])
 
 
 def extract_genome(ref_genome_file, start_pos, length, output_file, mutate=False, repeats_file_name=None):
@@ -159,43 +175,38 @@ def toy_genome(ref_genome_file, output_file, mutate=False):
     """
     random.seed(12)
     genome_seq = ""
-    with open(ref_genome_file) as ref_genome:
-        with open(output_file, 'w') as new_genome:
-            for line in ref_genome:
-                # Skip header lines
-                if line[0] == ">":
-                    # new_genome.write("{} {}-{}\n".format("|".join(header_line), start_pos, start_pos + length - 1))
-                    # new_genome.write("{}|{}_{}|\n".format("|".join(header_line[:4]),start_pos, start_pos + length - 1))
-                    # header_line = line.rstrip().split("|")
-                    new_genome.write(line)
-                else:
-                    genome_seq += line.rstrip()
 
-            # Extracted genome sequence
-            new_genome_seq = genome_seq[0:5000] + genome_seq[2000:3000] + genome_seq[6000:8000] \
-                             + genome_seq[2000:3000] + genome_seq[9000:11000]
+    with open(output_file, 'w') as new_genome:
+        # Reading FASTA genome file
+        genome_header, genome_seq = read_genome(ref_genome_file)
+        new_genome.write(genome_header)
 
-            new_genome_seq = list(new_genome_seq)
+        # Extracted genome sequence
+        new_genome_seq = genome_seq[0:5000] + genome_seq[2000:3000] + genome_seq[6000:8000] \
+                         + genome_seq[2000:3000] + genome_seq[9000:11000]
 
-            # Mutating the genome
-            if mutate:
-                nucleotides = set(['A', 'C', 'G', 'T'])
-                pos = 2129
-                print(new_genome_seq[pos])
-                possible_snps = nucleotides - set(new_genome_seq[pos])
-                new_genome_seq[pos] = random.choice(sorted(list(possible_snps)))
-                print(new_genome_seq[pos])
+        new_genome_seq = list(new_genome_seq)
 
-            new_genome_seq = "".join(new_genome_seq)
-            # Writing the new genome sequence to file, 70 characters per line
-            length = 11000
-            line_width = 70
-            for i in range(length // line_width):
-                new_genome.write(new_genome_seq[i * line_width: (i + 1) * line_width])
-                new_genome.write("\n")
-            # Writing the last remainder part of genome
-            if length % line_width != 0:
-                new_genome.write(new_genome_seq[-(length % line_width):])
+        # Mutating the genome
+        if mutate:
+            nucleotides = set(['A', 'C', 'G', 'T'])
+            # pos = 2129
+            pos = 2500
+            print(new_genome_seq[pos])
+            possible_snps = nucleotides - set(new_genome_seq[pos])
+            new_genome_seq[pos] = random.choice(sorted(list(possible_snps)))
+            print(new_genome_seq[pos])
+
+        new_genome_seq = "".join(new_genome_seq)
+        # Writing the new genome sequence to file, 70 characters per line
+        length = 11000
+        line_width = 70
+        for i in range(length // line_width):
+            new_genome.write(new_genome_seq[i * line_width: (i + 1) * line_width])
+            new_genome.write("\n")
+        # Writing the last remainder part of genome
+        if length % line_width != 0:
+            new_genome.write(new_genome_seq[-(length % line_width):])
     return True
 
 
@@ -332,7 +343,7 @@ def find_repeats_snp(seq1_repeats_file_name, seq2_repeats_file_name, snps_file_n
 
 
 def k_mismatch_repeats(repeats_file_name, k=1, min_len=200):
-    # [[length, start_1, start_2, ...], ...]
+    # [[length, start_1, (start_2, D), ...], ...]
     repeats_list = []
     with open(repeats_file_name) as repeats_file:
         # Skip header lines
@@ -341,23 +352,36 @@ def k_mismatch_repeats(repeats_file_name, k=1, min_len=200):
         for line in repeats_file:
             fields = line.split()
             # Reputer repeats with distance k and on Forward strand
-            if int(fields[5]) == -k and fields[2] == 'F' and int(fields[0]) >= min_len:
+            # if int(fields[5]) == -k and fields[2] == 'F' and int(fields[0]) >= min_len:
+            (start_1, start_2, length, direction, dist) = (int(fields[1]), int(fields[4]), int(fields[0]), fields[2],
+                                                           int(fields[5]))
 
-                (start_1, start_2, length) = (int(fields[1]), int(fields[4]), int(fields[0]))
-
-                if repeats_list and repeats_list[-1][0] == length:
-                    # start_1 = prev start_1
-                    if start_1 == repeats_list[-1][1]:
-                        # Add start_2
-                        repeats_list[-1].append(start_2)
-                    # start_2 = prev start_2
-                    elif start_2 == repeats_list[-1][2]:
-                        tmp = repeats_list[-1][2]
-                        repeats_list[-1][2] = repeats_list[-1][1]
-                        repeats_list[-1][1] = tmp
-                        repeats_list[-1].append(start_1)
+            if dist == -k and length >= min_len:
+                if repeats_list:
+                    (pre_len, pre_start_1, pre_start_2, pre_direction) = (repeats_list[-1][0], repeats_list[-1][1],
+                                                                          repeats_list[-1][-1][0],
+                                                                          repeats_list[-1][-1][1])
+                    if pre_len == length:
+                        # start_1 = prev start_1
+                        if start_1 == pre_start_1:
+                            # Add start_2
+                            repeats_list[-1].append((start_2, direction))
+                        # start_2 = prev start_2
+                        elif start_2 == pre_start_2:
+                            repeats_list[-1][1] = pre_start_2
+                            repeats_list[-1][-1] = (pre_start_1, pre_direction)
+                            repeats_list[-1].append((start_1, direction))
+                        # start_2 = prev start_1
+                        elif start_2 == repeats_list[-1][1]:
+                            # Add start_1
+                            repeats_list[-1].append((start_1, direction))
+                        # It's a new group of repeats with the same length
+                        else:
+                            repeats_list.append([length, start_1, (start_2, direction)])
+                    else:
+                        repeats_list.append([length, start_1, (start_2, direction)])
                 else:
-                    repeats_list.append([length, start_1, start_2])
+                    repeats_list.append([length, start_1, (start_2, direction)])
 
     return repeats_list
 
@@ -369,33 +393,57 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
     repeats_list = k_mismatch_repeats(repeats_file_name, k=1, min_len=200)
     # Find the position of difference and modify the reference genome
     mutation_pos = set()
+    mutations_dict = defaultdict(list)
     mutations_list = []
-    genome_seq = list(genome_seq)
+    new_genome_seq = list(genome_seq)
     for repeat in repeats_list:
-        (length, start_1, start_2) = (repeat[0], repeat[1], repeat[2])
+        (length, start_1, start_2, direction) = (repeat[0], repeat[1], repeat[2][0], repeat[2][1])
+
+        seq1 = genome_seq[start_1: start_1 + length]
+        seq2 = genome_seq[start_2: start_2 + length]
+        if direction == 'P':
+            seq2 = reverse_complement(seq2)
+
         for i in range(length):
-            if genome_seq[start_1 + i] != genome_seq[start_2 + i] and i < 150:
+            if seq1[i] != seq2[i]:   #and (i < 150):
                 if (start_1 + i) not in mutation_pos:
                     # The order: back-mutated nucleotide, true nucleotide
-                    mutations_list.append([start_1 + i + 1, genome_seq[start_2 + i], genome_seq[start_1 + i], i, repeat])
+                    # mutations_list.append([start_1 + i + 1, seq2[i], seq1[i], i, repeat])
+                    mutations_dict[start_1 + i + 1] = [seq2[i], seq1[i], i, repeat[2:], [length]]
                     # Mutating reference genome
-                    genome_seq[start_1 + i] = genome_seq[start_2 + i]
+                    new_genome_seq[start_1 + i] = seq2[i]
                     mutation_pos.add(start_1 + i)
+                else:
+                    print(start_1 + i + 1)
+                    mutations_dict[start_1 + i + 1][4].append(length)
+                    for r in repeat[2:]:
+                        mutations_dict[start_1 + i + 1][3].append(r)
+                    print(mutations_dict[start_1 + i + 1])
 
     # Writing mutated genome sequence to fasta file
-    write_genome(genome_header, "".join(genome_seq), output_file)
+    write_genome(genome_header, "".join(new_genome_seq), output_file)
+    for key, value in mutations_dict.items():
+        mutations_list.append([key] + value)
 
+    # print(mutations_dict)
+    # print(mutations_list)
     # Writing mutation locations to file
     mutations_list.sort()
     with open("{}-mutations.txt".format(output_file[:-4]), "w") as mutations_file:
         mutations_file.write("Number of mutations: {}\n".format(len(mutations_list)))
         for item in mutations_list:
-            mutations_file.write("{}\t{}\t{}\t{}\t{}\n".format(item[0], item[1], item[2], item[3], item[4]))
+            mutations_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(item[0], item[1], item[2], item[3], item[4], item[5]))
 
 
 
 # toy_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
 #            "./data/genomes/toy-genome-mutated.fna", mutate=True)
+
+# toy_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+#            "./data/genomes/toy-genome-mutated-middle.fna", mutate=True)
+
+# genome_slice("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+#              [(1341821, 909, 'F'), (2982945, 909, 'P')])
 
 # extract_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna", 1, 4411532,
 #                "./data/genomes/mtb-whole-genome-mutated-100-140-half.fna", mutate=True,
@@ -423,9 +471,12 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 # rps = k_mismatch_repeats("/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt")
 # print(len(rps), '\n', rps)
 
-# back_mutate_genome("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1.fna",
-#                    "/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
-#                    "/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated.fna")
+# rps = k_mismatch_repeats("/home/mohammad/pneumoniae/repeats-reputer/mtb-repeats-reputer-100-ham2-filtered.txt")
+# print(len(rps), '\n', rps)
+
+back_mutate_genome("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1.fna",
+                   "/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
+                   "/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
 
 # extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
 #                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
@@ -450,3 +501,4 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 #             outfile.write("{}\t{}\t{}\n".format(s, e, e - s + 1))
 #
 # merge_ranges("./data/genomes/mtb-repeats-sorted-ranges.txt")
+
