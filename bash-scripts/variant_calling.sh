@@ -1,8 +1,16 @@
 #!/bin/bash
 # Running BCFtools for variant calling
 
-reference="../data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna"
-file_path="../read-mapping/ot-whole-genome-mutated-70-140/"
+reference="../data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna"
+file_path="../read-mapping/kp-kpnih1-back-mutated-full-real/"
+
+alignment_files="kp-back-mutated-full-mapping-best-match-sorted
+kp-back-mutated-full-mapping-report-all-sorted
+kp-back-mutated-full-mapping-prom-sorted
+kp-back-mutated-full-mapping-remu-sorted"
+
+#reference="../data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna"
+#file_path="../read-mapping/ot-whole-genome-mutated-70-140/"
 
 #alignment_files="corrected-ot-wg-mutated-se-mapping-remu-sorted"
 
@@ -18,7 +26,7 @@ file_path="../read-mapping/ot-whole-genome-mutated-70-140/"
 #file_path="../read-mapping/mtb-whole-genome-mutated-70-140/"
 #file_path="../read-mapping/mtb-whole-genome-mutated-100-140/"
 
-alignment_files="corrected-ot-wg-mutated-se-mapping-remu-25-pmu-sorted"
+#alignment_files="corrected-ot-wg-mutated-se-mapping-remu-25-pmu-sorted"
 
 #alignment_files="simple-bayesian-mtb-wg-mutated-se-mapping-25-sorted"
 

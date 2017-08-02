@@ -144,9 +144,9 @@ if phase == 1:
     #                 "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam",
     #                 "./read-mapping/toy-genome-mutated/corrected-toy-wg-mutated-se-mapping-simple-bayesian.sam")
 
-    bayesian_resolution("./data/genomes/toy-genome.fna",
-                    "./read-mapping/toy-genome-mutated-middle/toy-wg-mutated-middle-se-mapping-report-all.sam",
-                    "./read-mapping/toy-genome-mutated-middle/corrected-toy-wg-mutated-middle-se-mapping-prom.sam")
+    # bayesian_resolution("./data/genomes/toy-genome.fna",
+    #                 "./read-mapping/toy-genome-mutated-middle/toy-wg-mutated-middle-se-mapping-report-all.sam",
+    #                 "./read-mapping/toy-genome-mutated-middle/corrected-toy-wg-mutated-middle-se-mapping-prom.sam")
 
     # bayesian_resolution("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna",
     #                 "./read-mapping/ot-whole-genome-mutated-70-140/ot-wg-mutated-se-mapping-report-all.sam",
@@ -164,6 +164,14 @@ if phase == 1:
     #                 "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/kt-kpnih1-bm-report-all.sam",
     #                 "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated/prom-kt-kpnih1-bm-report-all.sam")
 
+    # bayesian_resolution("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna",
+    #                     "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated-full/kt-kpnih1-bm-report-all.sam",
+    #                     "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated-full/prom-kt-kpnih1-bm-report-all.sam")
+
+    bayesian_resolution("./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna",
+                        "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-report-all.sam",
+                        "./read-mapping/kp-kpnih1-back-mutated-full-real/prom-kp-back-mutated-full-mapping-prom.sam")
+
     run_time = timeit.default_timer() - start_time
 
     print("Bayesian update running time: {} seconds = {} minutes".format(round(run_time, 2), round(run_time / 60, 2)))
@@ -174,7 +182,7 @@ elif phase == 2:
 
     variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
 
-    file_path = "./read-mapping/mtb-whole-genome-mutated-100-140/"
+    file_path = "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated-full/"
 
     vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
                        ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
@@ -187,6 +195,22 @@ elif phase == 2:
                        ]
 
     evaluation_results = open("./results/variants-comparison-MTB-wg-100-140-simple-bayesian-25-pmu.txt", 'w')
+
+    # variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+    #
+    # file_path = "./read-mapping/mtb-whole-genome-mutated-100-140/"
+    #
+    # vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
+    #                    ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
+    #                    ["MMR", "corrected-other-3mis-mmr-sorted"],
+    #                    ["Bayesian", "simple-bayesian-mtb-wg-mutated-se-mapping-sorted"],
+    #                    ["Bayesian-25", "simple-bayesian-mtb-wg-mutated-se-mapping-25-sorted"],
+    #                    ["REMU", "corrected-mtb-wg-mutated-se-mapping-remu-sorted"],
+    #                    ["REMU-25", "corrected-mtb-wg-mutated-se-mapping-remu-25-sorted"],
+    #                    ["REMU-25-pmu", "corrected-mtb-wg-mutated-se-mapping-remu-25-pmu-sorted"]
+    #                    ]
+    #
+    # evaluation_results = open("./results/variants-comparison-MTB-wg-100-140-simple-bayesian-25-pmu.txt", 'w')
 
     # file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
     #
