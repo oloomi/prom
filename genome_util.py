@@ -387,6 +387,30 @@ def k_mismatch_repeats(repeats_file_name, k=1, min_len=200):
 
 
 def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
+    """
+
+    :param ref_genome_file:
+    :param repeats_file_name:
+    :param output_file:
+    :return:
+    """
+
+    def calc_other_rep_locs(repeat_locs_lst, rep_len):
+        """
+        A helper function that finds the SNP position in other locations of this repeat element
+        and considers reverse complement repeats as well.
+        """
+        other_repeat_locs = []
+        for rep in repeat_locs_lst:
+            rep_pos = rep[0]
+            rep_dir = rep[1]
+            if rep_dir == 'F':
+                other_repeat_locs.append((rep_pos + i + 1, seq1[i]))
+            else:
+                other_repeat_locs.append((rep_pos + rep_len - i, reverse_complement(seq1[i])))
+
+        return other_repeat_locs
+
     # Read reference genome
     genome_header, genome_seq = read_genome(ref_genome_file)
     # Extract the consolidated list of k-mismatch repeats
@@ -409,15 +433,18 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
                 if (start_1 + i) not in mutation_pos:
                     # The order: back-mutated nucleotide, true nucleotide
                     # mutations_list.append([start_1 + i + 1, seq2[i], seq1[i], i, repeat])
-                    mutations_dict[start_1 + i + 1] = [seq2[i], seq1[i], i, repeat[2:], [length]]
+                    other_reps = calc_other_rep_locs(repeat[2:], length)
+                    mutations_dict[start_1 + i + 1] = [seq2[i], seq1[i], i, other_reps, [length]]
                     # Mutating reference genome
                     new_genome_seq[start_1 + i] = seq2[i]
                     mutation_pos.add(start_1 + i)
+                # Overlapping repeats
                 else:
                     print(start_1 + i + 1)
                     mutations_dict[start_1 + i + 1][4].append(length)
-                    for r in repeat[2:]:
-                        mutations_dict[start_1 + i + 1][3].append(r)
+                    other_reps = calc_other_rep_locs(repeat[2:], length)
+                    for rep in other_reps:
+                        mutations_dict[start_1 + i + 1][3].append(rep)
                     print(mutations_dict[start_1 + i + 1])
 
     # Writing mutated genome sequence to fasta file
