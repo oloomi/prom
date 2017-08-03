@@ -501,9 +501,9 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 # rps = k_mismatch_repeats("/home/mohammad/pneumoniae/repeats-reputer/mtb-repeats-reputer-100-ham2-filtered.txt")
 # print(len(rps), '\n', rps)
 
-back_mutate_genome("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1.fna",
-                   "/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
-                   "/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
+#back_mutate_genome("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1.fna",
+#                   "/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
+#                   "/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
 
 # extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
 #                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
