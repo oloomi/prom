@@ -13,7 +13,7 @@ def read_vcf_file(vcf_file_name):
                 continue
             # 0.CHROM   1.POS   2.ID    3.REF   4.ALT	5.QUAL	6.FILTER	7.INFO  8.FORMAT
             fields = line.rstrip().split("\t")
-            pos = fields[1]
+            pos = int(fields[1])
             alt = fields[4]
             qual = float(fields[5])
             if qual > 0:
@@ -35,7 +35,7 @@ def read_benchmark_variants(benchmark_variants_file, read_len):
             if line[0].isalpha():
                 continue
             fields = line.rstrip().split("\t")
-            pos = fields[0]
+            pos = int(fields[0])
             alt = fields[2]
             variants.append((pos, alt))
 
@@ -61,8 +61,10 @@ def compare_variants(benchmark_variants_file, vcf_files_list):
     variants, acceptable_fp_variants = read_benchmark_variants(benchmark_variants_file, 150)
     benchmark_variants = set(variants)
     acceptable_fps = set(acceptable_fp_variants)
+
     print(len(acceptable_fps))
-    print(acceptable_fps)
+    print(sorted(list(acceptable_fps)))
+
     for vcf_file in vcf_files_list:
         method_name = vcf_file[0]
         vcf_file_name = vcf_file[1]
@@ -80,6 +82,9 @@ def compare_variants(benchmark_variants_file, vcf_files_list):
         false_negatives = benchmark_variants - called_variants
         fn = len(false_negatives)
         accept_fp = false_positives & acceptable_fps
+
+        print(accept_fp)
+
         ac_fp = len(accept_fp)
         # true_negatives: rest of the genome
 
@@ -91,9 +96,9 @@ def compare_variants(benchmark_variants_file, vcf_files_list):
             f1_score = 0
 
         output += "{}\t{}\t{}\t{}\t{:.2f}\t{}\t{:.2f}\n".format(method_name, tp, fp, fn, f1_score, ac_fp, ac_fp / fp)
-        if "remu" in vcf_file_name and False:
-            output += "\nFalse negatives:\n{}\n".format(false_negatives)
-            output += "False positives:\n{}\n\n".format(false_positives)
+        if "remu" in vcf_file_name and True:
+            output += "\nFalse negatives:\n{}\n".format(sorted(list(false_negatives)))
+            output += "False positives:\n{}\n\n".format(sorted(list(false_positives)))
 
     return output
     # return (true_positives, false_positives, false_negatives)

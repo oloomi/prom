@@ -312,32 +312,6 @@ def find_repeats_snp(seq1_repeats_file_name, seq2_repeats_file_name, snps_file_n
             if not snp_in_repeat:
                 msg += "{} {} {} {} ".format('N', 'N', 'N', 'N')
 
-            # for start, end, length in seq3_merged_ranges:
-            #     if seq3_pos in range(start, end + 1):
-            #         if seq3_pos - start < read_len or end - seq3_pos < read_len:
-            #             msg += "{} {} {} {} ".format(start, length, seq3_pos - start, end - seq3_pos)
-            #             snp_in_repeat = True
-            # if not snp_in_repeat:
-            #     msg += "{} {} {} {} ".format('N', 'N', 'N', 'N')
-            #
-            # for start, end, length in seq4_merged_ranges:
-            #     if seq4_pos in range(start, end + 1):
-            #         if seq4_pos - start < read_len or end - seq4_pos < read_len:
-            #             msg += "{} {} {} {} ".format(start, length, seq4_pos - start, end - seq4_pos)
-            #             snp_in_repeat = True
-            #             break
-            # if not snp_in_repeat:
-            #     msg += "{} {} {} {} ".format('N', 'N', 'N', 'N')
-            #
-            # for start, end, length in seq5_merged_ranges:
-            #     if seq5_pos in range(start, end + 1):
-            #         if seq5_pos - start < read_len or end - seq5_pos < read_len:
-            #             msg += "{} {} {} {} ".format(start, length, seq5_pos - start, end - seq5_pos)
-            #             snp_in_repeat = True
-            #             break
-            # if not snp_in_repeat:
-            #     msg += "{} {} {} {} ".format('N', 'N', 'N', 'N')
-
             if snp_in_repeat:
                 print("{} {}".format(snp, msg))
 
@@ -386,6 +360,31 @@ def k_mismatch_repeats(repeats_file_name, k=1, min_len=200):
     return repeats_list
 
 
+def repeat_ranges(repeats_file_name, k=0, rep_len=1):
+    """
+    Returns a set which includes the ranges of all k-mismatch repeats
+    :param repeats_file_name:
+    :param k: 0 for exact repeats, k for k-mismatch repeats
+    :param rep_len: minimum repeat length considered
+    :return:
+    """
+    repeats_set = set()
+    with open(repeats_file_name) as repeats_file:
+        # Skip header lines
+        next(repeats_file)
+        next(repeats_file)
+        for line in repeats_file:
+            fields = line.split()
+            # Reputer repeats with distance k and on Forward strand
+            # if int(fields[5]) == -k and fields[2] == 'F' and int(fields[0]) >= min_len:
+            (start_1, start_2, length, direction, dist) = (int(fields[1]), int(fields[4]), int(fields[0]), fields[2],
+                                                           int(fields[5]))
+            if dist == k and length >= rep_len:
+                repeats_set.add(range(start_1, start_1 + length))
+                repeats_set.add(range(start_2, start_2 + length))
+    return repeats_set
+
+
 def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
     """
 
@@ -414,7 +413,9 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
     # Read reference genome
     genome_header, genome_seq = read_genome(ref_genome_file)
     # Extract the consolidated list of k-mismatch repeats
-    repeats_list = k_mismatch_repeats(repeats_file_name, k=1, min_len=200)
+    repeats_list = k_mismatch_repeats(repeats_file_name, k=1, min_len=150)
+    # Extract exact repeat ranges
+    exact_repeats = repeat_ranges(repeats_file_name, k=0, rep_len=150)
     # Find the position of difference and modify the reference genome
     mutation_pos = set()
     mutations_dict = defaultdict(list)
@@ -430,22 +431,30 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 
         for i in range(length):
             if seq1[i] != seq2[i]:   #and (i < 150):
-                if (start_1 + i) not in mutation_pos:
-                    # The order: back-mutated nucleotide, true nucleotide
-                    # mutations_list.append([start_1 + i + 1, seq2[i], seq1[i], i, repeat])
-                    other_reps = calc_other_rep_locs(repeat[2:], length)
-                    mutations_dict[start_1 + i + 1] = [seq2[i], seq1[i], i, other_reps, [length]]
-                    # Mutating reference genome
-                    new_genome_seq[start_1 + i] = seq2[i]
-                    mutation_pos.add(start_1 + i)
-                # Overlapping repeats
-                else:
-                    print(start_1 + i + 1)
-                    mutations_dict[start_1 + i + 1][4].append(length)
-                    other_reps = calc_other_rep_locs(repeat[2:], length)
-                    for rep in other_reps:
-                        mutations_dict[start_1 + i + 1][3].append(rep)
-                    print(mutations_dict[start_1 + i + 1])
+
+                # check whether the mutation point is not located itself in an exact repeat element
+                in_exact_repeat = False
+                for rng in exact_repeats:
+                    if (start_1 + i) in rng:
+                        in_exact_repeat = True
+                        break
+                if not in_exact_repeat:
+                    if (start_1 + i) not in mutation_pos:
+                        # The order: back-mutated nucleotide, true nucleotide
+                        # mutations_list.append([start_1 + i + 1, seq2[i], seq1[i], i, repeat])
+                        other_reps = calc_other_rep_locs(repeat[2:], length)
+                        mutations_dict[start_1 + i + 1] = [seq2[i], seq1[i], i, other_reps, [length]]
+                        # Mutating reference genome
+                        new_genome_seq[start_1 + i] = seq2[i]
+                        mutation_pos.add(start_1 + i)
+                    # Overlapping repeats
+                    else:
+                        # print(start_1 + i + 1)
+                        mutations_dict[start_1 + i + 1][4].append(length)
+                        other_reps = calc_other_rep_locs(repeat[2:], length)
+                        for rep in other_reps:
+                            mutations_dict[start_1 + i + 1][3].append(rep)
+                        # print(mutations_dict[start_1 + i + 1])
 
     # Writing mutated genome sequence to fasta file
     write_genome(genome_header, "".join(new_genome_seq), output_file)
@@ -501,9 +510,13 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 # rps = k_mismatch_repeats("/home/mohammad/pneumoniae/repeats-reputer/mtb-repeats-reputer-100-ham2-filtered.txt")
 # print(len(rps), '\n', rps)
 
-#back_mutate_genome("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1.fna",
+# back_mutate_genome("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1.fna",
 #                   "/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
 #                   "/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
+
+back_mutate_genome("./data/genomes/Klebsiella_pneumoniae_KPNIH1/Klebsiella_pneumoniae_KPNIH1.fna",
+                   "./data/genomes/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
+                   "./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
 
 # extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
 #                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
@@ -529,3 +542,5 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 #
 # merge_ranges("./data/genomes/mtb-repeats-sorted-ranges.txt")
 
+
+# print(repeat_ranges("/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt", k=0, rep_len=1))

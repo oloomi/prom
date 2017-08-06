@@ -135,7 +135,7 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
-phase = 2
+phase = 1
 
 if phase == 1:
     start_time = timeit.default_timer()
@@ -170,7 +170,7 @@ if phase == 1:
 
     bayesian_resolution("./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna",
                         "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-report-all.sam",
-                        "./read-mapping/kp-kpnih1-back-mutated-full-real/prom-kp-back-mutated-full-mapping-prom.sam")
+                        "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-prom.sam")
 
     run_time = timeit.default_timer() - start_time
 
@@ -180,7 +180,9 @@ if phase == 1:
 
 elif phase == 2:
 
-    variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+    # variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+
+    variant_caller_lst = [("BCFtools mv", "mv")]
 
     file_path = "/mnt/e/Codes/bayesian-update/read-mapping/kp-kpnih1-back-mutated-full-real/"
 
