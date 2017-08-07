@@ -61,7 +61,7 @@ def read_sam_file(sam_file_name, genome_seq):
             base_quals = fields[10]  # Base quality scores
             # * means no alignment for a read
             if cigar != "*":
-                if cigar == '150M':
+                if cigar == '{}M'.format(len(read_seq)):
                     # Correct sequencing errors in the read
                     read_seq, num_edits = correct_seq_errors((pos, md_z, read_seq, base_quals), genome_seq)
                     # Store all alignments of a read
@@ -72,11 +72,11 @@ def read_sam_file(sam_file_name, genome_seq):
             else:
                 not_mapped_reads.add(read_id)
 
-    print("Number of reads with non 150M CIGAR:", len(invalid_cigars))
+    print("Number of reads with non {}M CIGAR:".format(len(read_seq)), len(invalid_cigars))
     print("Number of reads not mapped:", len(not_mapped_reads))
     print("Number of reads in use:", len(read_alignments_dict))
 
-    return read_alignments_dict
+    return read_alignments_dict, len(read_seq)
 
 
 def write_sam_file(multi_reads_correct_mapping, input_sam_file_name, output_sam_file_name):
@@ -96,9 +96,10 @@ def write_sam_file(multi_reads_correct_mapping, input_sam_file_name, output_sam_
                 read_id = fields[0]  # QNAME: Query template NAME
                 cigar = fields[5]  # CIGAR string (ie. alignment)
                 pos = int(fields[3])  # 1-based leftmost mapping POSition
+                read_seq = fields[9]
                 # * means no alignment for a read
                 if cigar != "*":
-                    if cigar == '150M':
+                    if cigar == '{}M'.format(len(read_seq)):
                         if read_id in multi_reads_correct_mapping:
                             # If this mapping is the one at the selected mapping location
                             if multi_reads_correct_mapping[read_id] == pos:
@@ -162,8 +163,9 @@ def unique_reads_write_sam(sam_file_name, unique_reads, initially_resolved_multi
                 read_id = fields[0]  # QNAME: Query template NAME
                 cigar = fields[5]  # CIGAR string (ie. alignment)
                 pos = int(fields[3])  # 1-based leftmost mapping POSition
+                read_seq = fields[9]
                 # * means no alignment for a read
-                if cigar == '150M':
+                if cigar == '{}M'.format(len(read_seq)):
                         if read_id in unique_reads:
                             out_sam_file.write(line)
                         elif read_id in initially_resolved_multireads and pos == initially_resolved_multireads[read_id]:

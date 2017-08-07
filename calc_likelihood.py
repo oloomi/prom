@@ -51,9 +51,9 @@ def calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq):
     for index, base in enumerate(read_seq):
         # If there is a match with the reference genome at this position
         if base == 'N' or base_counts[mapping_start_pos + index][base_index[base]] == 255:
-            base_prob = base_counts[mapping_start_pos + index][4] / 1000
+            base_prob = base_counts[mapping_start_pos + index][4] / 256     # 1000
         else:
-            base_prob = base_counts[mapping_start_pos + index][base_index[base]] / 1000
+            base_prob = base_counts[mapping_start_pos + index][base_index[base]] / 256
         # base_prob = base_counts[mapping_start_pos + index][base_index[base]] / \
         #             sum(base_counts[mapping_start_pos + index])
         log_mapping_prob += math.log(base_prob)

@@ -18,10 +18,10 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
 
     # 0. Reading reference genome FASTA file and mapping SAM file
     genome_header, genome_seq = read_genome(ref_genome_file)
-    reads_dict = read_sam_file(sam_file, genome_seq)
+    reads_dict, read_len = read_sam_file(sam_file, genome_seq)
 
     # Estimated average depth of coverage
-    coverage = int(len(reads_dict) * 150 / len(genome_seq))
+    coverage = int(len(reads_dict) * read_len / len(genome_seq))
     print("Estimated average depth of coverage according to mapped reads: {}".format(coverage))
 
     # 1. Finding initial counts
@@ -168,9 +168,13 @@ if phase == 1:
     #                     "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated-full/kt-kpnih1-bm-report-all.sam",
     #                     "/home/mohammad/pneumoniae/read-mapping/kt-kpnih1-back-mutated-full/prom-kt-kpnih1-bm-report-all.sam")
 
-    bayesian_resolution("./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna",
-                        "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-report-all.sam",
-                        "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-prom.sam")
+    # bayesian_resolution("./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna",
+    #                     "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-report-all.sam",
+    #                     "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-prom.sam")
+
+    bayesian_resolution("./data/genomes/MTB-H37Rv-back-mutated-full.fna",
+                        "./read-mapping/mtb-h37rv-back-mutated/mtb-h37rv-back-mutated-mapping-report-all.sam",
+                        "./read-mapping/mtb-h37rv-back-mutated/mtb-h37rv-back-mutated-mapping-prom.sam")
 
     run_time = timeit.default_timer() - start_time
 
@@ -180,9 +184,9 @@ if phase == 1:
 
 elif phase == 2:
 
-    # variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+    variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
 
-    variant_caller_lst = [("BCFtools mv", "mv")]
+    # variant_caller_lst = [("BCFtools mv", "mv")]
 
     file_path = "/mnt/e/Codes/bayesian-update/read-mapping/kp-kpnih1-back-mutated-full-real/"
 
@@ -192,7 +196,7 @@ elif phase == 2:
                        ["REMU", "kp-back-mutated-full-mapping-remu-sorted"]
                        ]
 
-    evaluation_results = open("./results/variants-comparison-kp-kpnih1-back-mutated-full-real.txt", 'w')
+    evaluation_results = open("./results/variants-comparison-kp-kpnih1-back-mutated-full-real-new.txt", 'w')
 
     # variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
     #

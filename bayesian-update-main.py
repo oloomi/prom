@@ -17,10 +17,10 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     """
     # 0. Reading reference genome FASTA file and mapping SAM file
     genome_header, genome_seq = read_genome(ref_genome_file)
-    reads_dict = read_sam_file(sam_file, genome_seq)
+    reads_dict, read_len = read_sam_file(sam_file, genome_seq)
 
     # Estimated average depth of coverage
-    coverage = int(len(reads_dict) * 150 / len(genome_seq))
+    coverage = int(len(reads_dict) * read_len / len(genome_seq))
     print("Estimated average depth of coverage according to mapped reads: {}".format(coverage))
 
     # 1. Finding initial counts
@@ -180,12 +180,12 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             multi_reads_final_location[read_id] = best_mapping_location[1] + 1
 
             # Writing log to file
-            loc_prob = [(loc, round(prob, 2)) for prob, loc in final_multiread_probs[read_id]]
-            log_file.write("{}\t{}\t{}\t{}\n".format(read_id, multi_reads_final_location[read_id], 'M', loc_prob))
-            for i, run_log in enumerate(multi_read_probs[read_id]):
-                loc_prob_logs = [(loc, round(prob, 2)) for loc, prob in run_log]
-                log_file.write("{}\t{}\t{}\t{}\n".format(read_id, multi_reads_final_location[read_id], i,
-                                                         loc_prob_logs))
+            # loc_prob = [(loc, round(prob, 2)) for prob, loc in final_multiread_probs[read_id]]
+            # log_file.write("{}\t{}\t{}\t{}\n".format(read_id, multi_reads_final_location[read_id], 'M', loc_prob))
+            # for i, run_log in enumerate(multi_read_probs[read_id]):
+            #     loc_prob_logs = [(loc, round(prob, 2)) for loc, prob in run_log]
+            #     log_file.write("{}\t{}\t{}\t{}\n".format(read_id, multi_reads_final_location[read_id], i,
+            #                                              loc_prob_logs))
 
     # Writing final results to a SAM file
     write_sam_file(multi_reads_final_location, sam_file, output_file)
@@ -234,9 +234,13 @@ if phase == 1:
     #                 "./read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all.sam",
     #                 "./read-mapping/mtb-whole-genome-mutated-100-140/corrected-mtb-wg-mutated-se-mapping-remu-25-pmu.sam")
 
-    bayesian_update("./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna",
-                        "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-report-all.sam",
-                        "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-remu.sam")
+    # bayesian_update("./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna",
+    #                     "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-report-all.sam",
+    #                     "./read-mapping/kp-kpnih1-back-mutated-full-real/kp-back-mutated-full-mapping-remu.sam")
+
+    bayesian_update("./data/genomes/MTB-H37Rv-back-mutated-full.fna",
+                    "./read-mapping/mtb-h37rv-back-mutated/mtb-h37rv-back-mutated-mapping-report-all.sam",
+                    "./read-mapping/mtb-h37rv-back-mutated/mtb-h37rv-back-mutated-mapping-remu.sam")
 
     run_time = timeit.default_timer() - start_time
 

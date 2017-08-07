@@ -1,13 +1,21 @@
 #!/bin/bash
 # Running BCFtools for variant calling
 
-reference="../data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna"
-file_path="../read-mapping/kp-kpnih1-back-mutated-full-real/"
+reference="../data/genomes/MTB-H37Rv-back-mutated-full.fna"
+file_path="../read-mapping/mtb-h37rv-back-mutated/"
 
-alignment_files="kp-back-mutated-full-mapping-best-match-sorted
-kp-back-mutated-full-mapping-report-all-sorted
-kp-back-mutated-full-mapping-prom-sorted
-kp-back-mutated-full-mapping-remu-sorted"
+alignment_files="mtb-h37rv-back-mutated-full-mapping-best-match-sorted
+mtb-h37rv-back-mutated-full-mapping-report-all-sorted
+mtb-h37rv-back-mutated-full-mapping-prom-sorted
+mtb-h37rv-back-mutated-full-mapping-remu-sorted"
+
+#reference="../data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna"
+#file_path="../read-mapping/kp-kpnih1-back-mutated-full-real/"
+
+#alignment_files="kp-back-mutated-full-mapping-best-match-sorted
+#kp-back-mutated-full-mapping-report-all-sorted
+#kp-back-mutated-full-mapping-prom-sorted
+#kp-back-mutated-full-mapping-remu-sorted"
 
 #alignment_files="kp-back-mutated-full-mapping-prom-sorted"
 

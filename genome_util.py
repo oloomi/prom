@@ -514,9 +514,13 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 #                   "/home/mohammad/pneumoniae/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
 #                   "/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
 
-back_mutate_genome("./data/genomes/Klebsiella_pneumoniae_KPNIH1/Klebsiella_pneumoniae_KPNIH1.fna",
-                   "./data/genomes/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
-                   "./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
+# back_mutate_genome("./data/genomes/Klebsiella_pneumoniae_KPNIH1/Klebsiella_pneumoniae_KPNIH1.fna",
+#                    "./data/genomes/repeats-reputer/kp-kpninh1-repeats-reputer-100-ham2.txt",
+#                    "./data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna")
+
+# back_mutate_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
+#                    "./data/genomes/repeats-reputer/mtb-repeats-reputer-100-ham2.txt",
+#                    "./data/genomes/MTB-H37Rv-back-mutated-full.fna")
 
 # extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
 #                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,
