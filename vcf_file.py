@@ -16,7 +16,7 @@ def read_vcf_file(vcf_file_name):
             pos = int(fields[1])
             alt = fields[4]
             qual = float(fields[5])
-            if qual > 0:
+            if qual > 20:
                 variants.append((pos, alt))
 
     return variants
@@ -49,7 +49,7 @@ def read_benchmark_variants(benchmark_variants_file, read_len):
     return variants, acceptable_fp_variants
 
 
-def compare_variants(benchmark_variants_file, vcf_files_list):
+def compare_variants(benchmark_variants_file, vcf_files_list, original_variants = None):
     """
     Compares two benchmark variants with the variants found by variant calling
     :return: Number of false positive, true positive, variants
@@ -58,9 +58,13 @@ def compare_variants(benchmark_variants_file, vcf_files_list):
     output += "Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\tAcceptable_FP\tAC_FP_ratio\n"
 
     # Reading benchmark variants
-    variants, acceptable_fp_variants = read_benchmark_variants(benchmark_variants_file, 150)
+    variants, acceptable_fp_variants = read_benchmark_variants(benchmark_variants_file, 250)
     benchmark_variants = set(variants)
     acceptable_fps = set(acceptable_fp_variants)
+
+    # If mapping the reads to the original genome, not the back-mutated one
+    if original_variants:
+        original_variants = set(original_variants)
 
     print(len(acceptable_fps))
     print(sorted(list(acceptable_fps)))
@@ -83,10 +87,17 @@ def compare_variants(benchmark_variants_file, vcf_files_list):
         fn = len(false_negatives)
         accept_fp = false_positives & acceptable_fps
 
+        if original_variants:
+            actual_fp = false_positives - original_variants
+            act_fp = len(actual_fp)
+        else:
+            act_fp = 'NA'
+
         print(accept_fp)
 
         ac_fp = len(accept_fp)
         # true_negatives: rest of the genome
+
 
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
@@ -95,7 +106,7 @@ def compare_variants(benchmark_variants_file, vcf_files_list):
         else:
             f1_score = 0
 
-        output += "{}\t{}\t{}\t{}\t{:.2f}\t{}\t{:.2f}\n".format(method_name, tp, fp, fn, f1_score, ac_fp, ac_fp / fp)
+        output += "{}\t{}\t{}\t{}\t{:.2f}\t{}\t{}\n".format(method_name, tp, fp, fn, f1_score, ac_fp, act_fp)
         if "remu" in vcf_file_name and True:
             output += "\nFalse negatives:\n{}\n".format(sorted(list(false_negatives)))
             output += "False positives:\n{}\n\n".format(sorted(list(false_positives)))

@@ -135,7 +135,7 @@ def bayesian_resolution(ref_genome_file, sam_file, output_file):
 #                 "./read-mapping/mtb-mutated-long-repeats/mtb-mutated-se-mapping-report-all.sam",
 #                 "./read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs-max.sam")
 
-phase = 1
+phase = 2
 
 if phase == 1:
     start_time = timeit.default_timer()
@@ -184,19 +184,29 @@ if phase == 1:
 
 elif phase == 2:
 
-    variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+    variant_caller_lst = [("Freebayes", "freebayes"), ("FreebayesMin", "freebayes-min"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
 
-    # variant_caller_lst = [("BCFtools mv", "mv")]
+    file_path = "/mnt/e/Codes/bayesian-update/read-mapping/mtb-h37rv-back-mutated/"
 
-    file_path = "/mnt/e/Codes/bayesian-update/read-mapping/kp-kpnih1-back-mutated-full-real/"
-
-    vcf_files_names = [["Bowtie2_best-match", "kp-back-mutated-full-mapping-best-match-sorted"],
-                       ["Bowtie2_report-all", "kp-back-mutated-full-mapping-report-all-sorted"],
-                       ["PROM", "kp-back-mutated-full-mapping-prom-sorted"],
-                       ["REMU", "kp-back-mutated-full-mapping-remu-sorted"]
+    vcf_files_names = [["Bowtie2_best-match", "mtb-h37rv-back-mutated-mapping-best-match-sorted"],
+                       ["Bowtie2_report-all", "mtb-h37rv-back-mutated-mapping-report-all-sorted"],
+                       ["PROM", "mtb-h37rv-back-mutated-mapping-prom-sorted"],
+                       ["REMU", "mtb-h37rv-back-mutated-mapping-remu-sorted"]
                        ]
 
-    evaluation_results = open("./results/variants-comparison-kp-kpnih1-back-mutated-full-real-new.txt", 'w')
+    evaluation_results = open("./results/variants-comparison-mtb-h37rv-back-mutated-full-real-q20-new.txt", 'w')
+
+    # variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+    #
+    # file_path = "/mnt/e/Codes/bayesian-update/read-mapping/kp-kpnih1-back-mutated-full-real/"
+    #
+    # vcf_files_names = [["Bowtie2_best-match", "kp-back-mutated-full-mapping-best-match-sorted"],
+    #                    ["Bowtie2_report-all", "kp-back-mutated-full-mapping-report-all-sorted"],
+    #                    ["PROM", "kp-back-mutated-full-mapping-prom-sorted"],
+    #                    ["REMU", "kp-back-mutated-full-mapping-remu-sorted"]
+    #                    ]
+    #
+    # evaluation_results = open("./results/variants-comparison-kp-kpnih1-back-mutated-full-real-new.txt", 'w')
 
     # variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
     #
@@ -228,9 +238,18 @@ elif phase == 2:
         for i in range(len(vcf_files)):
             vcf_files[i][1] = file_path + vcf_files[i][1] + "-variants-{}.vcf".format(variant_caller[1])
 
+        original_variants = read_vcf_file(file_path +
+                                          "mtb-h37rv-mapping-best-match-sorted-variants-{}-original.vcf".format(variant_caller[1]))
+        # print(original_variants)
+
         comparison_output = \
-            compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full-mutations.txt",
-                             vcf_files)
+            compare_variants(
+                "/mnt/e/Codes/bayesian-update/data/genomes/MTB-H37Rv-back-mutated-full-mutations.txt",
+                vcf_files, original_variants)
+
+        # comparison_output = \
+        #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full-mutations.txt",
+        #                      vcf_files)
         # comparison_output = \
         #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
         #                      vcf_files)
