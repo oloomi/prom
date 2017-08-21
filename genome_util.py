@@ -190,8 +190,8 @@ def toy_genome(ref_genome_file, output_file, mutate=False):
         # Mutating the genome
         if mutate:
             nucleotides = set(['A', 'C', 'G', 'T'])
-            # pos = 2129
-            pos = 2500
+            pos = 2129
+            # pos = 2500
             print(new_genome_seq[pos])
             possible_snps = nucleotides - set(new_genome_seq[pos])
             new_genome_seq[pos] = random.choice(sorted(list(possible_snps)))
@@ -385,7 +385,7 @@ def repeat_ranges(repeats_file_name, k=0, rep_len=1):
     return repeats_set
 
 
-def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
+def back_mutate_genome(ref_genome_file, repeats_file_name, output_file, read_len=150):
     """
 
     :param ref_genome_file:
@@ -413,9 +413,9 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
     # Read reference genome
     genome_header, genome_seq = read_genome(ref_genome_file)
     # Extract the consolidated list of k-mismatch repeats
-    repeats_list = k_mismatch_repeats(repeats_file_name, k=1, min_len=150)
+    repeats_list = k_mismatch_repeats(repeats_file_name, k=1, min_len=read_len)
     # Extract exact repeat ranges
-    exact_repeats = repeat_ranges(repeats_file_name, k=0, rep_len=150)
+    exact_repeats = repeat_ranges(repeats_file_name, k=0, rep_len=read_len)
     # Find the position of difference and modify the reference genome
     mutation_pos = set()
     mutations_dict = defaultdict(list)
@@ -520,7 +520,7 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file):
 
 # back_mutate_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
 #                    "./data/genomes/repeats-reputer/mtb-repeats-reputer-100-ham2.txt",
-#                    "./data/genomes/MTB-H37Rv-back-mutated-full.fna")
+#                    "./data/genomes/MTB-H37Rv-back-mutated-full.fna", read_len=250)
 
 # extract_genome("./data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna", 1, 2008987,
 #                "./data/genomes/ot-whole-genome-mutated-70-140.fna", mutate=True,

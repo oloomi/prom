@@ -216,7 +216,7 @@ if phase == 1:
 
     # bayesian_update("./data/genomes/toy-genome.fna",
     #                 "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam",
-    #                 "./read-mapping/toy-genome-mutated/corrected-toy-wg-mutated-se-mapping-filter-best-neg-mm1.sam")
+    #                 "./read-mapping/toy-genome-mutated/corrected-toy-wg-mutated-se-mapping-remu.sam")
 
     # bayesian_update("./data/genomes/toy-genome.fna",
     #                 "./read-mapping/toy-genome-mutated-middle/toy-wg-mutated-middle-se-mapping-report-all.sam",
@@ -250,38 +250,39 @@ if phase == 1:
 
 elif phase == 2:
 
-    variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+    variant_caller_lst = [("Freebayes", "freebayes"), ("FreebayesMin", "freebayes-min"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
 
-    # file_path = "./read-mapping/mtb-whole-genome-mutated-100-140/"
-    #
-    # vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
-    #                    ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
-    #                    ["MMR", "corrected-other-3mis-mmr-sorted"],
-    #                    ["REMU","corrected-mtb-wg-mutated-se-mapping-remu-sorted"]]
-    #
-    # evaluation_results = open("./results/variants-comparison-MTB-wg-100-140.txt", 'w')
+    file_path = "./read-mapping/mtb-whole-genome-mutated-100-140/"
 
-    file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
-
-    vcf_files_names = [["Bowtie2 best-match", "ot-wg-mutated-se-mapping-best-match-sorted"],
-                       ["Bowtie2 report-all", "ot-wg-mutated-se-mapping-report-all-sorted"],
+    vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
+                       ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
                        ["MMR", "corrected-other-3mis-mmr-sorted"],
-                       ["REMU", "corrected-ot-wg-mutated-se-mapping-remu-sorted"],
-                       ["REMU-pmu", "corrected-ot-wg-mutated-se-mapping-remu-25-pmu-sorted"]]
+                       ["PROM", "simple-bayesian-mtb-wg-mutated-se-mapping-25-sorted"],
+                       ["REMU","corrected-mtb-wg-mutated-se-mapping-remu-25-pmu-sorted"]]
 
-    evaluation_results = open("./results/variants-comparison-OT-wg-70-140-pmu25.txt", 'w')
+    evaluation_results = open("./results/variants-comparison-MTB-wg-100-140-freebayes-min.txt", 'w')
+
+    # file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
+    #
+    # vcf_files_names = [["Bowtie2 best-match", "ot-wg-mutated-se-mapping-best-match-sorted"],
+    #                    ["Bowtie2 report-all", "ot-wg-mutated-se-mapping-report-all-sorted"],
+    #                    ["MMR", "corrected-other-3mis-mmr-sorted"],
+    #                    ["REMU", "corrected-ot-wg-mutated-se-mapping-remu-sorted"],
+    #                    ["REMU-pmu", "corrected-ot-wg-mutated-se-mapping-remu-25-pmu-sorted"]]
+    #
+    # evaluation_results = open("./results/variants-comparison-OT-wg-70-140-pmu25.txt", 'w')
 
     for variant_caller in variant_caller_lst:
         vcf_files = copy.deepcopy(vcf_files_names)
         for i in range(len(vcf_files)):
             vcf_files[i][1] = file_path + vcf_files[i][1] + "-variants-{}.vcf".format(variant_caller[1])
 
-        # comparison_output = \
-        #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-100-140-half-mutations.txt",
-        #                      vcf_files)
         comparison_output = \
-            compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
+            compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-100-140-half-mutations.txt",
                              vcf_files)
+        # comparison_output = \
+        #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/ot-whole-genome-mutated-70-140-mutations.txt",
+        #                      vcf_files)
         evaluation_results.write("{}\n".format(variant_caller[0]))
         evaluation_results.write(comparison_output)
 

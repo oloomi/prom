@@ -1,13 +1,17 @@
 #!/bin/bash
 # Running other multi-mapping resolution methods
 
+reference="../data/genomes/MTB-H37Rv-back-mutated-full.fna"
+alignments="../read-mapping/mtb-h37rv-back-mutated/mtb-h37rv-back-mutated-mapping-report-all-sorted"
+outfile="../read-mapping/mtb-h37rv-back-mutated/mtb-h37rv-back-mutated-mapping"
+
 #reference="../data/genomes/Orientia_tsutsugamushi_Ikeda_uid58869/NC_010793.fna"
 #alignments="../read-mapping/ot-whole-genome-mutated-70-140/ot-wg-mutated-se-mapping-report-all"
 #outfile="../read-mapping/ot-whole-genome-mutated-70-140/corrected-other-3mis"
 
-reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
-alignments="../read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all"
-outfile="../read-mapping/mtb-whole-genome-mutated-100-140/corrected-other-3mis"
+#reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
+#alignments="../read-mapping/mtb-whole-genome-mutated-100-140/mtb-wg-mutated-se-mapping-report-all"
+#outfile="../read-mapping/mtb-whole-genome-mutated-100-140/corrected-other-3mis"
 #alignments="../read-mapping/mtb-whole-genome-mutated-70-140/mtb-wg-mutated-se-mapping-report-all"
 #outfile="../read-mapping/mtb-whole-genome-mutated-70-140/corrected-other-3mis"
 

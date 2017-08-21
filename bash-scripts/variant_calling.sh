@@ -1,17 +1,20 @@
 #!/bin/bash
 # Running BCFtools for variant calling
 
-reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
-file_path="../read-mapping/mtb-h37rv-back-mutated/"
-alignment_files="mtb-h37rv-original-mapping-best-match-sorted"
-
-#reference="../data/genomes/MTB-H37Rv-back-mutated-full.fna"
+#reference="../data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna"
 #file_path="../read-mapping/mtb-h37rv-back-mutated/"
+#alignment_files="mtb-h37rv-original-mapping-best-match-sorted"
+
+reference="../data/genomes/MTB-H37Rv-back-mutated-full.fna"
+file_path="../read-mapping/mtb-h37rv-back-mutated/"
 
 #alignment_files="mtb-h37rv-back-mutated-mapping-best-match-sorted
 #mtb-h37rv-back-mutated-mapping-report-all-sorted
 #mtb-h37rv-back-mutated-mapping-prom-sorted
-#mtb-h37rv-back-mutated-mapping-remu-sorted"
+#mtb-h37rv-back-mutated-mapping-remu-sorted
+#mtb-h37rv-back-mutated-mapping-mmr-sorted"
+
+alignment_files="mtb-h37rv-back-mutated-mapping-mmr-sorted"
 
 #reference="../data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full.fna"
 #file_path="../read-mapping/kp-kpnih1-back-mutated-full-real/"
@@ -48,7 +51,7 @@ alignment_files="mtb-h37rv-original-mapping-best-match-sorted"
 #mtb-wg-mutated-se-mapping-best-match-sorted
 #mtb-wg-mutated-se-mapping-report-all-sorted
 #corrected-other-3mis-mmr-sorted
-#corrected-mtb-wg-mutated-se-mapping-remu-sorted"
+#corrected-mtb-wg-mutated-se-mapping-remu-25-pmu-sorted"
 
 
 #alignments="../read-mapping/mtb-mutated-long-repeats/corrected-mappings-mtb-mutated-700-100-1-10runs.sorted"
@@ -59,8 +62,7 @@ for file in $alignment_files
 do
 	echo "\nVariant calling for: $file\n"
 	bcftools mpileup -f $reference $file_path$file.bam | bcftools call -mv --ploidy 1 -P 1.1e-1 -o $file_path$file-variants-mv.vcf
-	bcftools mpileup -f $reference $file_path$file.bam | bcftools call -cv --ploidy 1 -p 0.1 -o $file_path$file-variants-consensus-p0.1.vcf
-#	bcftools mpileup -f $reference $file_path$file.bam | bcftools call -cv --ploidy 1 -p 0.5 -o $file_path$file-variants-consensus-p0.5.vcf
+	bcftools mpileup -f $reference $file_path$file.bam | bcftools call -cv --ploidy 1 -p 0.5 -o $file_path$file-variants-consensus-p0.5.vcf
 	freebayes -f $reference -p 1 $file_path$file.bam >$file_path$file-variants-freebayes.vcf
 	freebayes -f $reference -p 1 -F 0.9 $file_path$file.bam >$file_path$file-variants-freebayes-min.vcf
 done

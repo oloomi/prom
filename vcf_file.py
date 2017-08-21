@@ -16,7 +16,7 @@ def read_vcf_file(vcf_file_name):
             pos = int(fields[1])
             alt = fields[4]
             qual = float(fields[5])
-            if qual > 20:
+            if qual > 0:
                 variants.append((pos, alt))
 
     return variants
@@ -55,7 +55,7 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
     :return: Number of false positive, true positive, variants
     """
     output = ""
-    output += "Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\tAcceptable_FP\tAC_FP_ratio\n"
+    output += "Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\tRecall\n"
 
     # Reading benchmark variants
     variants, acceptable_fp_variants = read_benchmark_variants(benchmark_variants_file, 250)
@@ -106,8 +106,8 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
         else:
             f1_score = 0
 
-        output += "{}\t{}\t{}\t{}\t{:.2f}\t{}\t{}\n".format(method_name, tp, fp, fn, f1_score, ac_fp, act_fp)
-        if "remu" in vcf_file_name and True:
+        output += "{}\t{}\t{}\t{}\t{:.2f}\t{:.2f}\n".format(method_name, tp, fp, fn, f1_score, recall)
+        if "remu" in vcf_file_name and False:
             output += "\nFalse negatives:\n{}\n".format(sorted(list(false_negatives)))
             output += "False positives:\n{}\n\n".format(sorted(list(false_positives)))
 

@@ -190,11 +190,12 @@ elif phase == 2:
 
     vcf_files_names = [["Bowtie2_best-match", "mtb-h37rv-back-mutated-mapping-best-match-sorted"],
                        ["Bowtie2_report-all", "mtb-h37rv-back-mutated-mapping-report-all-sorted"],
+                       ["MMR", "mtb-h37rv-back-mutated-mapping-mmr-sorted"],
                        ["PROM", "mtb-h37rv-back-mutated-mapping-prom-sorted"],
                        ["REMU", "mtb-h37rv-back-mutated-mapping-remu-sorted"]
                        ]
 
-    evaluation_results = open("./results/variants-comparison-mtb-h37rv-back-mutated-full-real-q20-new.txt", 'w')
+    evaluation_results = open("./results/variants-comparison-mtb-h37rv-back-mutated-full-real-250.txt", 'w')
 
     # variant_caller_lst = [("Freebayes", "freebayes"), ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
     #
@@ -215,13 +216,10 @@ elif phase == 2:
     # vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
     #                    ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
     #                    ["MMR", "corrected-other-3mis-mmr-sorted"],
-    #                    ["Bayesian", "simple-bayesian-mtb-wg-mutated-se-mapping-sorted"],
     #                    ["Bayesian-25", "simple-bayesian-mtb-wg-mutated-se-mapping-25-sorted"],
-    #                    ["REMU", "corrected-mtb-wg-mutated-se-mapping-remu-sorted"],
-    #                    ["REMU-25", "corrected-mtb-wg-mutated-se-mapping-remu-25-sorted"],
     #                    ["REMU-25-pmu", "corrected-mtb-wg-mutated-se-mapping-remu-25-pmu-sorted"]
     #                    ]
-    #
+
     # evaluation_results = open("./results/variants-comparison-MTB-wg-100-140-simple-bayesian-25-pmu.txt", 'w')
 
     # file_path = "./read-mapping/ot-whole-genome-mutated-70-140/"
@@ -238,14 +236,16 @@ elif phase == 2:
         for i in range(len(vcf_files)):
             vcf_files[i][1] = file_path + vcf_files[i][1] + "-variants-{}.vcf".format(variant_caller[1])
 
-        original_variants = read_vcf_file(file_path +
-                                          "mtb-h37rv-mapping-best-match-sorted-variants-{}-original.vcf".format(variant_caller[1]))
+        original_variants = None
+        # original_variants = read_vcf_file(file_path +
+        #                                   "mtb-h37rv-mapping-best-match-sorted-variants-{}-original.vcf".format(variant_caller[1]))
         # print(original_variants)
 
         comparison_output = \
             compare_variants(
                 "/mnt/e/Codes/bayesian-update/data/genomes/MTB-H37Rv-back-mutated-full-mutations.txt",
                 vcf_files, original_variants)
+
 
         # comparison_output = \
         #     compare_variants("/mnt/e/Codes/bayesian-update/data/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated-full-mutations.txt",
