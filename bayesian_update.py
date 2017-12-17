@@ -92,6 +92,10 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     # Logging counts in each run
     counts_log_file = open("{}-log-counts.txt".format(output_file[:-4]), 'w')
 
+    # Trying new idea
+    sum_pr = 0
+    cnt_pr = 0
+
     # 2. Sampling
     # 10 Runs with 5000 iterations in each
     for run_number in range(10):
@@ -100,11 +104,15 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
         random.seed(run_number)
         base_counts = copy.deepcopy(initial_base_counts)
 
+        # Trying new idea
+        random.shuffle(multi_reads)
+
         # Iterations
-        num_iterations = len(multi_reads) * 5
+        num_iterations = len(multi_reads) * 1
         for i in range(num_iterations):
             # For a multi-read selected by random from the set of multi-reads
-            read_id = random.choice(multi_reads)
+            # read_id = random.choice(multi_reads)
+            read_id = multi_reads[i]
 
             # [(probability, position, read_seq), ...] where read_seq is needed for updating counts later on
             mapping_probs = []
@@ -119,6 +127,12 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # Selecting one location statistically
             # After select_mapping, the list `mapping_probs` is modified and contains probabilities instead of log-probs
             selected_mapping = select_mapping(mapping_probs)
+
+            # test
+            # if read_id == 'gi|448814763|ref|NC_000962.3|MTB|-673':
+            #     sum_pr += mapping_probs[1][0]
+            #     cnt_pr += 1
+            #     print(mapping_probs[1][0], sum_pr / cnt_pr)
 
             # Updating base counts for selected location
             update_counts(base_counts, selected_mapping, coverage)
@@ -172,8 +186,14 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     with open("{}-log.txt".format(output_file[:-4]), 'w') as log_file:
         # multi_reads_final_location = defaultdict(int)
         for read_id, mapping_probs in final_multiread_probs.items():
+            if read_id == 'gi|448814763|ref|NC_000962.3|MTB|-1622':
+                probs = [prob[0] for prob in mapping_probs]
+                print(mapping_probs)
+                print(probs)
             # Selecting final mapping location
             best_mapping_location = select_final_mapping(mapping_probs)
+            if read_id == 'gi|448814763|ref|NC_000962.3|MTB|-1622':
+                print(best_mapping_location)
             # best_mapping_location = select_final_mapping_stochastic(mapping_probs)
             multi_reads_final_location[read_id] = best_mapping_location[1] + 1
 

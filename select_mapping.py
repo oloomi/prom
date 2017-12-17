@@ -59,8 +59,9 @@ def select_final_mapping(mapping_probs):
 
     # All max probabilities appear at the beginning of the list; find the index of last one
     for mapping in mapping_probs[1:]:
+        # New idea!
         # If it has the same probability as highest probability
-        if mapping[0] == selected_prob[0]:
+        if mapping[0] > (selected_prob[0] - 0.02):
             last_tie_index += 1
         else:
             break
