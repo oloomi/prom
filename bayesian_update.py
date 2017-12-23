@@ -7,13 +7,13 @@ from select_mapping import *
 
 def bayesian_update(ref_genome_file, sam_file, output_file):
     """
-    Assigning a multi-read to a mapping location using Bayesian updating
+    Resolve multimappings using Bayesian updating
     :param ref_genome_file: the path to the FASTA file of the reference genome
-    :param sam_file: the input SAM file containing all candidate mappings for multi-reads and unique reads
+    :param sam_file: the input SAM file containing all candidate mappings for multireads and unique reads
     :param output_file: the path to the output SAM file with correct mappings
     :return: True on normal exit
     """
-    # 0. Reading reference genome FASTA file and mapping SAM file
+    # 0. Reading reference genome FASTA file and the SAM file containing all mappings
     genome_header, genome_seq = read_genome(ref_genome_file)
     reads_dict, read_len = read_sam_file(sam_file, genome_seq)
 
