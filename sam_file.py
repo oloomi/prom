@@ -1,9 +1,65 @@
+import sys
 from collections import defaultdict
 from genome_util import read_genome
+from calc_likelihood import initial_counts
+
+sam_col = {'qname': 0, 'pos': 3, 'cigar': 5, 'seq': 9, 'qual': 10}
 
 
-def correct_seq_errors(seq_features, genome_seq):
-    (pos, md_z, read_seq, base_quals) = seq_features
+def find_mdz_index(sam_fields):
+    """
+     Finding the index of MD:Z tag, as it can be different for different read mapping softwares
+    """
+    mdz_index = None
+    for i, tag in enumerate(sam_fields[11:]):
+        if 'MD:Z' in tag.upper():
+            mdz_index = i
+    return mdz_index
+
+
+def add_multiread(sam_fields, multireads_dict, read_counts, mdz_index):
+    """
+     Checks the alignment of a multiread and add it to dictionary of multireads
+    """
+    # * means no alignment for a read
+    if sam_fields[sam_col['cigar']] != "*":
+        if sam_fields[sam_col['cigar']] == '{}M'.format(len(sam_fields[sam_col['seq']])):
+            # Correct sequencing errors in the read
+            read_seq, num_edits = correct_seq_errors(sam_fields, mdz_index)
+            sam_fields[sam_col['seq']] = read_seq
+            sam_fields[sam_col['pos']] = int(sam_fields[sam_col['pos']]) - 1
+            # Store all alignments of a read, plus their edit distance
+            multireads_dict[sam_fields[sam_col['qname']]].append(sam_fields + [num_edits])
+        else:
+            # Unsupported CIGARs
+            read_counts['unsupported'].add(sam_fields[sam_col['qname']])
+    else:
+        read_counts['unmapped'].add(sam_fields[sam_col['qname']])
+    return True
+
+
+def process_unique_read(sam_fields, read_counts, base_counts, genome_seq):
+    """
+     Checks the alignment of a multiread and add it to dictionary of multireads
+    """
+    # * means no alignment for a read
+    if sam_fields[sam_col['cigar']] != "*":
+        if sam_fields[sam_col['cigar']] == '{}M'.format(len(sam_fields[sam_col['seq']])):
+            sam_fields[sam_col['pos']] = int(sam_fields[sam_col['pos']]) - 1
+            # Update pseudo-counts according to this unqiue mapping
+            initial_counts(base_counts, sam_fields, genome_seq)
+            read_counts['unique'] += 1
+        else:
+            # Unsupported CIGARs
+            read_counts['unsupported'].add(sam_fields[sam_col['qname']])
+    else:
+        read_counts['unmapped'].add(sam_fields[sam_col['qname']])
+    return True
+
+
+def correct_seq_errors(sam_fields, mdz_index):
+    (pos, md_z, read_seq, base_quals) = (sam_fields[sam_col['pos']], sam_fields[mdz_index][5:],
+                                         sam_fields[sam_col['seq']], sam_fields[sam_col['qual']])
     num_edits = md_z.count('A') + md_z.count('C') + md_z.count('G') + md_z.count('T') + md_z.count('N')
     read_seq = list(read_seq)
     for i, base in enumerate(read_seq):
@@ -18,7 +74,7 @@ def correct_seq_errors(seq_features, genome_seq):
 def filter_alignments(mappings, threshold):
     """
     Filters mapping locations of a multi-read that have more edit operations than the best-match + threshold
-    :param mappings: Initial list of multi-mappings
+    :param mappings: Initial list of multimappings
     :param threshold: an integer
     :return: A list of filtered mappings
     """
@@ -35,6 +91,59 @@ def filter_alignments(mappings, threshold):
             filtered_mappings.append(mapping)
 
     return filtered_mappings
+
+
+def read_all_mappings(sam_file_name, genome_seq, output_file, base_counts):
+    # A dictionary like: {read_id: [list of mappings]}
+    read_alignments_dict = defaultdict(list)
+
+    read_counts = {'unsupported': set(), 'unmapped': set(), 'unique': 0}
+
+    # Reading the SAM file and creating a dictionary of read_id : alignment
+    # The header lines and the unique alignments will be directly written to the output file
+    with open(sam_file_name) as sam_file:
+        with open(output_file, 'w') as out_file:
+
+            curr_line = next(sam_file)
+            # Writing header lines to output SAM file
+            while curr_line[0] == '@':
+                out_file.write(curr_line)
+                curr_line = next(sam_file)
+
+            multimap = False
+            unique_count = 0
+            multireads_dict = defaultdict(list)
+            prev_fields = curr_line.split('\t')
+            mdz_index = find_mdz_index(prev_fields)
+            if mdz_index is None:
+                print('No MD:Z tag found in SAM fields!')
+                sys.exit(1)
+
+            # Read and preprocess each alignment
+            for curr_line in sam_file:
+                curr_fields = curr_line.split('\t')
+                # Multimappings found for a previously seen multiread
+                if curr_fields[sam_col['qname']] == prev_fields[sam_col['qname']]:
+                    add_multiread(prev_fields, multireads_dict, read_counts, mdz_index)
+                    multimap = True
+                # Previous location is the last location for the seen multiread
+                elif multimap == True:
+                    add_multiread(prev_fields, multireads_dict, read_counts, mdz_index)
+                    multimap = False
+                else:
+                    process_unique_read(prev_fields, read_counts, base_counts, genome_seq)
+                    # add prev as unique
+                prev_fields = curr_fields
+
+            # Last line in the file
+            if prev_fields[sam_col['qname']] in multireads_dict:
+                add_multiread(prev_fields, multireads_dict, read_counts, mdz_index)
+            else:
+                process_unique_read(prev_fields, read_counts, base_counts, genome_seq)
+
+    read_len = len(prev_fields[sam_col['seq']])
+
+    return multireads_dict, read_len, read_counts
 
 
 def read_sam_file(sam_file_name, genome_seq):

@@ -9,6 +9,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 import bayesian_update as bu
 import argparse
 import textwrap
+import os
+import psutil
 
 parser = argparse.ArgumentParser(usage='\n\tpython3 remu.py -i <input.sam> -r <reference.fa> [-o <output.sam>]\n' +
                                        'help:\n\tpython3 remu.py -h',
@@ -29,5 +31,11 @@ if args.input and args.reference:
     print(parser.description)
     bu.bayesian_update(args.reference, args.input, args.output)
 
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info()[0] / float(2 ** 20)
+    print("Memory:", mem, "MB")
+
 
 # -r "./data/genomes/toy-genome.fna" -i "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam" -o "./read-mapping/toy-genome-mutated/test.sam"
+
+# python3 remu.py -r "../data/NC_000962.fna" -i "../data/toy-report-all.sam" -o "../data/remu-toy-report-all.sam"

@@ -1,5 +1,5 @@
 import copy
-
+from array import array
 from calc_likelihood import *
 from sam_file import *
 from select_mapping import *
@@ -15,14 +15,26 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     """
     # 0. Reading reference genome FASTA file and the SAM file containing all mappings
     genome_header, genome_seq = read_genome(ref_genome_file)
-    reads_dict, read_len = read_sam_file(sam_file, genome_seq)
+    initial_base_counts = create_count_arrays(len(genome_seq))
+
+    multireads_dict, read_len, read_counts = read_all_mappings(sam_file, genome_seq, output_file,
+                                                               initial_base_counts)
+
+    print("Number of reads with non {}M CIGAR: {}".format(read_len, len(read_counts['unsupported'])))
+    print("Number of reads not mapped:", len(read_counts['unmapped']))
+    total_reads = read_counts['unique'] + len(multireads_dict)
+    print("Number of reads in use:", total_reads)
+    print("Number of unique reads:", read_counts['unique'])
+    print("Number of multireads:", len(multireads_dict))
 
     # Estimated average depth of coverage
-    coverage = int(len(reads_dict) * read_len / len(genome_seq))
+    coverage = int(total_reads * read_len / len(genome_seq))
     print("Estimated average depth of coverage according to mapped reads: {}".format(coverage))
 
+    return True
+
     # 1. Finding initial counts
-    initial_base_counts = initial_counts(genome_seq, coverage)
+    # initial_base_counts = initial_counts(genome_seq, coverage)
 
     multi_reads_final_location = defaultdict(int)
 
