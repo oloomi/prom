@@ -33,7 +33,7 @@ if args.input and args.reference:
 
     process = psutil.Process(os.getpid())
     mem = process.memory_info()[0] / float(2 ** 20)
-    print("Memory:", mem, "MB")
+    print("Memory usage:", round(mem, 2), "MB")
 
 
 # -r "./data/genomes/toy-genome.fna" -i "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam" -o "./read-mapping/toy-genome-mutated/test.sam"

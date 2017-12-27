@@ -13,10 +13,15 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     :param output_file: the path to the output SAM file with correct mappings
     :return: True on normal exit
     """
-    # 0. Reading reference genome FASTA file and the SAM file containing all mappings
+    # 0. Reading reference genome FASTA file and creating pseudo-count vectors according to the size of genome
+    print("Reading reference genome...")
     genome_header, genome_seq = read_genome(ref_genome_file)
     initial_base_counts = create_count_arrays(len(genome_seq))
 
+    # 1. Reading the SAM file containing all mappings and
+    # 1.1 Writing unique mappings to output file and updating pseudo-counts accordingly
+    # 1.2 Identifying multireads and creating the dictionary of multimappings
+    print("Reading all mappings...")
     multireads_dict, read_len, read_counts = read_all_mappings(sam_file, genome_seq, output_file,
                                                                initial_base_counts)
 
@@ -24,12 +29,15 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     print("Number of reads not mapped:", len(read_counts['unmapped']))
     total_reads = read_counts['unique'] + len(multireads_dict)
     print("Number of reads in use:", total_reads)
-    print("Number of unique reads:", read_counts['unique'])
-    print("Number of multireads:", len(multireads_dict))
+    print(" {} unique reads".format(read_counts['unique']))
+    print(" {} multireads with {} candidate mappings".format(len(multireads_dict), read_counts['multi']))
 
     # Estimated average depth of coverage
     coverage = int(total_reads * read_len / len(genome_seq))
-    print("Estimated average depth of coverage according to mapped reads: {}".format(coverage))
+    print("Average depth of coverage according to mapped reads: {}".format(coverage))
+
+    # 1.3 Check initial base counts
+    process_initial_counts(initial_base_counts, coverage)
 
     return True
 

@@ -16,6 +16,9 @@ def create_count_arrays(genome_size):
 
 
 def initial_counts(base_counts, selected_mapping, genome_seq):
+    """
+    Updates the initial counts based on nucleotides in the unique reads
+    """
     mapping_start_pos = selected_mapping[sam_col['pos']]
     read_seq = selected_mapping[sam_col['seq']]
     for index, base in enumerate(read_seq):
@@ -23,14 +26,29 @@ def initial_counts(base_counts, selected_mapping, genome_seq):
         # We treat N's as a match to the reference genome
         if base != 'N':
             base_counts[base_index[base]][mapping_start_pos + index] += 1
+            base_counts[base_index[ref_base]][mapping_start_pos + index] -= 1
         else:   # Update reference base
             base_counts[base_index[ref_base]][mapping_start_pos + index] += 1
     return True
 
 
+def process_initial_counts(base_counts, coverage):
+    """
+    Checks the initial counts and corrects counts greater than coverage or less than one
+    """
+    genome_size = len(base_counts[0])
+    for i in range(4):
+        for j in range(genome_size):
+            if base_counts[i][j] > coverage:
+                base_counts[i][j] = coverage
+            elif base_counts[i][j] < 1:
+                base_counts[i][j] = 1
+    return True
+
+
 def update_counts(base_counts, selected_mapping, coverage, genome_seq):
     """
-    Updates base counts for each position at reference
+    Updates base counts for each position at reference according to the alignment of multiread
     """
     mapping_start_pos = selected_mapping[sam_col['pos']]
     read_seq = selected_mapping[sam_col['seq']]
