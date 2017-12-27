@@ -36,78 +36,35 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     coverage = int(total_reads * read_len / len(genome_seq))
     print("Average depth of coverage according to mapped reads: {}".format(coverage))
 
-    # 1.3 Check initial base counts
+    # 1.3 Correct initial counts based on coverage
     process_initial_counts(initial_base_counts, coverage)
 
-    return True
-
-    # 1. Finding initial counts
-    # initial_base_counts = initial_counts(genome_seq, coverage)
-
-    multi_reads_final_location = defaultdict(int)
-
-    # Updating the prior (initial counts) for uniquely mapped reads
-    # New: and also filtering may make a multi-read a unique read
-    unique_reads = []
+    # 1.4 Check for edit distance of candidate mappings of each multiread
     initially_resolved_multireads = []
-    random.seed(12)
-
-    for read_id, mappings in reads_dict.items():
-        if len(mappings) == 1:
-            unique_reads.append(read_id)
-            mapping_start_pos = mappings[0][0] - 1
-            read_seq = mappings[0][3]
-
-            update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq], coverage)     # 0.99 won't be used
-
-            # for pos_in_read, base in enumerate(read_seq):
-            #     # We find the base counts for that position in reference genome and
-            #     # we update it by incrementing the count for the base in the read
-            #     initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
-        else:
+    with open(output_file, 'a') as out_file:
+        for read_id, mappings in multireads_dict.items():
             mappings_filtered = filter_alignments(mappings, 3)
-            # By removing rubbish alignments, it has turned to a unique mapping
+            # By removing low quality alignments, it has turned to a unique mapping
             if len(mappings_filtered) == 1:
-                multi_reads_final_location[read_id] = mappings_filtered[0][0]
+                # We treat it like a unique read and update the counts
+                update_counts(initial_base_counts, mappings_filtered[0], coverage, genome_seq)
+                sam_fields = mappings_filtered[0][:-1]
+                out_file.write("\t".join(sam_fields[0:sam_col['pos']] + [str(sam_fields[sam_col['pos']])] +
+                                         sam_fields[sam_col['pos'] + 1:]))
                 initially_resolved_multireads.append(read_id)
-                # We treat it like a unique read and update counts
-                mapping_start_pos = mappings_filtered[0][0] - 1
-                read_seq = mappings_filtered[0][3]
 
-                update_counts(initial_base_counts, [0.99, mapping_start_pos, read_seq], coverage)
-
-                # for pos_in_read, base in enumerate(read_seq):
-                #     initial_base_counts[mapping_start_pos + pos_in_read][base_index[base]] += 1
-            else:
-                # It is a multi-mapping that needs to be resolved by Bayesian updating
-                # However, rubbish mapping locations should be removed
-                reads_dict[read_id] = mappings_filtered
-
-    # Removing uniquely mapped reads
-    for read_id in unique_reads:
-        del reads_dict[read_id]
-
-    print("Number of multireads: {}".format(len(reads_dict)))
-
-    # Removing initially resolved multireads
     for read_id in initially_resolved_multireads:
-        del reads_dict[read_id]
+        del multireads_dict[read_id]
 
     print("Number of initially resolved multireads: {}".format(len(initially_resolved_multireads)))
-
-    with open("multireads.txt", "w") as multireads_file:
-        for key, value in reads_dict.items():
-            mdz_s = [lst[2] for lst in value]
-            multireads_file.write("{}\t{}\n".format(key, mdz_s))
-
-    multi_reads = sorted(reads_dict.keys())
-    print("Number of multi-reads requiring resolution:", len(multi_reads))
+    # return True
+    random.seed(12)
+    multi_reads = sorted(multireads_dict.keys())
 
     # {read_id: {run_number: [probabilities]}, ...}
     # multi_read_probs = defaultdict(lambda: defaultdict(list))
     # [[(pos, prob),...], ... ] for run 1, 2, 3, etc.
     multi_read_probs = defaultdict(list)
-    # random_seeds = [12, "Hi", 110, "Bye", 1, 33, 5, 14, 313, 777]
 
     # Logging counts in each run
     counts_log_file = open("{}-log-counts.txt".format(output_file[:-4]), 'w')
@@ -116,15 +73,14 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     sum_pr = 0
     cnt_pr = 0
 
-    # 2. Sampling
+    # 2. Multimapping resolution
     # 10 Runs with 5000 iterations in each
     for run_number in range(10):
         print("Run # {} ...".format(run_number))
-        # random.seed(random_seeds[run_number])
         random.seed(run_number)
+        # Reinitialising the pseudo-counts
         base_counts = copy.deepcopy(initial_base_counts)
-
-        # Trying new idea
+        # Shuffling the list of multireads
         random.shuffle(multi_reads)
 
         # Iterations
@@ -138,7 +94,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             mapping_probs = []
 
             # For each of its mapping location, we calculate the posterior probability
-            for mapping in reads_dict[read_id]:
+            for mapping in multireads_dict[read_id]:
                 (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
                 # Find the likelihood
                 mapping_probs.append([calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq),
@@ -162,7 +118,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
         for read_id in multi_reads:
             # For each of its mapping location, we find the mapping probability
             mapping_probs = []  # [(position, probability), ...]
-            for mapping in reads_dict[read_id]:
+            for mapping in multireads_dict[read_id]:
                 (mapping_start_pos, read_seq) = (mapping[0] - 1, mapping[3])
                 mapping_probs.append([calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq),
                                       mapping_start_pos, read_seq])
