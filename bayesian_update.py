@@ -61,12 +61,12 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     # return True
     random.seed(12)
     multi_reads = sorted(multireads_dict.keys())
-    num_runs = 10
+    num_runs = 2
 
     # 2. Multimapping resolution
     print("Resolving multimappings...")
     for run_number in range(num_runs):
-        print("Run # {} ...".format(run_number))
+        print("Run # {} ...".format(run_number + 1))
         random.seed(run_number)
         # Reinitialising the pseudo-counts
         base_counts = copy.deepcopy(initial_base_counts)
@@ -83,14 +83,14 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # For each of its mapping location, we calculate the mapping probability
             for mapping in multireads_dict[read_id]:
                 # Probability is saved in mapping[-1]
-                calc_log_mapping_prob(base_counts, mapping, coverage)
+                calc_log_mapping_prob(base_counts, mapping, coverage, genome_seq)
 
             # Selecting one location stochastically
             # After select_mapping, each mapping[-1] is modified and contains probabilities instead of log-probs
             selected_mapping = select_mapping(multireads_dict[read_id])
 
             # Updating base counts for selected location
-            update_counts(base_counts, selected_mapping, coverage)
+            update_counts(base_counts, selected_mapping, coverage, genome_seq)
 
         # After all iterations are done
         # Recalculate the probabilities for each multi-read and each of it's mapping locations based on latest counts
@@ -98,7 +98,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # For each of its mapping locations, we find the mapping probability
             for mapping in multireads_dict[read_id]:
                 # Probability is saved in mapping[-1]
-                calc_log_mapping_prob(base_counts, mapping, coverage)
+                calc_log_mapping_prob(base_counts, mapping, coverage, genome_seq)
 
             # Just run select_mapping to normalize probabilities
             select_mapping(multireads_dict[read_id])
@@ -124,6 +124,6 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # Selecting final mapping
             final_mapping = select_final_mapping(mappings)
             # Add 1 to position and write to file
-            out_file.write("\t".join(sam_fields[0:sam_col['pos']] + [str(sam_fields[sam_col['pos']] + 1)] +
-                                     sam_fields[sam_col['pos'] + 1:-2]))
+            out_file.write("\t".join(final_mapping[0:sam_col['pos']] + [str(final_mapping[sam_col['pos']] + 1)] +
+                                     final_mapping[sam_col['pos'] + 1:-2]))
     return True

@@ -65,7 +65,7 @@ def select_final_mapping(mappings):
     for mapping in mappings[1:]:
         # New idea!
         # If it has the same probability as highest probability
-        if mapping[-2] > (selected_mapping[0][-2] - 0.02):
+        if mapping[-2] > (selected_mapping[-2] - 0.02):
             last_tie_index += 1
         else:
             break

@@ -80,7 +80,7 @@ def calc_log_mapping_prob(base_counts, mapping, coverage, genome_seq):
             base_prob = base_counts[base_index[base]][mapping[sam_col['pos']] + index] / (coverage + 1)
         else:
             ref_base = genome_seq[mapping[sam_col['pos']] + index]
-            base_prob = base_counts[mapping[sam_col['pos']] + index][base_index[ref_base]] / (coverage + 1)
+            base_prob = base_counts[base_index[ref_base]][mapping[sam_col['pos']] + index] / (coverage + 1)
 
         log_mapping_prob += math.log(base_prob)
 

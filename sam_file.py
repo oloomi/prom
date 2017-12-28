@@ -53,6 +53,7 @@ def process_unique_read(sam_fields, read_counts, base_counts, genome_seq, outfil
             initial_counts(base_counts, sam_fields, genome_seq)
             read_counts['unique'] += 1
         else:
+            sam_fields[sam_col['pos']] = int(sam_fields[sam_col['pos']]) - 1
             # Unsupported CIGARs
             read_counts['unsupported'].add(sam_fields[sam_col['qname']])
         # Write alignment to output file
