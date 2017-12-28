@@ -56,7 +56,7 @@ def process_unique_read(sam_fields, read_counts, base_counts, genome_seq, outfil
             # Unsupported CIGARs
             read_counts['unsupported'].add(sam_fields[sam_col['qname']])
         # Write alignment to output file
-        outfile.write("\t".join(sam_fields[0:sam_col['pos']] + [str(sam_fields[sam_col['pos']])] +
+        outfile.write("\t".join(sam_fields[0:sam_col['pos']] + [str(sam_fields[sam_col['pos']] + 1)] +
                                 sam_fields[sam_col['pos']+1:]))
     else:
         read_counts['unmapped'].add(sam_fields[sam_col['qname']])
@@ -92,6 +92,10 @@ def filter_alignments(mappings, threshold):
     filtered_mappings = []
     for mapping in mappings:
         num_edits = mapping[-1]
+        # Remove the edit distance and reserve two values for each mapping location:
+        # sum of probabilities, and current run/iteration probability
+        mapping[-1] = 0
+        mapping.append(0)
         # If this alignment is not too different from the best match
         if num_edits <= min_ops + threshold:
             filtered_mappings.append(mapping)

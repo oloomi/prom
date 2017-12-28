@@ -3,11 +3,29 @@ import copy
 import timeit
 from array import array
 from collections import defaultdict
+from operator import itemgetter
 import os
 import psutil
 
-genome_seq = array('b', 'actgaaccgg')
-print(genome_seq)
+
+def change_mapping(alignment):
+    alignment.append(0.8)
+    return True
+
+
+read_dict = {'read1': [[1, 2, 0.65], [4, 5, 0.34]]}
+for mapping in read_dict['read1']:
+    change_mapping(mapping)
+print(read_dict)
+
+mappings = read_dict['read1']
+mappings.sort(key=itemgetter(-2))
+print(read_dict)
+
+#4 7 3
+
+# genome_seq = array('b', 'actgaaccgg')
+# print(genome_seq)
 
 #"../data/mtb-single-mapping-report-all.sam"
 

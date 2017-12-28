@@ -69,20 +69,21 @@ def update_counts(base_counts, selected_mapping, coverage, genome_seq):
     return True
 
 
-def calc_log_mapping_prob(base_counts, mapping_start_pos, read_seq):
+def calc_log_mapping_prob(base_counts, mapping, coverage, genome_seq):
     """
     Calculates mapping probability for one read to one location
     It returns the sum of log of probabilities for each base
     """
     log_mapping_prob = 0
-    for index, base in enumerate(read_seq):
-        # If there is a match with the reference genome at this position
-        if base == 'N' or base_counts[mapping_start_pos + index][base_index[base]] == 255:
-            base_prob = base_counts[mapping_start_pos + index][4] / 256     # 1000
+    for index, base in enumerate(mapping[sam_col['seq']]):
+        if base != 'N':
+            base_prob = base_counts[base_index[base]][mapping[sam_col['pos']] + index] / (coverage + 1)
         else:
-            base_prob = base_counts[mapping_start_pos + index][base_index[base]] / 256
-        # base_prob = base_counts[mapping_start_pos + index][base_index[base]] / \
-        #             sum(base_counts[mapping_start_pos + index])
+            ref_base = genome_seq[mapping[sam_col['pos']] + index]
+            base_prob = base_counts[mapping[sam_col['pos']] + index][base_index[ref_base]] / (coverage + 1)
+
         log_mapping_prob += math.log(base_prob)
 
-    return log_mapping_prob
+    mapping[-1] = log_mapping_prob
+
+    return True
