@@ -106,9 +106,6 @@ def filter_alignments(mappings, threshold):
 
 
 def read_all_mappings(sam_file_name, genome_seq, output_file, base_counts):
-    # A dictionary like: {read_id: [list of mappings]}
-    read_alignments_dict = defaultdict(list)
-
     read_counts = {'unsupported': set(), 'unmapped': set(), 'unique': 0, 'multi': 0}
 
     # Reading the SAM file and creating a dictionary of read_id : alignment

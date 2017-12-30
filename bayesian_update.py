@@ -37,7 +37,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     print("Average depth of coverage according to mapped reads: {}".format(coverage))
 
     # 1.3 Correct initial counts based on coverage
-    process_initial_counts(initial_base_counts, coverage)
+    process_initial_counts(initial_base_counts, coverage, genome_seq)
 
     # 1.4 Check for edit distance of candidate mappings of each multiread
     initially_resolved_multireads = []
@@ -122,9 +122,12 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             for mapping in mappings:
                 mapping[-2] /= sum_probs
 
-            if read_id == "gi|448814763|ref|NC_000962.3|MTB|-597":
+            if read_id == "gi|448814763|ref|NC_000962.3|MTB|-1622":
                 probs = [(m[sam_col['pos']], m[-2]) for m in mappings]
                 print(sorted(probs))
+                # counts_print(initial_base_counts, 2110, 2160)
+                # print('')
+                # counts_print(base_counts, 2110, 2160)
 
             # Selecting final mapping
             final_mapping = select_final_mapping(mappings)
