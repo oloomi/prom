@@ -57,7 +57,7 @@ def update_counts(base_counts, selected_mapping, coverage, genome_seq):
     for index, base in enumerate(read_seq):
         ref_base = genome_seq[mapping_start_pos + index]
         # We treat N's as a match to the reference genome
-        if base != 'N' and base_counts[base_index[base]][mapping_start_pos + index] != ref_base:
+        if base != 'N' and base != ref_base:
             if base_counts[base_index[base]][mapping_start_pos + index] < coverage:
                 base_counts[base_index[base]][mapping_start_pos + index] += 1
             # Update the count for the reference base

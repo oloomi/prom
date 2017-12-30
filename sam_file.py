@@ -2,7 +2,7 @@ import sys
 import os
 from collections import defaultdict
 from genome_util import read_genome
-from calc_likelihood import initial_counts
+from calc_likelihood import initial_counts, update_counts
 
 sam_col = {'qname': 0, 'pos': 3, 'cigar': 5, 'seq': 9, 'qual': 10}
 
@@ -51,6 +51,7 @@ def process_unique_read(sam_fields, read_counts, base_counts, genome_seq, outfil
             sam_fields[sam_col['pos']] = int(sam_fields[sam_col['pos']]) - 1
             # Update pseudo-counts according to this unqiue mapping
             initial_counts(base_counts, sam_fields, genome_seq)
+            # update_counts(base_counts, sam_fields, 24, genome_seq)
             read_counts['unique'] += 1
         else:
             sam_fields[sam_col['pos']] = int(sam_fields[sam_col['pos']]) - 1

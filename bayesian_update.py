@@ -61,7 +61,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     # return True
     random.seed(12)
     multi_reads = sorted(multireads_dict.keys())
-    num_runs = 2
+    num_runs = 10
 
     # 2. Multimapping resolution
     print("Resolving multimappings...")
@@ -121,6 +121,11 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
             # Normalising average probabilities over all candidate locations for this multiread
             for mapping in mappings:
                 mapping[-2] /= sum_probs
+
+            if read_id == "gi|448814763|ref|NC_000962.3|MTB|-597":
+                probs = [(m[sam_col['pos']], m[-2]) for m in mappings]
+                print(sorted(probs))
+
             # Selecting final mapping
             final_mapping = select_final_mapping(mappings)
             # Add 1 to position and write to file
