@@ -23,6 +23,9 @@ parser.add_argument('-i', '--input', required=True, help='Input SAM file that co
 parser.add_argument('-r', '--reference', required=True, help='Reference genome in FASTA format')
 parser.add_argument('-o', '--output', default='output.sam',
                     help='Output SAM file that contains correct mappings (default: output.sam)')
+parser.add_argument('-n', '--iterations', default=50, type=int, help='Number of iterations (default: 50)')
+parser.add_argument('-t', '--threshold', default=0.02, type=float,
+                    help='Threshold for probability difference between equally good mappings (default: 0.02)')
 # Software version
 parser.add_argument('-v', '--version', action='version', version='REMU 1.0.0', help='Software version')
 args = parser.parse_args()
