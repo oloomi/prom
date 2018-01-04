@@ -45,7 +45,7 @@ and select the correct alignment for multi-mapping reads:
 python3 remu.py -g genome.fna -i all_mappings_sorted.sam -o correct_mappings.sam
 ```
 The output file will contain the alignment for uniquely mapped reads and the
-correct alignment for multimapping reads.
+correct alignment for multi-mapping reads and is ready to be used for downstream analysis.
 
 ## Options
 Please refer to the help section for further options:
