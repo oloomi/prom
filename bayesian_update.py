@@ -1,5 +1,5 @@
 import copy
-from array import array
+from genome_util import *
 from calc_likelihood import *
 from sam_file import *
 from select_mapping import *

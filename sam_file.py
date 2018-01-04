@@ -1,10 +1,8 @@
 import sys
 import os
 from collections import defaultdict
-from genome_util import read_genome
+from settings import *
 from calc_likelihood import initial_counts, update_counts
-
-sam_col = {'qname': 0, 'pos': 3, 'cigar': 5, 'seq': 9, 'qual': 10}
 
 
 def find_mdz_index(sam_fields):
