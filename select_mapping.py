@@ -52,7 +52,7 @@ def best_mapping(mapping_probs):
     return selected_prob
 
 
-def select_final_mapping(mappings):
+def select_final_mapping(mappings, prob_threshold):
     """
     Returns the most probable mapping location after all runs
     """
@@ -65,7 +65,7 @@ def select_final_mapping(mappings):
     for mapping in mappings[1:]:
         # New idea!
         # If it has the same probability as highest probability
-        if mapping[-2] > (selected_mapping[-2] - 0.02):
+        if mapping[-2] > (selected_mapping[-2] - prob_threshold):
             last_tie_index += 1
         else:
             break

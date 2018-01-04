@@ -9,8 +9,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 import bayesian_update as bu
 import argparse
 import textwrap
-import os
-import psutil
+# import os
+# import psutil
+
+
+def float_prob(num_str):
+    num = float(num_str)
+    if not (0 <= num <= 1):
+        raise argparse.ArgumentTypeError("{} is not in range [0, 1]".format(num))
+    return num
 
 parser = argparse.ArgumentParser(usage='\n\tpython3 remu.py -i <input.sam> -r <reference.fa> [-o <output.sam>]\n' +
                                        'help:\n\tpython3 remu.py -h',
@@ -20,23 +27,23 @@ parser = argparse.ArgumentParser(usage='\n\tpython3 remu.py -i <input.sam> -r <r
                                  by Mohammad Oloomi (smh.oloomi@gmail.com)\n'''),
                                  epilog='')
 parser.add_argument('-i', '--input', required=True, help='Input SAM file that contains all read mappings')
-parser.add_argument('-r', '--reference', required=True, help='Reference genome in FASTA format')
+parser.add_argument('-g', '--genome', required=True, help='Reference genome in FASTA format')
 parser.add_argument('-o', '--output', default='output.sam',
                     help='Output SAM file that contains correct mappings (default: output.sam)')
-parser.add_argument('-n', '--iterations', default=50, type=int, help='Number of iterations (default: 50)')
-parser.add_argument('-t', '--threshold', default=0.02, type=float,
+parser.add_argument('-r', '--runs', default=10, type=int, help='Number of runs (default: 10)')
+parser.add_argument('-t', '--threshold', default=0.02, type=float_prob,
                     help='Threshold for probability difference between equally good mappings (default: 0.02)')
 # Software version
 parser.add_argument('-v', '--version', action='version', version='REMU 1.0.0', help='Software version')
 args = parser.parse_args()
 
-if args.input and args.reference:
+if args.input and args.genome:
     print(parser.description)
-    bu.bayesian_update(args.reference, args.input, args.output)
+    bu.bayesian_update(args.genome, args.input, args.output, args.runs, args.threshold)
 
-    process = psutil.Process(os.getpid())
-    mem = process.memory_info()[0] / float(2 ** 20)
-    print("Memory usage:", round(mem, 2), "MB")
+    # process = psutil.Process(os.getpid())
+    # mem = process.memory_info()[0] / float(2 ** 20)
+    # print("Memory usage:", round(mem, 2), "MB")
 
 
 # -r "./data/genomes/toy-genome.fna" -i "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam" -o "./read-mapping/toy-genome-mutated/test.sam"

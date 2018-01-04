@@ -5,12 +5,14 @@ from sam_file import *
 from select_mapping import *
 
 
-def bayesian_update(ref_genome_file, sam_file, output_file):
+def bayesian_update(ref_genome_file, sam_file, output_file, num_runs, prob_threshold):
     """
     Resolve multimappings using Bayesian updating
     :param ref_genome_file: the path to the FASTA file of the reference genome
     :param sam_file: the input SAM file containing all candidate mappings for multireads and unique reads
     :param output_file: the path to the output SAM file with correct mappings
+    :param prob_threshold: the acceptable difference in probabilities of equally good mapping locations
+    :param num_runs: number of runs
     :return: True on normal exit
     """
     # 0. Reading reference genome FASTA file and creating pseudo-count vectors according to the size of genome
@@ -61,7 +63,6 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
     # return True
     random.seed(12)
     multi_reads = sorted(multireads_dict.keys())
-    num_runs = 10
 
     # 2. Multimapping resolution
     print("Resolving multimappings...")
@@ -130,7 +131,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file):
                 # counts_print(base_counts, 2110, 2160)
 
             # Selecting final mapping
-            final_mapping = select_final_mapping(mappings)
+            final_mapping = select_final_mapping(mappings, prob_threshold)
             # Add 1 to position and write to file
             out_file.write("\t".join(final_mapping[0:sam_col['pos']] + [str(final_mapping[sam_col['pos']] + 1)] +
                                      final_mapping[sam_col['pos'] + 1:-2]))
