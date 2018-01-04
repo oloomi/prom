@@ -95,7 +95,7 @@ def counts_print(base_counts, start_pos, end_pos):
 def calc_log_mapping_prob(base_counts, mapping, coverage, genome_seq):
     """
     Calculates mapping probability for one read to one location
-    It returns the sum of log of probabilities for each base
+    It returns the sum of log probabilities for bases along the alignment
     """
     log_mapping_prob = 0
     for index, base in enumerate(mapping[sam_col['seq']]):
