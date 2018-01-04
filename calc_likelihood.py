@@ -4,7 +4,7 @@ from copy import deepcopy
 
 sam_col = {'qname': 0, 'pos': 3, 'cigar': 5, 'seq': 9, 'qual': 10}
 base_index = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
-
+base_qual_threshold = 20
 
 def create_count_arrays(genome_size):
     """
@@ -21,14 +21,16 @@ def initial_counts(base_counts, selected_mapping, genome_seq):
     """
     mapping_start_pos = selected_mapping[sam_col['pos']]
     read_seq = selected_mapping[sam_col['seq']]
+    base_qual = selected_mapping[sam_col['qual']]
     for index, base in enumerate(read_seq):
         ref_base = genome_seq[mapping_start_pos + index]
-        # We treat N's as a match to the reference genome
-        if base != 'N' and base != ref_base:
+        # We treat N's and low quality score bases as a match to the reference genome
+        # Phred-scale quality score
+        if (ord(base_qual[index]) - 33) < base_qual_threshold or base == 'N':
+            base_counts[base_index[ref_base]][mapping_start_pos + index] += 1
+        else:
             base_counts[base_index[base]][mapping_start_pos + index] += 1
             # base_counts[base_index[ref_base]][mapping_start_pos + index] -= 1
-        else:   # Update reference base
-            base_counts[base_index[ref_base]][mapping_start_pos + index] += 1
     return True
 
 
@@ -51,13 +53,7 @@ def process_initial_counts(base_counts, coverage, genome_seq):
                 base_counts[b][i] = coverage
             elif base_counts[b][i] < 1:
                 base_counts[b][i] = 1
-    # genome_size = len(base_counts[0])
-    # for i in range(4):
-    #     for j in range(genome_size):
-    #         if base_counts[i][j] > coverage:
-    #             base_counts[i][j] = coverage
-    #         elif base_counts[i][j] < 1:
-    #             base_counts[i][j] = 1
+
     return True
 
 
@@ -67,20 +63,21 @@ def update_counts(base_counts, selected_mapping, coverage, genome_seq):
     """
     mapping_start_pos = selected_mapping[sam_col['pos']]
     read_seq = selected_mapping[sam_col['seq']]
+    base_qual = selected_mapping[sam_col['qual']]
     # mapping_start_pos = selected_mapping[1]
     # read_seq = selected_mapping[2]
     for index, base in enumerate(read_seq):
         ref_base = genome_seq[mapping_start_pos + index]
-        # We treat N's as a match to the reference genome
-        if base != 'N' and base != ref_base:
+        # We treat N's and low quality score bases as a match to the reference genome
+        if base == ref_base or (ord(base_qual[index]) - 33) < base_qual_threshold or base == 'N':
+            if base_counts[base_index[ref_base]][mapping_start_pos + index] < coverage:
+                base_counts[base_index[ref_base]][mapping_start_pos + index] += 1
+        else:
             if base_counts[base_index[base]][mapping_start_pos + index] < coverage:
                 base_counts[base_index[base]][mapping_start_pos + index] += 1
             # Update the count for the reference base
             if base_counts[base_index[ref_base]][mapping_start_pos + index] > 1:
                 base_counts[base_index[ref_base]][mapping_start_pos + index] -= 1
-        else:   # If it's a match to reference
-            if base_counts[base_index[ref_base]][mapping_start_pos + index] < coverage:
-                base_counts[base_index[ref_base]][mapping_start_pos + index] += 1
     return True
 
 
@@ -98,12 +95,13 @@ def calc_log_mapping_prob(base_counts, mapping, coverage, genome_seq):
     It returns the sum of log probabilities for bases along the alignment
     """
     log_mapping_prob = 0
+    base_qual = mapping[sam_col['qual']]
     for index, base in enumerate(mapping[sam_col['seq']]):
-        if base != 'N':
-            base_prob = base_counts[base_index[base]][mapping[sam_col['pos']] + index] / (coverage + 1)
-        else:
+        if (ord(base_qual[index]) - 33) < base_qual_threshold or base == 'N':
             ref_base = genome_seq[mapping[sam_col['pos']] + index]
             base_prob = base_counts[base_index[ref_base]][mapping[sam_col['pos']] + index] / (coverage + 1)
+        else:
+            base_prob = base_counts[base_index[base]][mapping[sam_col['pos']] + index] / (coverage + 1)
 
         log_mapping_prob += math.log(base_prob)
 

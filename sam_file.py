@@ -26,8 +26,8 @@ def add_multiread(sam_fields, multireads_dict, read_counts, mdz_index):
     if sam_fields[sam_col['cigar']] != "*":
         if sam_fields[sam_col['cigar']] == '{}M'.format(len(sam_fields[sam_col['seq']])):
             # Correct sequencing errors in the read
-            read_seq, num_edits = correct_seq_errors(sam_fields, mdz_index)
-            sam_fields[sam_col['seq']] = read_seq
+            num_edits = find_edit_ops(sam_fields, mdz_index)
+            # sam_fields[sam_col['seq']] = read_seq
             sam_fields[sam_col['pos']] = int(sam_fields[sam_col['pos']]) - 1
             # Store all alignments of a read, plus their edit distance
             # NOTE: edit distance is appended to alignment features
@@ -65,18 +65,17 @@ def process_unique_read(sam_fields, read_counts, base_counts, genome_seq, outfil
     return True
 
 
-def correct_seq_errors(sam_fields, mdz_index):
-    (pos, md_z, read_seq, base_quals) = (sam_fields[sam_col['pos']], sam_fields[mdz_index][5:],
-                                         sam_fields[sam_col['seq']], sam_fields[sam_col['qual']])
+def find_edit_ops(sam_fields, mdz_index):
+    md_z = sam_fields[mdz_index][5:]
     num_edits = md_z.count('A') + md_z.count('C') + md_z.count('G') + md_z.count('T') + md_z.count('N')
-    read_seq = list(read_seq)
-    for i, base in enumerate(read_seq):
-        # Phred-scale quality score
-        if ord(base_quals[i]) - 33 < 20:
-            read_seq[i] = 'N'
-            # num_edits += 1
+    # read_seq = list(read_seq)
+    # for i, base in enumerate(read_seq):
+    #     # Phred-scale quality score
+    #     if ord(base_quals[i]) - 33 < 20:
+    #         read_seq[i] = 'N'
+    #         # num_edits += 1
 
-    return ''.join(read_seq), num_edits
+    return num_edits
 
 
 def filter_alignments(mappings, threshold):
