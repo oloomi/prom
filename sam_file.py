@@ -5,6 +5,19 @@ from settings import *
 from calc_likelihood import initial_counts, update_counts
 
 
+def read_genome(genome_file):
+    genome_header = ""
+    genome_seq = ""
+    with open(genome_file) as ref_genome:
+        for line in ref_genome:
+            # Skip header lines
+            if line[0] == ">":
+                genome_header += line
+            else:
+                genome_seq += line.rstrip()
+    return genome_header, genome_seq
+
+
 def find_mdz_index(sam_fields):
     """
      Finding the index of MD:Z tag, as it can be different for different read mapping softwares
