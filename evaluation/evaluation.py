@@ -1,7 +1,7 @@
 import copy
 import timeit
 
-from vcf_file import *
+from evaluation.vcf_file import *
 
 
 # bayesian_update("/home/mohammad/pneumoniae/genomes/Klebsiella_pneumoniae_KPNIH1-back-mutated.fna",

@@ -146,6 +146,10 @@ def read_all_mappings(sam_file_name, genome_seq, output_file, base_counts):
             # Read and preprocess each alignment
             for curr_line in sam_file:
                 curr_fields = curr_line.split('\t')
+                # BWA does not store the sequence and its quality score for secondary alignments
+                if curr_fields[sam_col['seq']] == '*':
+                    curr_fields[sam_col['seq']] = prev_fields[sam_col['seq']]
+                    curr_fields[sam_col['qual']] = prev_fields[sam_col['qual']]
                 # Multimappings found for a previously seen multiread
                 if curr_fields[sam_col['qname']] == prev_fields[sam_col['qname']]:
                     add_multiread(prev_fields, multireads_dict, read_counts, mdz_index)
