@@ -69,6 +69,7 @@ def process_unique_read(sam_fields, read_counts, base_counts, genome_seq, outfil
             # Unsupported CIGARs
             read_counts['unsupported'].add(sam_fields[sam_col['qname']])
         # Write alignment to output file
+        # Note: unique alignments with unsupported CIGARs are also written to the output file
         outfile.write("\t".join(sam_fields[0:sam_col['pos']] + [str(sam_fields[sam_col['pos']] + 1)] +
                                 sam_fields[sam_col['pos']+1:]))
     else:
@@ -147,7 +148,7 @@ def read_all_mappings(sam_file_name, genome_seq, output_file, base_counts):
             for curr_line in sam_file:
                 curr_fields = curr_line.split('\t')
                 # BWA does not store the sequence and its quality score for secondary alignments
-                if curr_fields[sam_col['seq']] == '*':
+                if curr_fields[sam_col['seq']] == '*' and curr_fields[sam_col['cigar']] != '*':
                     curr_fields[sam_col['seq']] = prev_fields[sam_col['seq']]
                     curr_fields[sam_col['qual']] = prev_fields[sam_col['qual']]
                 # Multimappings found for a previously seen multiread
@@ -160,6 +161,7 @@ def read_all_mappings(sam_file_name, genome_seq, output_file, base_counts):
                     multimap = False
                 # It's a uniquely mapped read!
                 else:
+                    # Unique reads are processed for updating initial counts and are then written to the output file
                     process_unique_read(prev_fields, read_counts, base_counts, genome_seq, out_file)
 
                 prev_fields = curr_fields
