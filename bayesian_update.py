@@ -16,8 +16,8 @@ def bayesian_update(ref_genome_file, sam_file, output_file, num_runs, prob_thres
     """
     # 0. Reading reference genome FASTA file and creating pseudo-count vectors according to the size of genome
     print("Reading reference genome...")
-    genome_header, genome_seq = read_genome(ref_genome_file)
-    initial_base_counts = create_count_arrays(len(genome_seq))
+    genome_seq = read_genome(ref_genome_file)
+    initial_base_counts = create_count_arrays(genome_seq)
 
     # 1. Reading the SAM file containing all mappings and
     # 1.1 Writing unique mappings to output file and updating pseudo-counts accordingly
@@ -34,7 +34,8 @@ def bayesian_update(ref_genome_file, sam_file, output_file, num_runs, prob_thres
     print(" {} multireads with {} candidate mappings".format(len(multireads_dict), read_counts['multi']))
 
     # Estimated average depth of coverage
-    coverage = int(total_reads * read_len / len(genome_seq))
+    genome_len = sum([len(seq) for name, seq in genome_seq.items()])
+    coverage = int(total_reads * read_len / genome_len)
     print("Average depth of coverage according to mapped reads: {}".format(coverage))
 
     # 1.3 Correct initial counts based on coverage

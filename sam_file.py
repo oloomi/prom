@@ -6,16 +6,21 @@ from calc_likelihood import initial_counts, update_counts
 
 
 def read_genome(genome_file):
-    genome_header = ""
-    genome_seq = ""
+    genome_seq = {}
+    chrom_seq = ""
     with open(genome_file) as ref_genome:
+        chrom_name = next(ref_genome).rstrip()[1:]
         for line in ref_genome:
-            # Skip header lines
             if line[0] == ">":
-                genome_header += line
+                if chrom_seq:
+                    genome_seq[chrom_name] = chrom_seq
+                    chrom_seq = ""
+                    chrom_name = line.rstrip()[1:]
             else:
-                genome_seq += line.rstrip()
-    return genome_header, genome_seq
+                chrom_seq += line.rstrip()
+        genome_seq[chrom_name] = chrom_seq
+
+    return genome_seq
 
 
 def find_mdz_index(sam_fields):
