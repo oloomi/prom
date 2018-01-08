@@ -13,11 +13,12 @@ def read_vcf_file(vcf_file_name):
                 continue
             # 0.CHROM   1.POS   2.ID    3.REF   4.ALT	5.QUAL	6.FILTER	7.INFO  8.FORMAT
             fields = line.rstrip().split("\t")
+            chr = fields[0]
             pos = int(fields[1])
             alt = fields[4]
             qual = float(fields[5])
             if qual > 0:
-                variants.append((pos, alt))
+                variants.append((chr, pos, alt))
 
     return variants
 
