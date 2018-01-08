@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 
 """
 Copyright (C) 2017 S Mohammad H Oloomi (smh.oloomi@gmail.com)
@@ -9,8 +10,6 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 import bayesian_update as bu
 import argparse
 import textwrap
-# import os
-# import psutil
 
 
 def float_prob(num_str):
@@ -40,12 +39,3 @@ args = parser.parse_args()
 if args.input and args.genome:
     print(parser.description)
     bu.bayesian_update(args.genome, args.input, args.output, args.runs, args.threshold)
-
-    # process = psutil.Process(os.getpid())
-    # mem = process.memory_info()[0] / float(2 ** 20)
-    # print("Memory usage:", round(mem, 2), "MB")
-
-
-# -r "./data/genomes/toy-genome.fna" -i "./read-mapping/toy-genome-mutated/toy-wg-mutated-se-mapping-report-all.sam" -o "./read-mapping/toy-genome-mutated/test.sam"
-
-# python3 remu.py -r "../data/NC_000962.fna" -i "../data/toy-report-all.sam" -o "../data/remu-toy-report-all.sam"

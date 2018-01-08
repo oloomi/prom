@@ -13,12 +13,12 @@ def read_vcf_file(vcf_file_name):
                 continue
             # 0.CHROM   1.POS   2.ID    3.REF   4.ALT	5.QUAL	6.FILTER	7.INFO  8.FORMAT
             fields = line.rstrip().split("\t")
-            chr = fields[0]
+            chrom = fields[0]
             pos = int(fields[1])
             alt = fields[4]
             qual = float(fields[5])
             if qual > 0:
-                variants.append((chr, pos, alt))
+                variants.append((chrom, pos, alt))
 
     return variants
 
@@ -36,16 +36,17 @@ def read_benchmark_variants(benchmark_variants_file, read_len):
             if line[0].isalpha():
                 continue
             fields = line.rstrip().split("\t")
-            pos = int(fields[0])
-            alt = fields[2]
-            variants.append((pos, alt))
+            chrom = fields[0]
+            pos = int(fields[1])
+            alt = fields[3]
+            variants.append((chrom, pos, alt))
 
-            dist = int(fields[3])
-            other_locs = ast.literal_eval(fields[4])
-            # We consider all SNPs in repeat locations as somehow acceptable false positives
-            if dist > read_len:
-                for pos_alt in other_locs:
-                    acceptable_fp_variants.append(pos_alt)
+            dist = int(fields[4])
+            # other_locs = ast.literal_eval(fields[4])
+            # # We consider all SNPs in repeat locations as somehow acceptable false positives
+            # if dist > read_len:
+            #     for pos_alt in other_locs:
+            #         acceptable_fp_variants.append(pos_alt)
 
     return variants, acceptable_fp_variants
 
@@ -59,7 +60,7 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
     output += "Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\tRecall\n"
 
     # Reading benchmark variants
-    variants, acceptable_fp_variants = read_benchmark_variants(benchmark_variants_file, 250)
+    variants, acceptable_fp_variants = read_benchmark_variants(benchmark_variants_file, 150)
     benchmark_variants = set(variants)
     acceptable_fps = set(acceptable_fp_variants)
 
@@ -98,7 +99,6 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
 
         ac_fp = len(accept_fp)
         # true_negatives: rest of the genome
-
 
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)

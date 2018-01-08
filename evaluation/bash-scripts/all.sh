@@ -16,3 +16,12 @@ sh run_samtools_corrected_mapping.sh
 sh variant_calling.sh
 
 echo "\n=== Everthing done! ===\n"
+
+
+#mtb/    genome-ref/
+#        simulated-data/ exp1/   reads/
+#                                genome/
+#                                mappings/
+#                                variants/
+#                                results/
+#        real-data/

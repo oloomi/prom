@@ -2,6 +2,105 @@ import random
 from collections import defaultdict
 
 
+def read_genome_vmatch(genome_file):
+    genome_seq = {}  # seq_count : (chrom_name, chrom_seq)
+    chrom_seq = ""
+    seq_count = 0  # Vmatch is zero-offset
+    with open(genome_file) as ref_genome:
+        chrom_name = next(ref_genome).rstrip()[1:]
+        for line in ref_genome:
+            if line[0] == ">":
+                if chrom_seq:
+                    genome_seq[str(seq_count)] = [chrom_name, list(chrom_seq)]
+                    chrom_seq = ""
+                    chrom_name = line.rstrip()[1:]
+                    seq_count += 1
+            else:
+                chrom_seq += line.rstrip()
+        genome_seq[str(seq_count)] = [chrom_name, list(chrom_seq)]
+
+    return genome_seq
+
+
+def write_genome_vmatch(genome_seq, output_file):
+    num_chrom = len(genome_seq)
+    with open(output_file, 'w') as genome_file:
+        for seq_num, seq in genome_seq.items():
+            chrom_name = seq[0]
+            chrom_seq = seq[1]
+            # Sequence name
+            genome_file.write('>' + chrom_name + '\n')
+            # Writing sequence to file, 70 characters per line
+            line_width = 70
+            length = len(chrom_seq)
+            for i in range(length // line_width):
+                genome_file.write(''.join(chrom_seq[i * line_width: (i + 1) * line_width]))
+                genome_file.write('\n')
+            # Writing the last remainder part of genome
+            if length % line_width != 0:
+                genome_file.write(''.join(chrom_seq[-(length % line_width):]))
+            # If there are more chromosomes to be written
+            if num_chrom > 1:
+                genome_file.write('\n')
+                num_chrom -= 1
+
+
+def mutate_genome_repeats(ref_genome_file, vmatch_repeats_file, output_file, mutations_file, read_len=150):
+    """
+    Mutating genome repeats obtained from vmatch -supermax repeat finding software
+    """
+    # Vmatch:
+    # matches are reported in the following way
+    # l(S) n(S) r(S) t l(S) n(S) r(S) d e s i
+    # where:
+    # l = length
+    # n = sequence number
+    # r = relative position
+    # t = type (D=direct, P=palindromic)
+    # d = distance value (negative=hamming distance, 0=exact, positive=edit distance)
+    # e = E-value
+    # s = score value (negative=hamming score, positive=edit score)
+    # i = percent identity
+
+    ref_genome = read_genome_vmatch(ref_genome_file)
+    random.seed(12)
+    nucleotides = {'A', 'C', 'G', 'T'}
+    num_mutations = 0
+    seen_repeats = set()
+    with open(vmatch_repeats_file) as repeats_file:
+        with open(mutations_file, 'w') as mut_file:
+            mut_file.write("#Chr\tPos\tRef\tAlt\tDist\tLen\n")
+            header = next(repeats_file)
+            for line in repeats_file:
+                features = line.rstrip().split()
+                (seq_num_1, pos_1, seq_num_2, pos_2) = (features[1], features[2], features[5], features[6])
+                # If we have not mutated one of these repeats before
+                if (seq_num_1, pos_1) not in seen_repeats and (seq_num_2, pos_2) not in seen_repeats:
+                    # Position of mutation from the start of repeat element
+                    mut_pos = random.choice(range(read_len - 50, read_len - 9))
+                    # Which repeat instance to mutate
+                    rep_loc = random.choice([(seq_num_1, pos_1), (seq_num_2, pos_2)])
+                    # Absolute position of mutation on the chromosome
+                    chr_pos = int(rep_loc[1]) + mut_pos
+                    # The original reference base
+                    ref_base = ref_genome[rep_loc[0]][1][chr_pos]
+                    # Mutating the base
+                    possible_snps = nucleotides - set(ref_base)
+                    new_base = random.choice(sorted(list(possible_snps)))
+                    ref_genome[rep_loc[0]][1][chr_pos] = new_base
+                    # Write mutation to file
+                    mut_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(ref_genome[rep_loc[0]][0], chr_pos, ref_base,
+                                                                   new_base, mut_pos, features[0]))
+                    num_mutations += 1
+                    # Mark these repeats as seen
+                    seen_repeats.add((seq_num_1, pos_1))
+                    seen_repeats.add((seq_num_2, pos_2))
+            mut_file.write("#Number of mutations: {}".format(num_mutations))
+    # Write mutated genome to file
+    write_genome_vmatch(ref_genome, output_file)
+    return True
+
+
 def read_genome(genome_file):
     genome_header = ""
     genome_seq = ""
@@ -39,7 +138,7 @@ def genome_slice(genome_file, locations):
     for loc in locations:
         # start_pos, length, direction
         if loc[2] == 'P':
-            print(reverse_complement(genome_seq[loc[0] : loc[0]+loc[1]]))
+            print(reverse_complement(genome_seq[loc[0]: loc[0] + loc[1]]))
         else:
             print(genome_seq[loc[0]: loc[0] + loc[1]])
 
@@ -430,7 +529,7 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file, read_len
             seq2 = reverse_complement(seq2)
 
         for i in range(length):
-            if seq1[i] != seq2[i]:   #and (i < 150):
+            if seq1[i] != seq2[i]:  # and (i < 150):
 
                 # check whether the mutation point is not located itself in an exact repeat element
                 in_exact_repeat = False
@@ -454,7 +553,7 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file, read_len
                         other_reps = calc_other_rep_locs(repeat[2:], length)
                         for rep in other_reps:
                             mutations_dict[start_1 + i + 1][3].append(rep)
-                        # print(mutations_dict[start_1 + i + 1])
+                            # print(mutations_dict[start_1 + i + 1])
 
     # Writing mutated genome sequence to fasta file
     write_genome(genome_header, "".join(new_genome_seq), output_file)
@@ -468,9 +567,8 @@ def back_mutate_genome(ref_genome_file, repeats_file_name, output_file, read_len
     with open("{}-mutations.txt".format(output_file[:-4]), "w") as mutations_file:
         mutations_file.write("Number of mutations: {}\n".format(len(mutations_list)))
         for item in mutations_list:
-            mutations_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(item[0], item[1], item[2], item[3], item[4], item[5]))
-
-
+            mutations_file.write(
+                "{}\t{}\t{}\t{}\t{}\t{}\n".format(item[0], item[1], item[2], item[3], item[4], item[5]))
 
 # toy_genome("./data/genomes/Mycobacterium_tuberculosis_H37Rv_uid57777/NC_000962.fna",
 #            "./data/genomes/toy-genome-mutated.fna", mutate=True)
