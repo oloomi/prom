@@ -18,8 +18,10 @@ outfile="./mappings/bowtie/bowtie"
 
 echo "\n=== Bowtie + MMR Multimapping Resolution Done ===\n"
 
+alignments="./mappings/bowtie/bowtie-mapping-report-all"
+
 # REMU method
-sudo /usr/bin/time -v remu.py -g $reference -i $alignments.sam -o $outfile-remu.sam -r 50
+/usr/bin/time -v remu.py -g $reference -i $alignments.sam -o $outfile-remu.sam -r 50
 
 sam_file=$outfile-remu
 samtools view -bS $sam_file.sam -o $sam_file.bam
