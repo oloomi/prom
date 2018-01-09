@@ -11,7 +11,7 @@ def create_mutated_gnome():
     Run this function in the experiment main folder eg. supermax-100-140
     """
     mutate_genome_repeats("../../genome-ref/ref-genome.fna",
-                          "../../mtb/genome-ref/repeats/supermax-repeats.txt",
+                          "../../genome-ref/repeats/supermax-repeats.txt",
                           "./genome-mutated/mutated-genome.fna",
                           "./genome-mutated/mutations.txt")
     return True
