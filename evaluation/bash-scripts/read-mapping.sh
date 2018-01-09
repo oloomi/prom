@@ -16,9 +16,9 @@ art="art_illumina"
 $art -ss HS25 -sam -i $reads_genome -l 150 -f 25 -k 0 -rs 12345 -o $reads_out_dir$reads_file_prefix
 
 # Creating BAM files for ArtIllumina benchmark
-samtools view -bS $reads_out_dir$reads_file_prefix.sam -o $reads_out_dir$reads_file_prefix.bam
-samtools sort $reads_out_dir$reads_file_prefix.bam -o $reads_out_dir$reads_file_prefix-sorted.bam
-samtools index $reads_out_dir$reads_file_prefix-sorted.bam
+#samtools view -bS $reads_out_dir$reads_file_prefix.sam -o $reads_out_dir$reads_file_prefix.bam
+#samtools sort $reads_out_dir$reads_file_prefix.bam -o $reads_out_dir$reads_file_prefix-sorted.bam
+#samtools index $reads_out_dir$reads_file_prefix-sorted.bam
 
 echo "\n==== Generating synthetic reads DONE! ====\n"
 
@@ -63,7 +63,6 @@ file_prefix="bwa"
 bwa index $ref_genome $out_dir"genome-index"
 
 # Single mapping, best-match
-bwa mem ref.fa reads.fq > aln-se.sam
 bwa mem $out_dir"genome-index" $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-best-match.sam \
 2> $out_dir$file_prefix-mapping-best-match-log.txt
 
