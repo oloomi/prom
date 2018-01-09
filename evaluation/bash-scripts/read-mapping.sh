@@ -1,15 +1,15 @@
 #!/bin/bash
 
 ## the genome from where synthetic reads are generated
-#reads_genome="./genome-mutated/mutated-genome.fna"
+reads_genome="./genome-mutated/mutated-genome.fna"
 #
 ## the reference genome sequence used for read mapping
-#ref_genome="../../genome-ref/ref-genome.fna"
+ref_genome="../../genome-ref/ref-genome.fna"
 #
 ## ==== Generating synthetic reads ====
 #
-#reads_out_dir="./reads/"
-#reads_file_prefix="reads"
+reads_out_dir="./reads/"
+reads_file_prefix="reads"
 #
 #art="art_illumina"
 ##Simulation of single-end reads of 150 bp with coverage 25; with max number of indels = 0 (-k 0)
@@ -58,21 +58,21 @@
 
 out_dir="./mappings/bwa/"
 file_prefix="bwa"
-reads_file_prefix="reads"
-cd $out_dir
-out_dir="./"
-ref_genome="../../../../genome-ref/ref-genome.fna"
-reads_out_dir="../../reads/"
+#reads_file_prefix="reads"
+#cd $out_dir
+#out_dir="./"
+#ref_genome="../../../../genome-ref/ref-genome.fna"
+#reads_out_dir="../../reads/"
 
 # Build index for reference genome
 bwa index $ref_genome genome-index
 
 # Single mapping, best-match
-bwa mem genome-index $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-best-match.sam \
+bwa mem $ref_genome $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-best-match.sam \
 2> $out_dir$file_prefix-mapping-best-match-log.txt
 
 # Single mapping, report-all
-bwa mem -a genome-index $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-report-all.sam \
+bwa mem -a $ref_genome $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-report-all.sam \
 2> $out_dir$file_prefix-mapping-report-all-log.txt
 
 echo "\n=== BWA read mapping DONE! ===\n"
