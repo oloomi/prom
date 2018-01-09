@@ -60,6 +60,7 @@ out_dir="./mappings/bwa/"
 file_prefix="bwa"
 cd $out_dir
 out_dir="./"
+ref_genome="../../../../genome-ref/ref-genome.fna"
 reads_out_dir="../../reads/"
 
 # Build index for reference genome
