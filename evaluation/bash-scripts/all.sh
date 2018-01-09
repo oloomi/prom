@@ -19,8 +19,8 @@ echo "\n=== Everthing done! ===\n"
 
 
 #mtb/    genome-ref/
-#        simulated-data/ exp1/   reads/
-#                                genome/
+#        simulatsued-data/ exp1/   reads/
+#                                genome-mutated/
 #                                mappings/
 #                                variants/
 #                                results/

@@ -14,8 +14,10 @@ sudo apt-get install zlib1g-dev
 sudo apt-get install libbz2-dev
 
 # SAMtools
-sudo apt-get install liblzma-dev    mkdir /mnt/samtools
-sudo apt-get install curl           wget "https://github.com/samtools/samtools/releases/download/1.6/samtools-1.6.tar.bz2"
+sudo apt-get install liblzma-dev
+sudo apt-get install curl
+mkdir /mnt/samtools
+wget "https://github.com/samtools/samtools/releases/download/1.6/samtools-1.6.tar.bz2"
 tar xvjf samtools-1.6.tar.bz2
 cd samtools-1.6
 ./configure --prefix=/mnt/tools/samtools
@@ -40,10 +42,25 @@ git clone --recursive https://github.com/ekg/freebayes.git
 make
 sudo make install
 
+# ART
+wget https://www.niehs.nih.gov/research/resources/assets/docs/artbinmountrainier20160605linux64tgz.tgz
+tar -xzvf artbinmountrainier20160605linux64tgz.tgz
+
+# Vmatch
+wget http://www.vmatch.de/distributions/vmatch-2.3.0-Linux_x86_64-64bit.tar.gz
+tar -xzvf vmatch-2.3.0-Linux_x86_64-64bit.tar.gz
+
+# MMR
+git clone https://github.com/ratschlab/mmr.git
+make
+
+
 # Path variable
 export PATH=$PATH:/mnt/tools/samtools/bin
 export PATH=$PATH:/mnt/tools/bcftools/bin
 export PATH=$PATH:/mnt/tools/bowtie2
-
+export PATH=$PATH:/home/ubuntu/tools/art_bin_MountRainier
+export PATH=$PATH:/home/ubuntu/tools/vmatch-2.3.0-Linux_x86_64-64bit
+export PATH=$PATH:/home/ubuntu/tools/mmr
 source ~/.profile
 
