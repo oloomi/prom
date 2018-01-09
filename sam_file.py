@@ -9,13 +9,13 @@ def read_genome(genome_file):
     genome_seq = {}
     chrom_seq = ""
     with open(genome_file) as ref_genome:
-        chrom_name = next(ref_genome).rstrip()[1:]
+        chrom_name = next(ref_genome).split(' ')[0][1:]
         for line in ref_genome:
             if line[0] == ">":
                 if chrom_seq:
                     genome_seq[chrom_name] = chrom_seq
                     chrom_seq = ""
-                    chrom_name = line.rstrip()[1:]
+                    chrom_name = line.split(' ')[0][1:]
             else:
                 chrom_seq += line.rstrip()
         genome_seq[chrom_name] = chrom_seq
