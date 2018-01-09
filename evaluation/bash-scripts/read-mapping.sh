@@ -58,16 +58,19 @@ echo "\n=== Bowtie 2 SAMTools DONE! ===\n"
 
 out_dir="./mappings/bwa/"
 file_prefix="bwa"
+cd $out_dir
+out_dir="./"
+reads_out_dir="../../reads/"
 
 # Build index for reference genome
-bwa index $ref_genome $out_dir"genome-index"
+bwa index $ref_genome genome-index
 
 # Single mapping, best-match
-bwa mem $out_dir"genome-index" $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-best-match.sam \
+bwa mem genome-index $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-best-match.sam \
 2> $out_dir$file_prefix-mapping-best-match-log.txt
 
 # Single mapping, report-all
-bwa mem -a $out_dir"genome-index" -U $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-report-all.sam \
+bwa mem -a genome-index $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-report-all.sam \
 2> $out_dir$file_prefix-mapping-report-all-log.txt
 
 echo "\n=== BWA read mapping DONE! ===\n"
@@ -84,5 +87,7 @@ samtools view -bS $out_dir$file_prefix-mapping-report-all.sam -o $out_dir$file_p
 samtools sort $out_dir$file_prefix-mapping-report-all.bam -o $out_dir$file_prefix-mapping-report-all-sorted.bam
 samtools index $out_dir$file_prefix-mapping-report-all-sorted.bam
 
-
+cd ../..
 echo "\n=== BWA SAMTools DONE! ===\n"
+
+
