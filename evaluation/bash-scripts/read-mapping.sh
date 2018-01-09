@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # the genome from where synthetic reads are generated
-reads_genome="./genome/mutated-genome.fna"
+reads_genome="./genome-mutated/mutated-genome.fna"
 
 # the reference genome sequence used for read mapping
 ref_genome="../../genome-ref/ref-genome.fna"
