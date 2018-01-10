@@ -37,7 +37,7 @@ def read_benchmark_variants(benchmark_variants_file, read_len):
                 continue
             fields = line.rstrip().split("\t")
             chrom = fields[0]
-            pos = int(fields[1]) + 1
+            pos = int(fields[1])
             alt = fields[3]
             variants.append((chrom, pos, alt))
 

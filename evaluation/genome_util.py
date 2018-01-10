@@ -89,7 +89,8 @@ def mutate_genome_repeats(ref_genome_file, vmatch_repeats_file, output_file, mut
                     new_base = random.choice(sorted(list(possible_snps)))
                     ref_genome[rep_loc[0]][1][chr_pos] = new_base
                     # Write mutation to file
-                    mut_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(ref_genome[rep_loc[0]][0], chr_pos, ref_base,
+                    # Position is incremented since position in VCF files starts from one (not zero)
+                    mut_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(ref_genome[rep_loc[0]][0], chr_pos + 1, ref_base,
                                                                    new_base, mut_pos, features[0]))
                     num_mutations += 1
                     # Mark these repeats as seen
