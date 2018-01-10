@@ -16,11 +16,11 @@ out_path="./variants/"
 #	freebayes -f $reference -p 1 -F 0.9 $file_path$file.bam >$out_path$file-variants-freebayes.vcf
 #done
 #
-#file_path="./mappings/bwa/"
-#alignment_files="bwa-mapping-best-match-sorted
-#bwa-mapping-report-all-sorted
-#bwa-mmr-sorted
-#bwa-remu-sorted"
+file_path="./mappings/bwa/"
+alignment_files="bwa-mapping-best-match-sorted
+bwa-mapping-report-all-sorted
+bwa-mmr-sorted
+bwa-remu-sorted"
 
 
 for file in $alignment_files
