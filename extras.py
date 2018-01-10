@@ -149,3 +149,12 @@
 #	bcftools mpileup -f $reference $file_path$file.bam | bcftools call -mv --ploidy 1 -P 1.1e-1 -o $file_path$file-variants-mv.vcf
 #	bcftools mpileup -f $reference $file_path$file.bam | bcftools call -cv --ploidy 1 -p 0.5 -o $file_path$file-variants-consensus-p0.5.vcf
 #	freebayes -f $reference -p 1 $file_path$file.bam >$file_path$file-variants-freebayes.vcf
+
+# variant_caller_lst = [("Freebayes", "freebayes"), ("FreebayesMin", "freebayes-min"),
+    #                       ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+
+# vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
+#                        ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
+#                        ["MMR", "corrected-other-3mis-mmr-sorted"],
+#                        ["PROM", "simple-bayesian-mtb-wg-mutated-se-mapping-25-sorted"],
+#                        ["REMU", "corrected-mtb-wg-mutated-se-mapping-remu-25-pmu-sorted"]]

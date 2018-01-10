@@ -32,8 +32,8 @@ def read_benchmark_variants(benchmark_variants_file, read_len):
 
     with open(benchmark_variants_file) as benchmark_variants:
         for line in benchmark_variants:
-            # Skip header line
-            if line[0].isalpha():
+            # Skip comment lines
+            if line[0] == '#':
                 continue
             fields = line.rstrip().split("\t")
             chrom = fields[0]

@@ -18,18 +18,21 @@ def create_mutated_gnome():
 
 
 def variant_evaluation():
-    variant_caller_lst = [("Freebayes", "freebayes"), ("FreebayesMin", "freebayes-min"),
-                          ("BCFtools p 0.5", "consensus-p0.5"), ("BCFtools mv", "mv")]
+    variant_caller_lst = [("Freebayes", "freebayes")]
 
-    file_path = "./read-mapping/mtb-whole-genome-mutated-100-140/"
+    file_path = "./variants/"
+    # file_path = "./read-mapping/mtb-whole-genome-mutated-100-140/"
 
-    vcf_files_names = [["Bowtie2 best-match", "mtb-wg-mutated-se-mapping-best-match-sorted"],
-                       ["Bowtie2 report-all", "mtb-wg-mutated-se-mapping-report-all-sorted"],
-                       ["MMR", "corrected-other-3mis-mmr-sorted"],
-                       ["PROM", "simple-bayesian-mtb-wg-mutated-se-mapping-25-sorted"],
-                       ["REMU", "corrected-mtb-wg-mutated-se-mapping-remu-25-pmu-sorted"]]
+    vcf_files_names = [["Bowtie2 best-match", "bowtie-mapping-best-match-sorted"],
+                       ["Bowtie2 report-all", "bowtie-mapping-report-all-sorted"],
+                       ["Bowtie2 + MMR", "bowtie-mmr-sorted"],
+                       ["Bowtie2 + REMU", "bowtie-remu-sorted"],
+                       ["BWA best-match", "bwa-mapping-best-match-sorted"],
+                       ["BWA report-all", "bwa-mapping-report-all-sorted"],
+                       ["BWA + MMR", "bwa-mmr-sorted"],
+                       ["BWA + REMU", "bwa-remu-sorted"]]
 
-    evaluation_results = open("./results/variants-comparison-MTB-wg-100-140-freebayes-min.txt", 'w')
+    evaluation_results = open("./results/variants-comparison-freebayes.txt", 'w')
 
     for variant_caller in variant_caller_lst:
         vcf_files = copy.deepcopy(vcf_files_names)
@@ -38,7 +41,7 @@ def variant_evaluation():
 
         comparison_output = \
             compare_variants(
-                "/mnt/e/Codes/bayesian-update/data/genomes/mtb-whole-genome-mutated-100-140-half-mutations.txt",
+                "./genome-mutated/mutations.txt",
                 vcf_files)
 
         evaluation_results.write("{}\n".format(variant_caller[0]))
