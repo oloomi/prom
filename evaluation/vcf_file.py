@@ -80,6 +80,9 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
         called_variants = set()
         # Reading variants for this mapping
         called_variants = set(read_vcf_file(vcf_file_name))
+        if not called_variants:
+            print("No variants called in {} !".format(vcf_file))
+            continue
         # Measures
         true_positives = benchmark_variants & called_variants
         tp = len(true_positives)
