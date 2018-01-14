@@ -73,20 +73,20 @@ def read_vmatch_repeats(vmatch_repeats_file):
     return repeats
 
 
-def check_mut_loc(mut_loc, all_repeats):
+def check_loc_in_repeats(genome_loc, all_repeats):
     """
     Checks if a mutation position is located in other repeats
     If this mutation is located within a in (a, b) repeat pair, returns b
     mut_loc: (seq_num, pos) tuple
     Returns a list as: [(seq_num, alt_pos)]
     """
-    seq_num = mut_loc[0]
-    pos = mut_loc[1]
+    seq_num = genome_loc[0]
+    pos = genome_loc[1]
     alt_locations = []
     for repeat in all_repeats:
         (rep_len, seq_num_1, pos_1, seq_num_2, pos_2) = repeat
         if seq_num == seq_num_1 and pos_1 <= pos < pos_1 + rep_len:
-            alt_locations.append((seq_num_2, pos_2 + pos -  pos_1))
+            alt_locations.append((seq_num_2, pos_2 + pos - pos_1))
         elif seq_num == seq_num_2 and pos_2 <= pos < pos_2 + rep_len:
             alt_locations.append((seq_num_1, pos_1 + pos - pos_2))
         else:
@@ -94,17 +94,16 @@ def check_mut_loc(mut_loc, all_repeats):
     return alt_locations
 
 
-def mutate_genome_repeats(ref_genome_file, main_repeats_file, tandem_repeats_file, output_file, mutations_file,
+def mutate_genome_repeats(ref_genome_file, main_repeats_file, all_repeats_file, output_file, mutations_file,
                           read_len=150):
     """
     Mutating genome repeats obtained from vmatch -supermax repeat finding software
     """
-
     ref_genome = read_genome_vmatch(ref_genome_file)
     # Super-maximal repeats
     supermax_repeats = read_vmatch_repeats(main_repeats_file)
     # Tandem repeats
-    tandem_repeats = read_vmatch_repeats(tandem_repeats_file)
+    tandem_repeats = read_vmatch_repeats(all_repeats_file)
     random.seed(12)
     nucleotides = {'A', 'C', 'G', 'T'}
     num_mutations = 0
@@ -117,14 +116,25 @@ def mutate_genome_repeats(ref_genome_file, main_repeats_file, tandem_repeats_fil
             if (seq_num_1, pos_1) not in seen_repeats and (seq_num_2, pos_2) not in seen_repeats:
                 # Position of mutation from the start of repeat element
                 mut_pos = random.choice(range(read_len - 50, read_len - 9))
+                # If it's a short range mutation, check that it's not located in tandem repeats
+                # Checking the position right before repeat starting point
+                loc1_in_repeat = check_loc_in_repeats((seq_num_1, pos_1 - 1), tandem_repeats)
+                loc2_in_repeat = check_loc_in_repeats((seq_num_2, pos_2 - 1), tandem_repeats)
                 # Which repeat instance to mutate
-                rep_loc = random.choice([(seq_num_1, pos_1), (seq_num_2, pos_2)])
+                if not loc1_in_repeat and not loc2_in_repeat:
+                    rep_loc = random.choice([(seq_num_1, pos_1), (seq_num_2, pos_2)])
+                elif not loc1_in_repeat:
+                    rep_loc = (seq_num_1, pos_1)
+                elif not loc2_in_repeat:
+                    rep_loc = (seq_num_2, pos_2)
+                else:
+                    continue
                 # Absolute position of mutation on the chromosome
                 chr_pos = rep_loc[1] + mut_pos
                 # If it's a short range mutation, check that it's not located in tandem repeats
-                alt_repeats = check_mut_loc((rep_loc[0], chr_pos), tandem_repeats)
-                if alt_repeats:
-                    continue
+                # alt_repeats = check_loc_in_repeats((rep_loc[0], rep_loc[1]-1), tandem_repeats)
+                # if alt_repeats:
+                #     continue
                 # The original reference base
                 ref_base = ref_genome[rep_loc[0]][1][chr_pos]
                 # Mutating the base
@@ -139,6 +149,59 @@ def mutate_genome_repeats(ref_genome_file, main_repeats_file, tandem_repeats_fil
                 # Mark these repeats as seen
                 seen_repeats.add((seq_num_1, pos_1))
                 seen_repeats.add((seq_num_2, pos_2))
+        mut_file.write("#Number of mutations: {}".format(num_mutations))
+    # Write mutated genome to file
+    write_genome_vmatch(ref_genome, output_file)
+    return True
+
+
+def mutate_genome_repeats_middle(ref_genome_file, supermax_repeats_file, all_repeats_file, output_file, mutations_file,
+                                 read_len=150):
+    """
+    Mutating genome repeats obtained from vmatch -supermax repeat finding software
+    """
+    ref_genome = read_genome_vmatch(ref_genome_file)
+    # Super-maximal repeats
+    supermax_repeats = read_vmatch_repeats(supermax_repeats_file)
+    # Tandem repeats
+    all_repeats = read_vmatch_repeats(all_repeats_file)
+    random.seed(12)
+    nucleotides = {'A', 'C', 'G', 'T'}
+    num_mutations = 0
+    seen_repeats = set()
+    with open(mutations_file, 'w') as mut_file:
+        mut_file.write("#Chr\tPos\tRef\tAlt\tDist\tLen\nOtherLocs\n")
+        for repeat in supermax_repeats:
+            (rep_len, seq_num_1, pos_1, seq_num_2, pos_2) = repeat
+            # If this repeat is at least twice as longer as a read length
+            # we can find a position that is out of reach of any unique reads
+            if rep_len > 2 * read_len:
+                # If we have not mutated one of these repeats before
+                if (seq_num_1, pos_1) not in seen_repeats and (seq_num_2, pos_2) not in seen_repeats:
+                    # Position of mutation in the middle of the repeat element
+                    mut_pos = read_len + random.choice(range(rep_len - 2 * read_len))
+                    # Which repeat instance to mutate
+                    rep_loc = random.choice([(seq_num_1, pos_1), (seq_num_2, pos_2)])
+                    # Absolute position of mutation on the chromosome
+                    chr_pos = rep_loc[1] + mut_pos
+                    # If it's a short range mutation, check that it's not located in tandem repeats
+                    alt_repeats = check_loc_in_repeats((rep_loc[0], chr_pos), all_repeats)
+                    if alt_repeats:
+                        continue
+                    # The original reference base
+                    ref_base = ref_genome[rep_loc[0]][1][chr_pos]
+                    # Mutating the base
+                    possible_snps = nucleotides - set(ref_base)
+                    new_base = random.choice(sorted(list(possible_snps)))
+                    ref_genome[rep_loc[0]][1][chr_pos] = new_base
+                    # Write mutation to file
+                    # Position is incremented since position in VCF files starts from one (not zero)
+                    mut_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(ref_genome[rep_loc[0]][0], chr_pos + 1, ref_base,
+                                                                   new_base, mut_pos, rep_len))
+                    num_mutations += 1
+                    # Mark these repeats as seen
+                    seen_repeats.add((seq_num_1, pos_1))
+                    seen_repeats.add((seq_num_2, pos_2))
         mut_file.write("#Number of mutations: {}".format(num_mutations))
     # Write mutated genome to file
     write_genome_vmatch(ref_genome, output_file)

@@ -12,7 +12,7 @@ def create_mutated_gnome():
     """
     mutate_genome_repeats("../../genome-ref/ref-genome.fna",
                           "../../genome-ref/repeats/supermax-repeats.txt",
-                          "../../genome-ref/repeats/tandem-repeats.txt",
+                          "../../genome-ref/repeats/all-repeats.txt",
                           "./genome-mutated/mutated-genome.fna",
                           "./genome-mutated/mutations.txt")
     return True
