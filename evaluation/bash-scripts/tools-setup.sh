@@ -56,9 +56,9 @@ make
 
 
 # Path variable
-export PATH=$PATH:/mnt/tools/samtools/bin
-export PATH=$PATH:/mnt/tools/bcftools/bin
-export PATH=$PATH:/mnt/tools/bowtie2
+export PATH=$PATH:/home/ubuntu/tools/samtools/bin
+export PATH=$PATH:/home/ubuntu/tools/bcftools/bin
+export PATH=$PATH:/home/ubuntu/tools/bowtie2
 export PATH=$PATH:/home/ubuntu/tools/art_bin_MountRainier
 export PATH=$PATH:/home/ubuntu/tools/vmatch-2.3.0-Linux_x86_64-64bit
 export PATH=$PATH:/home/ubuntu/tools/mmr

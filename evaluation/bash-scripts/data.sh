@@ -9,6 +9,7 @@ mkdir repeats
 cd repeats
 mkvtree -db ../ref-genome.fna -dna -v -allout -pl
 vmatch -supermax -l 150 ref-genome.fna > supermax-repeats.txt
+vmatch -tandem -l 150 ref-genome.fna > tandem-repeats.txt
 
 #vmatch -d -p -l 150 -h 1 NC_000962.fna > mtb-repeats-hamming-1.txt
 

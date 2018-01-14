@@ -1,31 +1,22 @@
 #!/bin/bash
 # Running all scripts
 
-
+python3 /mnt/remu/evaluation/evaluation.py -c
 sh /mnt/remu/evaluation/bash-scripts/multimapping-resolution.sh
 sh /mnt/remu/evaluation/bash-scripts/variant-calling.sh
-
-#sh run_art_bowtie2_samtools.sh
-#
-#sh other_methods.sh
-#
-#cd ..
-#
-#python3 bayesian-update-main.py
-#
-#cd bash-scripts
-#
-#sh run_samtools_corrected_mapping.sh
-#
-#sh variant_calling.sh
+python3 /mnt/remu/evaluation/evaluation.py -e
 
 echo "\n=== Everthing done! ===\n"
 
-
-#mtb/    genome-ref/
-#        simulatsued-data/ exp1/   reads/
-#                                genome-mutated/
-#                                mappings/
-#                                variants/
-#                                results/
-#        real-data/
+#├── genome-ref
+#│   └── repeats
+#├── real-data
+#└── simulated-data
+#    └── supermax-100-140
+#        ├── genome-mutated
+#        ├── mappings
+#        │   ├── bowtie
+#        │   └── bwa
+#        ├── reads
+#        ├── results
+#        └── variants
