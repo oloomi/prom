@@ -111,7 +111,7 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
             f1_score = 0
 
         output += "{}\t{}\t{}\t{}\t{:.2f}\t{:.2f}\n".format(method_name, tp, fp, fn, f1_score, recall)
-        if "remu" in vcf_file_name and False:
+        if "REMU" in vcf_file_name and False:
             output += "\nFalse negatives:\n{}\n".format(sorted(list(false_negatives)))
             output += "False positives:\n{}\n\n".format(sorted(list(false_positives)))
 
