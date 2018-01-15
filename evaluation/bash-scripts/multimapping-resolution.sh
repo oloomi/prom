@@ -19,6 +19,8 @@ samtools index $sam_file-sorted.bam
 
 echo "\n=== Bowtie + MMR Multimapping Resolution Done ===\n"
 
+chmod +x /mnt/remu/remu.py
+
 # REMU method
 /usr/bin/time -v remu.py -g $reference -i $alignments_sam.sam -o $outfile-remu.sam -r 10
 

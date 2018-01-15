@@ -39,25 +39,27 @@ def read_benchmark_variants(benchmark_variants_file, read_len):
             chrom = fields[0]
             pos = int(fields[1])
             alt = fields[3]
+            dist = int(fields[4])
+            rep_len = int(fields[5])
+            # Adding the benchmark variant
             variants.append((chrom, pos, alt))
 
-            dist = int(fields[4])
-            # other_locs = ast.literal_eval(fields[4])
-            # # We consider all SNPs in repeat locations as somehow acceptable false positives
-            # if dist > read_len:
-            #     for pos_alt in other_locs:
-            #         acceptable_fp_variants.append(pos_alt)
+            # If acceptable false positive locations is available
+            if len(fields) > 6:
+                other_locs = ast.literal_eval(fields[6])
+                for pos_alt in other_locs:
+                    acceptable_fp_variants.append(pos_alt)
 
     return variants, acceptable_fp_variants
 
 
-def compare_variants(benchmark_variants_file, vcf_files_list, original_variants = None):
+def compare_variants(benchmark_variants_file, vcf_files_list, original_variants=None):
     """
     Compares two benchmark variants with the variants found by variant calling
     :return: Number of false positive, true positive, variants
     """
     output = ""
-    output += "Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\tRecall\n"
+    output += "Method\tTruePositive\tFalsePositive\tFalseNegative\tF-Score\tRecall\tAcceptableFP\n"
 
     # Reading benchmark variants
     variants, acceptable_fp_variants = read_benchmark_variants(benchmark_variants_file, 150)
@@ -91,6 +93,7 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
         false_negatives = benchmark_variants - called_variants
         fn = len(false_negatives)
         accept_fp = false_positives & acceptable_fps
+        acceptable_fp = len(accept_fp)     # acceptable false positives
 
         if original_variants:
             actual_fp = false_positives - original_variants
@@ -98,9 +101,6 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
         else:
             act_fp = 'NA'
 
-        print(accept_fp)
-
-        ac_fp = len(accept_fp)
         # true_negatives: rest of the genome
 
         precision = tp / (tp + fp)
@@ -110,7 +110,7 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants 
         else:
             f1_score = 0
 
-        output += "{}\t{}\t{}\t{}\t{:.2f}\t{:.2f}\n".format(method_name, tp, fp, fn, f1_score, recall)
+        output += "{}\t{}\t{}\t{}\t{:.2f}\t{:.2f}\t{}\n".format(method_name, tp, fp, fn, f1_score, recall, acceptable_fp)
         if "REMU" in vcf_file_name and False:
             output += "\nFalse negatives:\n{}\n".format(sorted(list(false_negatives)))
             output += "False positives:\n{}\n\n".format(sorted(list(false_positives)))

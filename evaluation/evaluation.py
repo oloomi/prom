@@ -6,16 +6,24 @@ from genome_util import *
 from vcf_file import *
 
 
-def create_mutated_gnome():
+def create_mutated_gnome(mode):
     """
     Run this function in the experiment main folder eg. supermax-100-140
     """
-    mutate_genome_repeats("../../genome-ref/ref-genome.fna",
-                          "../../genome-ref/repeats/supermax-repeats.txt",
-                          "../../genome-ref/repeats/all-repeats.txt",
-                          "./genome-mutated/mutated-genome.fna",
-                          "./genome-mutated/mutations.txt")
-    return True
+    if mode == '-cb':
+        mutate_genome_repeats_beginning("../../genome-ref/ref-genome.fna",
+                                        "../../genome-ref/repeats/supermax-repeats.txt",
+                                        "../../genome-ref/repeats/all-repeats.txt",
+                                        "./genome-mutated/mutated-genome.fna",
+                                        "./genome-mutated/mutations.txt")
+    elif mode == '-cm':
+        mutate_genome_repeats_middle("../../genome-ref/ref-genome.fna",
+                                     "../../genome-ref/repeats/supermax-repeats.txt",
+                                     "../../genome-ref/repeats/all-repeats.txt",
+                                     "./genome-mutated/mutated-genome.fna",
+                                     "./genome-mutated/mutations.txt")
+    else:
+        print('Invalid mode {} for function create_mutated_genome!'.format(mode))
 
 
 def variant_evaluation():
@@ -52,8 +60,8 @@ def variant_evaluation():
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == '-c':
-        create_mutated_gnome()
+    if sys.argv[1].startswith('-c'):
+        create_mutated_gnome(sys.argv[1])
     elif sys.argv[1] == '-e':
         variant_evaluation()
     else:
