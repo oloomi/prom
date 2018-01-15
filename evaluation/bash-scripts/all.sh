@@ -24,3 +24,7 @@ echo "\n=== Everthing done! ===\n"
 #        ├── reads
 #        ├── results
 #        └── variants
+
+# mkdir genome-mutated mappings reads results variants
+# mkdir mappings/bowtie mappings/bwa
+

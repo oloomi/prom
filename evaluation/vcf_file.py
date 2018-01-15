@@ -70,9 +70,6 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants=
     if original_variants:
         original_variants = set(original_variants)
 
-    print(len(acceptable_fps))
-    print(sorted(list(acceptable_fps)))
-
     for vcf_file in vcf_files_list:
         method_name = vcf_file[0]
         vcf_file_name = vcf_file[1]
@@ -84,6 +81,7 @@ def compare_variants(benchmark_variants_file, vcf_files_list, original_variants=
         called_variants = set(read_vcf_file(vcf_file_name))
         if not called_variants:
             print("No variants called in {} !".format(vcf_file))
+            output += "{}\t{}\t{}\t{}\t{:.2f}\t{:.2f}\t{}\n".format(method_name, 0, 0, len(benchmark_variants), 0, 0, 0)
             continue
         # Measures
         true_positives = benchmark_variants & called_variants
