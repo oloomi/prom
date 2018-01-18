@@ -60,14 +60,14 @@ out_dir="./mappings/bwa/"
 file_prefix="bwa"
 
 # Build index for reference genome
-bwa index $ref_genome genome-index
+bwa index -p $out_dir"genome-index" $ref_genome
 
 # Single mapping, best-match
-bwa mem $ref_genome $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-best-match.sam \
+bwa mem $out_dir"genome-index" $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-best-match.sam \
 2> $out_dir$file_prefix-mapping-best-match-log.txt
 
 # Single mapping, report-all
-bwa mem -a $ref_genome $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-report-all.sam \
+bwa mem -a $out_dir"genome-index" $reads_out_dir$reads_file_prefix.fq > $out_dir$file_prefix-mapping-report-all.sam \
 2> $out_dir$file_prefix-mapping-report-all-log.txt
 
 echo "\n=== BWA read mapping DONE! ===\n"
