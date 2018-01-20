@@ -11,9 +11,11 @@ create_dir() {
   cd ../middle-supermax
   mkdir genome-mutated mappings reads results variants
   mkdir mappings/bowtie mappings/bwa
+  cd ../..
 }
 
 get_genome() {
+
   wget -O - $1 | gunzip -c > ./genome-ref/ref-genome.fna
 }
 
