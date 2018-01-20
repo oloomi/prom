@@ -3,6 +3,11 @@ from collections import defaultdict
 
 
 def read_genome_vmatch(genome_file):
+    def process_seq(seq):
+        seq = seq.upper()
+        for base in 'RYKMSWBDHV':
+            seq = seq.replace(base, 'N')
+        return seq
     genome_seq = {}  # seq_count : (chrom_name, chrom_seq)
     chrom_seq = ""
     seq_count = 0  # Vmatch is zero-offset
@@ -16,7 +21,7 @@ def read_genome_vmatch(genome_file):
                     chrom_name = line.split(' ')[0][1:]
                     seq_count += 1
             else:
-                chrom_seq += line.rstrip()
+                chrom_seq += process_seq(line.rstrip())
         genome_seq[seq_count] = [chrom_name, list(chrom_seq)]
 
     return genome_seq
@@ -149,6 +154,8 @@ def mutate_genome_repeats_beginning(ref_genome_file, main_repeats_file, all_repe
                 # The original reference base
                 # seq_num -> chrom_seq -> base
                 ref_base = ref_genome[rep_loc[0]][1][chr_pos]
+                if ref_base == 'N':  # undetermined base in reference genome
+                    continue
                 # Mutating the base
                 possible_snps = nucleotides - set(ref_base)
                 new_base = random.choice(sorted(list(possible_snps)))
@@ -203,6 +210,8 @@ def mutate_genome_repeats_middle(ref_genome_file, supermax_repeats_file, all_rep
 
                     # The original reference base
                     ref_base = ref_genome[rep_loc[0]][1][chr_pos]
+                    if ref_base == 'N':  # undetermined base in reference genome
+                        continue
                     # Mutating the base
                     possible_snps = nucleotides - set(ref_base)
                     new_base = random.choice(sorted(list(possible_snps)))

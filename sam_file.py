@@ -6,6 +6,11 @@ from calc_likelihood import initial_counts, update_counts
 
 
 def read_genome(genome_file):
+    def process_seq(seq):
+        seq = seq.upper()
+        for base in 'RYKMSWBDHV':
+            seq = seq.replace(base, 'N')
+        return seq
     genome_seq = {}
     chrom_seq = ""
     with open(genome_file) as ref_genome:
@@ -17,7 +22,7 @@ def read_genome(genome_file):
                     chrom_seq = ""
                     chrom_name = line.split(' ')[0][1:]
             else:
-                chrom_seq += line.rstrip()
+                chrom_seq += process_seq(line.rstrip())
         genome_seq[chrom_name] = chrom_seq
 
     return genome_seq

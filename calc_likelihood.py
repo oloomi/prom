@@ -27,6 +27,8 @@ def initial_counts(base_counts, selected_mapping, genome_seq):
     base_qual = selected_mapping[sam_col['qual']]
     for index, base in enumerate(read_seq):
         ref_base = genome_seq[chrom][mapping_start_pos + index]
+        if ref_base == 'N':  # undetermined base in reference genome
+            continue
         # We treat N's and low quality score bases as a match to the reference genome
         # Phred-scale quality score
         if (ord(base_qual[index]) - 33) < base_qual_threshold or base == 'N':
@@ -45,6 +47,8 @@ def process_initial_counts(base_counts, coverage, genome_seq):
         for i in range(len(genome_seq[chrom])):
             nucleotides = ['A', 'C', 'G', 'T']
             ref_base = genome_seq[chrom][i]
+            if ref_base == 'N':  # undetermined base in reference genome
+                continue
             nucleotides.remove(ref_base)
             sum_alt_counts = 0
             # Sum of counts for alternative bases
@@ -73,7 +77,9 @@ def update_counts(base_counts, selected_mapping, coverage, genome_seq):
     # read_seq = selected_mapping[2]
     for index, base in enumerate(read_seq):
         ref_base = genome_seq[chrom][mapping_start_pos + index]
-        # We treat N's and low quality score bases as a match to the reference genome
+        if ref_base == 'N':  # undetermined base in reference genome
+            continue
+        # We treat N's and low quality score bases in reads as a match to the reference genome
         if base == ref_base or (ord(base_qual[index]) - 33) < base_qual_threshold or base == 'N':
             if base_counts[chrom][base_index[ref_base]][mapping_start_pos + index] < coverage:
                 base_counts[chrom][base_index[ref_base]][mapping_start_pos + index] += 1
@@ -103,9 +109,13 @@ def calc_log_mapping_prob(base_counts, mapping, coverage, genome_seq):
     chrom = mapping[sam_col['rname']]
     base_qual = mapping[sam_col['qual']]
     for index, base in enumerate(mapping[sam_col['seq']]):
+        # We treat N's and low quality score bases in reads as a match to the reference genome
         if (ord(base_qual[index]) - 33) < base_qual_threshold or base == 'N':
             ref_base = genome_seq[chrom][mapping[sam_col['pos']] + index]
-            base_prob = base_counts[chrom][base_index[ref_base]][mapping[sam_col['pos']] + index] / (coverage + 1)
+            if ref_base == 'N':  # reference genome is ambiguous
+                base_prob = (coverage // 4) / (coverage + 1)
+            else:
+                base_prob = base_counts[chrom][base_index[ref_base]][mapping[sam_col['pos']] + index] / (coverage + 1)
         else:
             base_prob = base_counts[chrom][base_index[base]][mapping[sam_col['pos']] + index] / (coverage + 1)
 

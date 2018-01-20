@@ -123,9 +123,9 @@ def bayesian_update(ref_genome_file, sam_file, output_file, num_runs, prob_thres
             for mapping in mappings:
                 mapping[-2] /= sum_probs
 
-            if read_id == "gi|448814763|ref|NC_000962.3|MTB|-1622":
-                probs = [(m[sam_col['pos']], m[-2]) for m in mappings]
-                print(sorted(probs))
+            # if read_id == "gi|448814763|ref|NC_000962.3|MTB|-1622":
+            #     probs = [(m[sam_col['pos']], m[-2]) for m in mappings]
+            #     print(sorted(probs))
                 # counts_print(initial_base_counts, 2110, 2160)
                 # print('')
                 # counts_print(base_counts, 2110, 2160)
