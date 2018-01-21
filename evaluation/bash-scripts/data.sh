@@ -44,4 +44,7 @@ prepare_data() {
 #prepare_data fungus ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/182/925/GCF_000182925.2_NC12/GCF_000182925.2_NC12_genomic.fna.gz
 
 # Yeast (Saccharomyces cerevisiae), 474 repeats, 12.1 Mb, 16 chromosomes
-prepare_data yeast ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
+#prepare_data yeast ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
+
+# Human chromosome 19 GRCh38.p7 assembly
+prepare_data human-chr19 http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr19.fa.gz
