@@ -3,7 +3,7 @@
 reads_out_dir="./reads/"
 reads_file_prefix="reads"
 
-if ["$1" == "-s"]; then
+if [ "$1" == "-s" ]; then
   # the genome from where synthetic reads are generated
   reads_genome="./genome-mutated/mutated-genome.fna"
 
@@ -22,7 +22,7 @@ if ["$1" == "-s"]; then
 
   echo "\n==== Generating synthetic reads DONE! ====\n"
 
-elif ["$1" == "-r"]; then
+elif [ "$1" == "-r" ]; then
   ref_genome="./genome-mutated/mutated-genome.fna"
 else
   echo "Invalid argument in read-mapping.sh!"

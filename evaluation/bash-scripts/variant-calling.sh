@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if ["$1" == "-s"]; then
+if [ "$1" == "-s" ]; then
   ref_genome="../../genome-ref/ref-genome.fna"
-elif ["$1" == "-r"]; then
+elif [ "$1" == "-r" ]; then
   ref_genome="./genome-mutated/mutated-genome.fna"
 else
   echo "Invalid argument in variant-calling.sh!"
