@@ -33,17 +33,4 @@ python3 $dir"evaluation.py" -e
 
 echo "\n=== Everthing done! ===\n"
 
-#├── genome-ref
-#│   └── repeats
-#├── real-data
-#└── simulated-data
-#    └── supermax-100-140
-#        ├── genome-mutated
-#        ├── mappings
-#        │   ├── bowtie
-#        │   └── bwa
-#        ├── reads
-#        ├── results
-#        └── variants
-
 

@@ -54,6 +54,9 @@ tar -xzvf vmatch-2.3.0-Linux_x86_64-64bit.tar.gz
 git clone https://github.com/ratschlab/mmr.git
 make
 
+# SRA Tookkit fastq-dump
+wget http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.8.2-1/sratoolkit.2.8.2-1-ubuntu64.tar.gz
+mv sratoolkit.2.8.2-1-ubuntu64 sratoolkit
 
 # Path variable
 export PATH=$PATH:/home/ubuntu/tools/samtools/bin
@@ -62,5 +65,6 @@ export PATH=$PATH:/home/ubuntu/tools/bowtie2
 export PATH=$PATH:/home/ubuntu/tools/art_bin_MountRainier
 export PATH=$PATH:/home/ubuntu/tools/vmatch-2.3.0-Linux_x86_64-64bit
 export PATH=$PATH:/home/ubuntu/tools/mmr
+export PATH=$PATH:/home/ubuntu/tools/sratoolkit/bin
 source ~/.profile
 

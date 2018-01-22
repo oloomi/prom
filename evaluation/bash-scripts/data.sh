@@ -22,7 +22,7 @@ get_genome() {
 find_repeats() {
   cd ./genome-ref/repeats
   mkvtree -db ../ref-genome.fna -dna -v -allout -pl
-  vmatch -supermax -l 150 ref-genome.fna > supermax-repeats.txt
+  vmatch -supermax -l 150 -h 1 ref-genome.fna > supermax-repeats.txt
   vmatch -l 150 -d -p ref-genome.fna > all-repeats.txt
   vmatch -tandem -l 150 ref-genome.fna > tandem-repeats.txt
   cd ../..
@@ -36,6 +36,9 @@ prepare_data() {
 
 # Mycobacterium Tuberculosis H37rv
 #prepare_data mtb ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/195/955/GCF_000195955.2_ASM19595v2/GCF_000195955.2_ASM19595v2_genomic.fna.gz
+
+#fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-files --clip SRR2818101
+#fastx_trimmer -l 250 -Q33 -i ./SRR2818101_pass_1.fastq -o ./SRR2818101_pass_1_trim_250.fastq
 
 # Arabidopsis thaliana
 #prepare_data athalina ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.3_TAIR10/GCF_000001735.3_TAIR10_genomic.fna.gz
@@ -51,3 +54,17 @@ prepare_data() {
 
 # Ecoli (Escherichia coli), 17 repeats, 5.1 Mb
 prepare_data ecoli ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
+
+
+#├── genome-ref
+#│   └── repeats
+#├── real-data
+#└── simulated-data
+#    └── supermax-100-140
+#        ├── genome-mutated
+#        ├── mappings
+#        │   ├── bowtie
+#        │   └── bwa
+#        ├── reads
+#        ├── results
+#        └── variants
