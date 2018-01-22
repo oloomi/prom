@@ -386,7 +386,6 @@ def repeat_ranges(repeats_file_name, k=0, rep_len=1):
 
 def back_mutate_genome(ref_genome_file, repeats_file_name, output_file, read_len=150):
     """
-
     :param ref_genome_file:
     :param repeats_file_name:
     :param output_file:

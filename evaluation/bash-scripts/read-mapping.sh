@@ -1,26 +1,32 @@
 #!/bin/bash
 
-# the genome from where synthetic reads are generated
-reads_genome="./genome-mutated/mutated-genome.fna"
-
-# the reference genome sequence used for read mapping
-ref_genome="../../genome-ref/ref-genome.fna"
-
-# ==== Generating synthetic reads ====
-
 reads_out_dir="./reads/"
 reads_file_prefix="reads"
 
-art="art_illumina"
-#Simulation of single-end reads of 150 bp with coverage 25; with max number of indels = 0 (-k 0)
-$art -ss HS25 -sam -i $reads_genome -l 150 -f 25 -k 0 -rs 12345 -o $reads_out_dir$reads_file_prefix
+if ["$1" == "-s"]; then
+  # the genome from where synthetic reads are generated
+  reads_genome="./genome-mutated/mutated-genome.fna"
 
-# Creating BAM files for ArtIllumina benchmark
-#samtools view -bS $reads_out_dir$reads_file_prefix.sam -o $reads_out_dir$reads_file_prefix.bam
-#samtools sort $reads_out_dir$reads_file_prefix.bam -o $reads_out_dir$reads_file_prefix-sorted.bam
-#samtools index $reads_out_dir$reads_file_prefix-sorted.bam
+  # the reference genome sequence used for read mapping
+  ref_genome="../../genome-ref/ref-genome.fna"
 
-echo "\n==== Generating synthetic reads DONE! ====\n"
+  # ==== Generating synthetic reads ====
+  art="art_illumina"
+  #Simulation of single-end reads of 150 bp with coverage 25; with max number of indels = 0 (-k 0)
+  $art -ss HS25 -sam -i $reads_genome -l 150 -f 25 -k 0 -rs 12345 -o $reads_out_dir$reads_file_prefix
+
+  # Creating BAM files for ArtIllumina benchmark
+  #samtools view -bS $reads_out_dir$reads_file_prefix.sam -o $reads_out_dir$reads_file_prefix.bam
+  #samtools sort $reads_out_dir$reads_file_prefix.bam -o $reads_out_dir$reads_file_prefix-sorted.bam
+  #samtools index $reads_out_dir$reads_file_prefix-sorted.bam
+
+  echo "\n==== Generating synthetic reads DONE! ====\n"
+
+elif ["$1" == "-r"]; then
+  ref_genome="./genome-mutated/mutated-genome.fna"
+else
+  echo "Invalid argument in read-mapping.sh!"
+fi
 
 # ==== Bowtie2 Read mapping ====
 

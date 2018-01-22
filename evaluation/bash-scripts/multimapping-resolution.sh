@@ -1,7 +1,13 @@
 #!/bin/bash
 # Running other multi-mapping resolution methods
 
-reference="../../genome-ref/ref-genome.fna"
+if ["$1" == "-s"]; then
+  ref_genome="../../genome-ref/ref-genome.fna"
+elif ["$1" == "-r"]; then
+  ref_genome="./genome-mutated/mutated-genome.fna"
+else
+  echo "Invalid argument in variant-calling.sh!"
+fi
 
 # ----------- Bowtie2 ----------
 alignments="./mappings/bowtie/bowtie-mapping-report-all-sorted"
@@ -22,7 +28,7 @@ echo "\n=== Bowtie + MMR Multimapping Resolution Done ===\n"
 chmod +x /mnt/remu/remu.py
 
 # REMU method
-/usr/bin/time -v remu.py -g $reference -i $alignments_sam.sam -o $outfile-remu.sam -r 10
+/usr/bin/time -v remu.py -g $ref_genome -i $alignments_sam.sam -o $outfile-remu.sam -r 10
 
 sam_file=$outfile-remu
 samtools view -bS $sam_file.sam -o $sam_file.bam
@@ -48,7 +54,7 @@ samtools index $sam_file-sorted.bam
 echo "\n=== BWA + MMR Multimapping Resolution Done ===\n"
 
 # REMU method
-/usr/bin/time -v remu.py -g $reference -i $alignments_sam.sam -o $outfile-remu.sam -r 10
+/usr/bin/time -v remu.py -g $ref_genome -i $alignments_sam.sam -o $outfile-remu.sam -r 10
 
 sam_file=$outfile-remu
 samtools view -bS $sam_file.sam -o $sam_file.bam

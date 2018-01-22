@@ -47,4 +47,7 @@ prepare_data() {
 #prepare_data yeast ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
 
 # Human chromosome 19 GRCh38.p7 assembly
-prepare_data human-chr19 http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr19.fa.gz
+#prepare_data human-chr19 http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr19.fa.gz
+
+# Ecoli (Escherichia coli), 17 repeats, 5.1 Mb
+prepare_data ecoli ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
