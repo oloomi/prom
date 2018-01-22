@@ -9,19 +9,19 @@
 dir="/mnt/remu/evaluation/"
 
 # Simulated data
-if [ "$1" == "-s" ]; then
+if [ "$1" = "-s" ]; then
   # Mutations in the beginning of repeats
-  if [ "$2" == "-b" ]; then
-    python3 $dir"evaluation.py -cb"
+  if [ "$2" = "-b" ]; then
+    python3 $dir"evaluation.py" -cb
   # Mutations in the middle of repeats
-  elif [ "$2" == "-m" ]; then
-    python3 $dir"evaluation.py -cm"
+  elif [ "$2" = "-m" ]; then
+    python3 $dir"evaluation.py" -cm
   else
     echo "Type of simulation required!"
   fi
 # Real data
-elif [ "$1" == "-r" ]; then
-  python3 $dir"evaluation.py -b"
+elif [ "$1" = "-r" ]; then
+  python3 $dir"evaluation.py" -b
 else
   echo "Invalid argument in all.sh!"
 fi
