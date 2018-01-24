@@ -54,9 +54,12 @@ tar -xzvf vmatch-2.3.0-Linux_x86_64-64bit.tar.gz
 git clone https://github.com/ratschlab/mmr.git
 make
 
-# SRA Tookkit fastq-dump
+# SRA toolkit fastq-dump
 wget http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.8.2-1/sratoolkit.2.8.2-1-ubuntu64.tar.gz
 mv sratoolkit.2.8.2-1-ubuntu64 sratoolkit
+
+# Fastx toolkit
+sudo apt install fastx-toolkit
 
 # Path variable
 export PATH=$PATH:/home/ubuntu/tools/samtools/bin

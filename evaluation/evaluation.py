@@ -22,7 +22,7 @@ def create_mutated_gnome(mode):
                                      "../../genome-ref/repeats/all-repeats.txt",
                                      "./genome-mutated/mutated-genome.fna",
                                      "./genome-mutated/mutations.txt")
-    elif mode == 'b':
+    elif mode == '-b':
         back_mutate_genome_repeats("../../genome-ref/ref-genome.fna",
                                    "../../genome-ref/repeats/supermax-repeats.txt",
                                    "../../genome-ref/repeats/all-repeats.txt",

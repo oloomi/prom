@@ -38,7 +38,8 @@ prepare_data() {
 #prepare_data mtb ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/195/955/GCF_000195955.2_ASM19595v2/GCF_000195955.2_ASM19595v2_genomic.fna.gz
 
 #fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-files --clip SRR2818101
-#fastx_trimmer -l 250 -Q33 -i ./SRR2818101_pass_1.fastq -o ./SRR2818101_pass_1_trim_250.fastq
+#gunzip fastq/SRR2818101_pass_1.fastq.gz
+#fastx_trimmer -l 150 -m 150 -Q33 -i ./fastq/SRR2818101_pass_1.fastq -o ./reads.fq
 
 # Arabidopsis thaliana
 #prepare_data athalina ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/735/GCF_000001735.3_TAIR10/GCF_000001735.3_TAIR10_genomic.fna.gz
