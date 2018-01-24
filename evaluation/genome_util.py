@@ -13,13 +13,13 @@ def read_genome_vmatch(genome_file):
     chrom_seq = ""
     seq_count = 0  # Vmatch is zero-offset
     with open(genome_file) as ref_genome:
-        chrom_name = next(ref_genome).split(' ')[0][1:]
+        chrom_name = next(ref_genome).rstrip().split(' ')[0][1:]
         for line in ref_genome:
             if line[0] == ">":
                 if chrom_seq:
                     genome_seq[seq_count] = [chrom_name, list(chrom_seq)]
                     chrom_seq = ""
-                    chrom_name = line.split(' ')[0][1:]
+                    chrom_name = line.rstrip().split(' ')[0][1:]
                     seq_count += 1
             else:
                 chrom_seq += process_seq(line.rstrip())
