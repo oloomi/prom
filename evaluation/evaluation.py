@@ -71,4 +71,4 @@ if __name__ == "__main__":
     elif sys.argv[1] == '-e':
         variant_evaluation()
     else:
-        print("Invalid argument!")
+        print("Invalid argument {} in evaluation.py!".format(sys.argv[1]))
