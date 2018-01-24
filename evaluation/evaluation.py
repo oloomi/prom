@@ -10,19 +10,19 @@ def create_mutated_gnome(mode):
     """
     Run this function in the experiment main folder eg. supermax-100-140
     """
-    if mode == '-cb':
+    if mode == '-sb':
         mutate_genome_repeats_beginning("../../genome-ref/ref-genome.fna",
                                         "../../genome-ref/repeats/supermax-repeats.txt",
                                         "../../genome-ref/repeats/all-repeats.txt",
                                         "./genome-mutated/mutated-genome.fna",
                                         "./genome-mutated/mutations.txt")
-    elif mode == '-cm':
+    elif mode == '-sm':
         mutate_genome_repeats_middle("../../genome-ref/ref-genome.fna",
                                      "../../genome-ref/repeats/supermax-repeats.txt",
                                      "../../genome-ref/repeats/all-repeats.txt",
                                      "./genome-mutated/mutated-genome.fna",
                                      "./genome-mutated/mutations.txt")
-    elif mode == '-b':
+    elif mode == '-rb':
         back_mutate_genome_repeats("../../genome-ref/ref-genome.fna",
                                    "../../genome-ref/repeats/supermax-repeats.txt",
                                    "../../genome-ref/repeats/all-repeats.txt",
@@ -66,7 +66,7 @@ def variant_evaluation():
 
 
 if __name__ == "__main__":
-    if sys.argv[1].startswith('-c'):
+    if sys.argv[1].startswith('-s') or sys.argv[1].startswith('-r'):
         create_mutated_gnome(sys.argv[1])
     elif sys.argv[1] == '-e':
         variant_evaluation()
