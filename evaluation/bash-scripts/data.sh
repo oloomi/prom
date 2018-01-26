@@ -1,21 +1,27 @@
 #!/bin/bash
 
+make_exp_dir() {
+  mkdir genome-mutated mappings reads results variants
+  mkdir mappings/bowtie mappings/bwa
+}
+
 create_dir() {
   mkdir $1
   cd $1
   mkdir genome-ref real-data simulated-data
   mkdir genome-ref/repeats simulated-data/supermax-100-140 simulated-data/middle-supermax
   cd ./simulated-data/supermax-100-140
-  mkdir genome-mutated mappings reads results variants
-  mkdir mappings/bowtie mappings/bwa
+  make_exp_dir
   cd ../middle-supermax
-  mkdir genome-mutated mappings reads results variants
-  mkdir mappings/bowtie mappings/bwa
+  make_exp_dir
+  cd ../../read-data
+  mkdir back-mutate
+  cd ./back-mutate
+  make_exp_dir
   cd ../..
 }
 
 get_genome() {
-
   wget -O - $1 | gunzip -c > ./genome-ref/ref-genome.fna
 }
 
@@ -26,6 +32,12 @@ find_repeats() {
   vmatch -l 150 -d -p ref-genome.fna > all-repeats.txt
   vmatch -tandem -l 150 ref-genome.fna > tandem-repeats.txt
   cd ../..
+}
+
+get_reads() {
+  fastq-dump --outdir ./reads/fastq --gzip --skip-technical --readids --read-filter pass --dumpbase --split-files --clip $1
+  gunzip ./reads/fastq/$1_pass_1.fastq.gz
+  fastx_trimmer -l 150 -m 150 -Q33 -i ./reads/fastq/$1_pass_1.fastq -o ./reads/reads.fq
 }
 
 prepare_data() {
@@ -49,12 +61,17 @@ prepare_data() {
 
 # Yeast (Saccharomyces cerevisiae), 474 repeats, 12.1 Mb, 16 chromosomes
 #prepare_data yeast ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
+#real data
+#fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-files --clip ERR1938683
+make_exp_dir
+get_reads ERR1938683
+
 
 # Human chromosome 19 GRCh38.p7 assembly
 #prepare_data human-chr19 http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr19.fa.gz
 
 # Ecoli (Escherichia coli), 17 repeats, 5.1 Mb
-prepare_data ecoli ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
+#prepare_data ecoli ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
 
 
 #├── genome-ref
