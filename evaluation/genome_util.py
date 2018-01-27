@@ -286,6 +286,8 @@ def back_mutate_genome_repeats(ref_genome_file, supermax_repeats_file, all_repea
             # If we have found a position that is not located inside an exact repeat and
             # we have not mutated one of these repeats before
             if mut_seq_num >= 0 and (seq_num_1, pos_1) not in seen_repeats and (seq_num_2, pos_2) not in seen_repeats:
+                # its distance from start or end of repeat is longer than read_len - 50 (eg > 100 bp for a 150 bp read)
+                # and (i in range(read_len - 50, rep_len - (read_len - 50))):
                 # The original reference base
                 ref_base = ref_genome[mut_seq_num][1][mut_chr_pos]
                 if ref_base == 'N':  # undetermined base in reference genome
