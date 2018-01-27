@@ -28,14 +28,24 @@ def read_genome(genome_file):
     return genome_seq
 
 
-def find_mdz_index(sam_fields):
+def find_mdz_index(sam_file_name):
     """
      Finding the index of MD:Z tag, as it can be different for different read mapping softwares
     """
     mdz_index = None
-    for i, tag in enumerate(sam_fields[11:]):
-        if 'MD:Z' in tag.upper():
-            mdz_index = i
+    with open(sam_file_name) as sam_file:
+        for line in sam_file:
+            if line[0] == '@':
+                continue
+            else:
+                sam_fields = line.split('\t')
+                if sam_fields[sam_col['cigar']] == '*':
+                    continue
+                else:
+                    for i, tag in enumerate(sam_fields[11:]):
+                        if 'MD:Z' in tag.upper():
+                            mdz_index = i
+                    return mdz_index
     return mdz_index
 
 
@@ -129,6 +139,12 @@ def filter_alignments(mappings, threshold):
 def read_all_mappings(sam_file_name, genome_seq, output_file, base_counts):
     read_counts = {'unsupported': set(), 'unmapped': set(), 'unique': 0, 'multi': 0}
 
+    # Finding the index for MD:Z field
+    mdz_index = find_mdz_index(sam_file_name)
+    if mdz_index is None:
+        print('No MD:Z tag found in SAM fields!')
+        sys.exit(1)
+
     # Reading the SAM file and creating a dictionary of read_id : alignment
     # The header lines and the unique alignments will be directly written to the output file
     with open(sam_file_name) as sam_file:
@@ -147,10 +163,6 @@ def read_all_mappings(sam_file_name, genome_seq, output_file, base_counts):
             unique_count = 0
             multireads_dict = defaultdict(list)
             prev_fields = curr_line.split('\t')
-            mdz_index = find_mdz_index(prev_fields)
-            if mdz_index is None:
-                print('No MD:Z tag found in SAM fields!')
-                sys.exit(1)
 
             progress_percentage = round(progress / file_size * 100)
 
