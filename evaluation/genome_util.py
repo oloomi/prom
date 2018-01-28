@@ -124,9 +124,9 @@ def mutate_genome_repeats_beginning(ref_genome_file, main_repeats_file, all_repe
     """
     ref_genome = read_genome_vmatch(ref_genome_file)
     # Super-maximal repeats
-    supermax_repeats = read_vmatch_repeats(main_repeats_file)
-    # Tandem repeats
-    tandem_repeats = read_vmatch_repeats(all_repeats_file)
+    supermax_repeats = read_vmatch_repeats(main_repeats_file, read_len, 0)
+    # All repeats
+    tandem_repeats = read_vmatch_repeats(all_repeats_file, read_len, 0)
     random.seed(12)
     nucleotides = {'A', 'C', 'G', 'T'}
     num_mutations = 0
@@ -184,9 +184,9 @@ def mutate_genome_repeats_middle(ref_genome_file, supermax_repeats_file, all_rep
     """
     ref_genome = read_genome_vmatch(ref_genome_file)
     # Super-maximal repeats
-    supermax_repeats = read_vmatch_repeats(supermax_repeats_file)
-    # Tandem repeats
-    all_repeats = read_vmatch_repeats(all_repeats_file)
+    supermax_repeats = read_vmatch_repeats(supermax_repeats_file, read_len, 0)
+    # All repeats
+    all_repeats = read_vmatch_repeats(all_repeats_file, read_len, 0)
     random.seed(12)
     nucleotides = {'A', 'C', 'G', 'T'}
     num_mutations = 0
@@ -255,7 +255,7 @@ def back_mutate_genome_repeats(ref_genome_file, supermax_repeats_file, all_repea
     # Super-maximal repeats with hamming distance 1
     supermax_repeats = read_vmatch_repeats(supermax_repeats_file, read_len, d=-1)
     # All repeats
-    all_repeats = read_vmatch_repeats(all_repeats_file)
+    all_repeats = read_vmatch_repeats(all_repeats_file, read_len, d=0)
     random.seed(12)
     nucleotides = {'A', 'C', 'G', 'T'}
     num_mutations = 0

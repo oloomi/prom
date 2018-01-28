@@ -2,9 +2,9 @@
 # Running all scripts
 # Run this script in the specific experiment folder
 
-# sh all.sh -s -b
-# sh all.sh -s -m
-# sh all.sh -r
+# sh all.sh -s -b 150
+# sh all.sh -s -m 150
+# sh all.sh -r -b 100
 
 dir="/mnt/remu/evaluation/"
 
@@ -21,13 +21,15 @@ if [ "$1" = "-s" ]; then
   fi
 # Real data
 elif [ "$1" = "-r" ]; then
-  python3 $dir"evaluation.py" -rb
+  if [ "$2" = "-b" ]; then
+    python3 $dir"evaluation.py" -rb $3
+  fi
 else
   echo "Invalid argument in all.sh!"
 fi
 
 sh $dir"bash-scripts/read-mapping.sh" $1
-sh $dir"bash-scripts/multimapping-resolution.sh" $1
+sh $dir"bash-scripts/multimapping-resolution.sh" $1 $3
 sh $dir"bash-scripts/variant-calling.sh" $1
 python3 $dir"evaluation.py" -e
 

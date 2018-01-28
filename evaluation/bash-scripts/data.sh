@@ -28,26 +28,26 @@ get_genome() {
 find_repeats() {
   cd ./genome-ref/repeats
   mkvtree -db ../ref-genome.fna -dna -v -allout -pl
-  vmatch -supermax -l 150 -h 1 ref-genome.fna > supermax-repeats.txt
-  vmatch -l 150 -d -p ref-genome.fna > all-repeats.txt
-  vmatch -tandem -l 150 ref-genome.fna > tandem-repeats.txt
+  vmatch -supermax -l $1 -h 1 ref-genome.fna > supermax-repeats.txt
+  vmatch -l $1 -d -p ref-genome.fna > all-repeats.txt
+  vmatch -tandem -l $1 ref-genome.fna > tandem-repeats.txt
   cd ../..
 }
 
 get_reads() {
   fastq-dump --outdir ./reads/fastq --gzip --skip-technical --readids --read-filter pass --dumpbase --split-files --clip $1
   gunzip ./reads/fastq/$1_pass_1.fastq.gz
-  fastx_trimmer -l 150 -m 150 -Q33 -i ./reads/fastq/$1_pass_1.fastq -o ./reads/reads.fq
+  fastx_trimmer -l $2 -m $2 -Q33 -i ./reads/fastq/$1_pass_1.fastq -o ./reads/reads.fq
 }
 
 prepare_data() {
   create_dir $1
-  get_genome $2
-  find_repeats
+  get_genome $3
+  find_repeats $2
 }
 
 # Mycobacterium Tuberculosis H37rv
-#prepare_data mtb ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/195/955/GCF_000195955.2_ASM19595v2/GCF_000195955.2_ASM19595v2_genomic.fna.gz
+#prepare_data mtb 150 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/195/955/GCF_000195955.2_ASM19595v2/GCF_000195955.2_ASM19595v2_genomic.fna.gz
 
 #fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-files --clip SRR2818101
 #gunzip fastq/SRR2818101_pass_1.fastq.gz
@@ -63,8 +63,8 @@ prepare_data() {
 #prepare_data yeast ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
 #real data
 #fastq-dump --outdir fastq --gzip --skip-technical  --readids --read-filter pass --dumpbase --split-files --clip ERR1938683
-make_exp_dir
-get_reads ERR1938683
+#make_exp_dir
+#get_reads ERR1938683 150
 
 
 # Human chromosome 19 GRCh38.p7 assembly
@@ -72,7 +72,8 @@ get_reads ERR1938683
 
 # Ecoli (Escherichia coli), 17 repeats, 5.1 Mb
 #prepare_data ecoli ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
-
+make_exp_dir
+get_reads ERR022075 100
 
 #├── genome-ref
 #│   └── repeats

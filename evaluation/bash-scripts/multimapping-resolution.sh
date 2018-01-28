@@ -17,7 +17,7 @@ outfile="./mappings/bowtie/bowtie"
 # MMR method
 samtools sort -n $alignments.bam -o $alignments-id-sorted.bam
 
-/usr/bin/time -v mmr -o $outfile-mmr.bam -F 3 -b -R 150 $alignments-id-sorted.bam
+/usr/bin/time -v mmr -o $outfile-mmr.bam -F 3 -b -R $2 $alignments-id-sorted.bam
 
 sam_file=$outfile-mmr
 samtools sort $sam_file.bam -o $sam_file-sorted.bam
@@ -45,7 +45,7 @@ outfile="./mappings/bwa/bwa"
 # MMR method
 samtools sort -n $alignments.bam -o $alignments-id-sorted.bam
 
-/usr/bin/time -v mmr -o $outfile-mmr.bam -F 3 -b -R 150 $alignments-id-sorted.bam
+/usr/bin/time -v mmr -o $outfile-mmr.bam -F 3 -b -R $2 $alignments-id-sorted.bam
 
 sam_file=$outfile-mmr
 samtools sort $sam_file.bam -o $sam_file-sorted.bam

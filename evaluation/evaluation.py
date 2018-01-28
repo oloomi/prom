@@ -6,7 +6,7 @@ from genome_util import *
 from vcf_file import *
 
 
-def create_mutated_gnome(mode):
+def create_mutated_gnome(mode, read_len=150):
     """
     Run this function in the experiment main folder eg. supermax-100-140
     """
@@ -27,7 +27,7 @@ def create_mutated_gnome(mode):
                                    "../../genome-ref/repeats/supermax-repeats.txt",
                                    "../../genome-ref/repeats/all-repeats.txt",
                                    "./genome-mutated/mutated-genome.fna",
-                                   "./genome-mutated/mutations.txt")
+                                   "./genome-mutated/mutations.txt", read_len)
     else:
         print('Invalid mode {} for function create_mutated_genome!'.format(mode))
 
@@ -66,8 +66,10 @@ def variant_evaluation():
 
 
 if __name__ == "__main__":
-    if sys.argv[1].startswith('-s') or sys.argv[1].startswith('-r'):
+    if sys.argv[1].startswith('-s'):
         create_mutated_gnome(sys.argv[1])
+    elif sys.argv[1].startswith('-r'):
+        create_mutated_gnome(sys.argv[1], sys.argv[2])
     elif sys.argv[1] == '-e':
         variant_evaluation()
     else:
