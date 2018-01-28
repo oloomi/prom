@@ -135,4 +135,5 @@ def bayesian_update(ref_genome_file, sam_file, output_file, num_runs, prob_thres
             # Add 1 to position and write to file
             out_file.write("\t".join(final_mapping[0:sam_col['pos']] + [str(final_mapping[sam_col['pos']] + 1)] +
                                      final_mapping[sam_col['pos'] + 1:-2]))
+    print("completed!")
     return True
