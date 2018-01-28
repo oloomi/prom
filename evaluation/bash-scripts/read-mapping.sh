@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# sh read-mapping.sh [-s -r] [read_len]
+
 reads_out_dir="./reads/"
 reads_file_prefix="reads"
 
@@ -13,7 +15,7 @@ if [ "$1" = "-s" ]; then
   # ==== Generating synthetic reads ====
   art="art_illumina"
   #Simulation of single-end reads of 150 bp with coverage 25; with max number of indels = 0 (-k 0)
-  ${art} -ss HS25 -sam -i ${reads_genome} -l 150 -f 25 -k 0 -rs 12345 -o ${reads_out_dir}${reads_file_prefix}
+  ${art} -ss HS25 -sam -i ${reads_genome} -l $2 -f 25 -k 0 -rs 12345 -o ${reads_out_dir}${reads_file_prefix}
 
   # Creating BAM files for ArtIllumina benchmark
   #samtools view -bS $reads_out_dir$reads_file_prefix.sam -o $reads_out_dir$reads_file_prefix.bam
@@ -34,14 +36,14 @@ out_dir="./mappings/bowtie/"
 file_prefix="bowtie"
 
 # Build index for reference genome
-bowtie2-build ${ref_genome} ${out_dir}"genome-index"
+bowtie2-build ${ref_genome} ${out_dir}genome-index
 
 # Single mapping, best-match
-bowtie2 -x ${out_dir}"genome-index" -U ${reads_out_dir}${reads_file_prefix}.fq -S ${out_dir}${file_prefix}-mapping-best-match.sam \
+bowtie2 -x ${out_dir}genome-index -U ${reads_out_dir}${reads_file_prefix}.fq -S ${out_dir}${file_prefix}-mapping-best-match.sam \
 2> ${out_dir}${file_prefix}-mapping-best-match-log.txt
 
 # Single mapping, report-all
-bowtie2 -a -x ${out_dir}"genome-index" -U ${reads_out_dir}${reads_file_prefix}.fq -S ${out_dir}${file_prefix}-mapping-report-all.sam \
+bowtie2 -a -x ${out_dir}genome-index -U ${reads_out_dir}${reads_file_prefix}.fq -S ${out_dir}${file_prefix}-mapping-report-all.sam \
 2> ${out_dir}${file_prefix}-mapping-report-all-log.txt
 
 echo "\n=== Bowtie2 read mapping completed! ===\n"
@@ -66,14 +68,14 @@ out_dir="./mappings/bwa/"
 file_prefix="bwa"
 
 # Build index for reference genome
-bwa index -p ${out_dir}"genome-index" ${ref_genome}
+bwa index -p ${out_dir}genome-index ${ref_genome}
 
 # Single mapping, best-match
-bwa mem ${out_dir}"genome-index" ${reads_out_dir}${reads_file_prefix}.fq > ${out_dir}${file_prefix}-mapping-best-match.sam \
+bwa mem ${out_dir}genome-index ${reads_out_dir}${reads_file_prefix}.fq > ${out_dir}${file_prefix}-mapping-best-match.sam \
 2> ${out_dir}${file_prefix}-mapping-best-match-log.txt
 
 # Single mapping, report-all
-bwa mem -a ${out_dir}"genome-index" ${reads_out_dir}${reads_file_prefix}.fq > ${out_dir}${file_prefix}-mapping-report-all.sam \
+bwa mem -a ${out_dir}genome-index ${reads_out_dir}${reads_file_prefix}.fq > ${out_dir}${file_prefix}-mapping-report-all.sam \
 2> ${out_dir}${file_prefix}-mapping-report-all-log.txt
 
 echo "\n=== BWA read mapping completed! ===\n"

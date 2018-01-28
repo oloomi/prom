@@ -1,6 +1,8 @@
 #!/bin/bash
 # Running other multi-mapping resolution methods
 
+# sh multimapping-resolution.sh [-s -r] [read_len]
+
 if [ "$1" = "-s" ]; then
   ref_genome="../../genome-ref/ref-genome.fna"
 elif [ "$1" = "-r" ]; then
