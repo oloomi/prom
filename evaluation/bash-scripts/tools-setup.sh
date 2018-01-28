@@ -61,6 +61,10 @@ mv sratoolkit.2.8.2-1-ubuntu64 sratoolkit
 # Fastx toolkit
 sudo apt install fastx-toolkit
 
+# seqtk
+git clone https://github.com/lh3/seqtk.git;
+cd seqtk; make
+
 # Path variable
 export PATH=$PATH:/home/ubuntu/tools/samtools/bin
 export PATH=$PATH:/home/ubuntu/tools/bcftools/bin

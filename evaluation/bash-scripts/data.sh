@@ -72,8 +72,10 @@ prepare_data() {
 
 # Ecoli (Escherichia coli), 17 repeats, 5.1 Mb
 #prepare_data ecoli ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
-make_exp_dir
-get_reads ERR022075 100
+#make_exp_dir
+#get_reads ERR022075 100
+#mv reads.fq all-reads.fq
+#seqtk sample -s100 all-reads.fq 2500000 > reads.fq
 
 #├── genome-ref
 #│   └── repeats
