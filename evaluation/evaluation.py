@@ -15,13 +15,13 @@ def create_mutated_gnome(mode, read_len=150):
                                         "../../genome-ref/repeats/supermax-repeats.txt",
                                         "../../genome-ref/repeats/all-repeats.txt",
                                         "./genome-mutated/mutated-genome.fna",
-                                        "./genome-mutated/mutations.txt")
+                                        "./genome-mutated/mutations.txt", read_len)
     elif mode == '-sm':
         mutate_genome_repeats_middle("../../genome-ref/ref-genome.fna",
                                      "../../genome-ref/repeats/supermax-repeats.txt",
                                      "../../genome-ref/repeats/all-repeats.txt",
                                      "./genome-mutated/mutated-genome.fna",
-                                     "./genome-mutated/mutations.txt")
+                                     "./genome-mutated/mutations.txt", read_len)
     elif mode == '-rb':
         back_mutate_genome_repeats("../../genome-ref/ref-genome.fna",
                                    "../../genome-ref/repeats/supermax-repeats.txt",
@@ -67,9 +67,9 @@ def variant_evaluation():
 
 if __name__ == "__main__":
     if sys.argv[1].startswith('-s'):
-        create_mutated_gnome(sys.argv[1])
+        create_mutated_gnome(sys.argv[1], int(sys.argv[2]))
     elif sys.argv[1].startswith('-r'):
-        create_mutated_gnome(sys.argv[1], sys.argv[2])
+        create_mutated_gnome(sys.argv[1], int(sys.argv[2]))
     elif sys.argv[1] == '-e':
         variant_evaluation()
     else:
