@@ -11,7 +11,6 @@ create_dir() {
   make_exp_dir simulated-data/begin-supermax
   make_exp_dir simulated-data/middle-supermax
   make_exp_dir real-data/back-mutate
-  cd ..
 }
 
 get_genome() {
@@ -33,6 +32,11 @@ get_reads() {
   fastx_trimmer -l $2 -m $2 -Q33 -i $3/reads/fastq/$1_pass_1.fastq -o $3/reads/reads.fq
 }
 
+get_reads_ena() {
+  wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/$1/$2/$2_1.fastq.gz -P $3/reads/fastq
+  gunzip -c $3/reads/fastq/$2_1.fastq.gz > $3/reads/reads.fq
+}
+
 prepare_data() {
   create_dir $1
   get_genome $3
@@ -52,8 +56,10 @@ get_reads ERR1938683 150 yeast/real-data/back-mutate
 # Escherichia coli
 prepare_data ecoli 100 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
 get_reads ERR022075 100 yeast/real-data/back-mutate
+#get_reads_ena ERR022 ERR022075 yeast/real-data/back-mutate
 mv yeast/real-data/back-mutate/reads.fq yeast/real-data/back-mutate/all-reads.fq
 seqtk sample -s100 yeast/real-data/back-mutate/all-reads.fq 2500000 > yeast/real-data/back-mutate/reads.fq
+#wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR022/ERR022075/ERR022075_1.fastq.gz
 
 # Human chromosome 19 GRCh38.p7 assembly
 #prepare_data human-chr19 100 http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr19.fa.gz
