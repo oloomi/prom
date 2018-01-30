@@ -33,6 +33,6 @@ sh ${dir}"bash-scripts/multimapping-resolution.sh" $1 $3
 sh ${dir}"bash-scripts/variant-calling.sh" $1
 python3 ${dir}"evaluation.py" -e
 
-echo "\n=== Everthing done! ===\n"
+echo "\n=== Experiment completed! ===\n"
 
 
