@@ -2,36 +2,36 @@
 # Running all scripts
 # Run this script in the specific experiment folder
 
-# sh all.sh -s -b 150
-# sh all.sh -s -m 150
-# sh all.sh -r -b 100
+# sh experiment.sh -s -b 150
+# sh experiment.sh -s -m 150
+# sh experiment.sh -r -b 100
 
-dir="/mnt/remu/evaluation/"
+script_path="$( cd "$(dirname "$0")" ; pwd -P )/"
 
 # Simulated data
 if [ "$1" = "-s" ]; then
   # Mutations in the beginning of repeats
   if [ "$2" = "-b" ]; then
-    python3 ${dir}"evaluation.py" -sb $3
+    python3 ${script_path}"evaluation.py" -sb $3
   # Mutations in the middle of repeats
   elif [ "$2" = "-m" ]; then
-    python3 ${dir}"evaluation.py" -sm $3
+    python3 ${script_path}"evaluation.py" -sm $3
   else
     echo "Type of simulation required!"
   fi
 # Real data
 elif [ "$1" = "-r" ]; then
   if [ "$2" = "-b" ]; then
-    python3 ${dir}"evaluation.py" -rb $3
+    python3 ${script_path}"evaluation.py" -rb $3
   fi
 else
   echo "Invalid argument in all.sh!"
 fi
 
-sh ${dir}"bash-scripts/read-mapping.sh" $1 $3
-sh ${dir}"bash-scripts/multimapping-resolution.sh" $1 $3
-sh ${dir}"bash-scripts/variant-calling.sh" $1
-python3 ${dir}"evaluation.py" -e
+sh ${script_path}"read-mapping.sh" $1 $3
+sh ${script_path}"multimapping-resolution.sh" $1 $3
+sh ${script_path}"variant-calling.sh" $1
+python3 ${script_path}"evaluation.py" -e
 
 echo "\n=== Experiment completed! ===\n"
 
