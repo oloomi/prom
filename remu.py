@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 """
-Copyright (C) 2017 S Mohammad H Oloomi (smh.oloomi@gmail.com)
+Copyright (C) 2018 S Mohammad H Oloomi (smh.oloomi@gmail.com)
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
