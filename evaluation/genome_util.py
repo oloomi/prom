@@ -126,7 +126,7 @@ def mutate_genome_repeats_beginning(ref_genome_file, main_repeats_file, all_repe
     # Super-maximal repeats
     supermax_repeats = read_vmatch_repeats(main_repeats_file, read_len, 0)
     # All repeats
-    tandem_repeats = read_vmatch_repeats(all_repeats_file, read_len, 0)
+    all_repeats = read_vmatch_repeats(all_repeats_file, read_len, 0)
     random.seed(12)
     nucleotides = {'A', 'C', 'G', 'T'}
     num_mutations = 0
@@ -141,8 +141,8 @@ def mutate_genome_repeats_beginning(ref_genome_file, main_repeats_file, all_repe
                 mut_pos = random.choice(range(read_len - 50, read_len - 9))
                 # If it's a short range mutation, check that it's not located in tandem repeats
                 # Checking the position right before repeat starting point
-                loc1_in_repeat = check_loc_in_repeats((seq_num_1, pos_1 - 1), tandem_repeats)
-                loc2_in_repeat = check_loc_in_repeats((seq_num_2, pos_2 - 1), tandem_repeats)
+                loc1_in_repeat = check_loc_in_repeats((seq_num_1, pos_1 - 1), all_repeats)
+                loc2_in_repeat = check_loc_in_repeats((seq_num_2, pos_2 - 1), all_repeats)
                 # Which repeat instance to mutate
                 if not loc1_in_repeat and not loc2_in_repeat:
                     rep_loc = random.choice([(seq_num_1, pos_1), (seq_num_2, pos_2)])
