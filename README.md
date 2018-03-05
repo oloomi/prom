@@ -53,4 +53,11 @@ Please refer to the help section for further options:
 python3 remu.py -h
 ```
 
+## Citation
+REMU is currently in submission. 
+
+Please feel free to contact me (Mohammad) for any enquiries: [smh.oloomi@gmail.com](mailto:smh.oloomi@gmail.com)
+ 
+ 
+
 
