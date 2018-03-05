@@ -54,6 +54,10 @@ tar -xzvf vmatch-2.3.0-Linux_x86_64-64bit.tar.gz
 git clone https://github.com/ratschlab/mmr.git
 make
 
+# REMU
+git clone https://github.com/oloomi/remu.git
+chmod +x remu.py
+
 # SRA toolkit fastq-dump
 wget http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.8.2-1/sratoolkit.2.8.2-1-ubuntu64.tar.gz
 mv sratoolkit.2.8.2-1-ubuntu64 sratoolkit
