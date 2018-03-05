@@ -247,7 +247,7 @@ def mutate_genome_repeats_middle(ref_genome_file, supermax_repeats_file, all_rep
 
 
 def back_mutate_genome_repeats(ref_genome_file, supermax_repeats_file, all_repeats_file, output_file, mutations_file,
-                       read_len=150):
+                               read_len=150):
     """
     Mutating genome repeats obtained from vmatch -supermax repeat finding software
     """
@@ -266,8 +266,78 @@ def back_mutate_genome_repeats(ref_genome_file, supermax_repeats_file, all_repea
             (rep_len, seq_num_1, pos_1, seq_num_2, pos_2, dist, rep_type) = repeat
 
             # We should find the point of difference
-            seq_1 = ref_genome[seq_num_1][1][pos_1:pos_1+rep_len]
-            seq_2 = ref_genome[seq_num_2][1][pos_2:pos_2+rep_len]
+            seq_1 = ref_genome[seq_num_1][1][pos_1:pos_1 + rep_len]
+            seq_2 = ref_genome[seq_num_2][1][pos_2:pos_2 + rep_len]
+            mut_seq_num = -1
+            mut_chr_pos = -1
+            mut_base = ''
+            for i in range(rep_len):
+                if seq_1[i] != seq_2[i]:
+                    base_1 = seq_1[i]
+                    base_2 = seq_2[i]
+                    # Check whether the mutation point is not located itself in an exact repeat element
+                    other_repeats_1 = check_loc_in_repeats((seq_num_1, pos_1 + i), all_repeats)
+                    other_repeats_2 = check_loc_in_repeats((seq_num_2, pos_2 + i), all_repeats)
+                    if not other_repeats_1:
+                        mut_seq_num = seq_num_1
+                        mut_chr_pos = pos_1 + i
+                        mut_base = base_2
+                    elif not other_repeats_2:
+                        mut_seq_num = seq_num_2
+                        mut_chr_pos = pos_2 + i
+                        mut_base = base_1
+                    break
+
+            # If we have found a position that is not located inside an exact repeat and
+            # we have not mutated one of these repeats before
+            if mut_seq_num >= 0 and (seq_num_1, pos_1) not in seen_repeats and (seq_num_2, pos_2) not in seen_repeats:
+                # its distance from start or end of repeat is longer than read_len - 50 (eg > 100 bp for a 150 bp read)
+                # and (i in range(read_len - 50, rep_len - (read_len - 50))):
+                # The original reference base
+                ref_base = ref_genome[mut_seq_num][1][mut_chr_pos]
+                if ref_base == 'N':  # undetermined base in reference genome
+                    continue
+                # Mutating the base
+                ref_genome[mut_seq_num][1][mut_chr_pos] = mut_base
+
+                # Write mutation to file
+                # Order: back-mutated nucleotide, true nucleotide
+                # Position is incremented since position in VCF files starts from one (not zero)
+                mut_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(ref_genome[mut_seq_num][0], mut_chr_pos + 1,
+                                                                 mut_base, ref_base, i, rep_len))
+                num_mutations += 1
+                # Mark these repeats as seen
+                seen_repeats.add((seq_num_1, pos_1))
+                seen_repeats.add((seq_num_2, pos_2))
+        mut_file.write("#Number of mutations: {}".format(num_mutations))
+    # Write mutated genome to file
+    write_genome_vmatch(ref_genome, output_file)
+    return True
+
+
+def mutate_genome_repeats_mismatch(ref_genome_file, supermax_repeats_file, all_repeats_file, output_file,
+                                   mutations_file,
+                                   read_len=150):
+    """
+    Mutating genome repeats obtained from vmatch -supermax repeat finding software
+    """
+    ref_genome = read_genome_vmatch(ref_genome_file)
+    # Super-maximal repeats with hamming distance 1
+    supermax_repeats = read_vmatch_repeats(supermax_repeats_file, read_len, d=-1)
+    # All repeats
+    all_repeats = read_vmatch_repeats(all_repeats_file, read_len, d=0)
+    random.seed(12)
+    nucleotides = {'A', 'C', 'G', 'T'}
+    num_mutations = 0
+    seen_repeats = set()
+    with open(mutations_file, 'w') as mut_file:
+        mut_file.write("#Chr\tPos\tRef\tAlt\tDist\tLen\tOtherLocs\n")
+        for repeat in supermax_repeats:
+            (rep_len, seq_num_1, pos_1, seq_num_2, pos_2, dist, rep_type) = repeat
+
+            # We should find the point of difference
+            seq_1 = ref_genome[seq_num_1][1][pos_1:pos_1 + rep_len]
+            seq_2 = ref_genome[seq_num_2][1][pos_2:pos_2 + rep_len]
             mut_seq_num = -1
             mut_chr_pos = -1
             for i in range(rep_len):
@@ -301,7 +371,7 @@ def back_mutate_genome_repeats(ref_genome_file, supermax_repeats_file, all_repea
                 # Order: back-mutated nucleotide, true nucleotide
                 # Position is incremented since position in VCF files starts from one (not zero)
                 mut_file.write("{}\t{}\t{}\t{}\t{}\t{}\n".format(ref_genome[mut_seq_num][0], mut_chr_pos + 1,
-                                                                     new_base, ref_base, i, rep_len))
+                                                                 new_base, ref_base, i, rep_len))
                 num_mutations += 1
                 # Mark these repeats as seen
                 seen_repeats.add((seq_num_1, pos_1))
