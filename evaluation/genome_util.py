@@ -51,6 +51,26 @@ def write_genome_vmatch(genome_seq, output_file):
                 num_chrom -= 1
 
 
+def toy_genome(genome_file, new_ref_file, mutated_ref_file):
+    ref_genome = read_genome_vmatch(genome_file)
+    new_ref_genome = {0: ref_genome[0]}
+    chrom_seq = new_ref_genome[0][1]
+    # Writing the extracted sequence as reference genome to file
+    new_ref_genome[0][1] = chrom_seq[0:5000] + chrom_seq[2000:3000] + chrom_seq[6000:8000] \
+                         + chrom_seq[2000:3000] + chrom_seq[9000:11000]
+    write_genome_vmatch(new_ref_genome, new_ref_file)
+    # Mutate one base
+    nucleotides = set(['A', 'C', 'G', 'T'])
+    pos = 2129
+    # pos = 2500
+    print('Reference base: ', new_ref_genome[0][1][pos])
+    possible_snps = nucleotides - set(new_ref_genome[0][1][pos])
+    random.seed(12)
+    new_ref_genome[0][1][pos] = random.choice(sorted(list(possible_snps)))
+    print('Mutated to: ', new_ref_genome[0][1][pos])
+    write_genome_vmatch(new_ref_genome, mutated_ref_file)
+
+
 def reverse_complement(seq):
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
     return ''.join([complement[base] for base in seq[::-1]])
@@ -380,3 +400,4 @@ def mutate_genome_repeats_mismatch(ref_genome_file, supermax_repeats_file, all_r
     # Write mutated genome to file
     write_genome_vmatch(ref_genome, output_file)
     return True
+
