@@ -1,5 +1,6 @@
+import os
 import random
-from collections import defaultdict
+import sys
 
 
 def read_genome_vmatch(genome_file):
@@ -401,3 +402,50 @@ def mutate_genome_repeats_mismatch(ref_genome_file, supermax_repeats_file, all_r
     write_genome_vmatch(ref_genome, output_file)
     return True
 
+
+def bwa_mmr_fix(sam_file_name, output_file):
+    sam_col = {'qname': 0, 'flag': 1, 'rname': 2, 'pos': 3, 'mapq': 4, 'cigar': 5, 'seq': 9, 'qual': 10}
+    # The header lines and the unique alignments will be directly written to the output file
+    with open(sam_file_name) as sam_file:
+        with open(output_file, 'w') as out_file:
+            file_size = os.path.getsize(sam_file_name)
+
+            curr_line = next(sam_file)
+            progress = len(curr_line)
+            # Writing header lines to output SAM file
+            while curr_line[0] == '@':
+                out_file.write(curr_line)
+                curr_line = next(sam_file)
+                progress += len(curr_line)
+
+            multimap = False
+            prev_fields = curr_line.split('\t')
+
+            progress_percentage = round(progress / file_size * 100)
+
+            # Read and preprocess each alignment
+            for curr_line in sam_file:
+                curr_fields = curr_line.split('\t')
+                # Multimappings found for a previously seen multiread
+                if curr_fields[sam_col['qname']] == prev_fields[sam_col['qname']]:
+                    # BWA does not store the sequence and its quality score for secondary alignments
+                    if curr_fields[sam_col['seq']] == '*' and curr_fields[sam_col['cigar']] != '*':
+                        curr_fields[sam_col['seq']] = prev_fields[sam_col['seq']]
+                        curr_fields[sam_col['qual']] = prev_fields[sam_col['qual']]
+
+                out_file.write('\t'.join(prev_fields))
+                prev_fields = curr_fields
+
+                # Progress percentage
+                progress += len(curr_line)
+                new_prog_perc = round(progress / file_size * 100)
+                if new_prog_perc != progress_percentage:
+                    sys.stdout.write('\r')
+                    sys.stdout.write(" {}%".format(new_prog_perc))
+                    progress_percentage = new_prog_perc
+
+            # Last line in the file
+            out_file.write('\t'.join(prev_fields))
+
+            # For new line character after 100% progress
+            print('')
