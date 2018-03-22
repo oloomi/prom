@@ -47,7 +47,7 @@ for file in ${alignment_files}
 do
 	echo "\nVariant calling for: $file\n"
 #	-m 0 since BWA gives mapping quality zero to multireads
-	freebayes -f ${ref_genome} -p 1 -F 0.9 -m 0 ${file_path}${file}.bam >${out_path}bwa-mmr-variants-freebayes.vcf
+	freebayes -f ${ref_genome} -p 1 -F 0.9 -m 0 ${file_path}${file}.bam >${out_path}bwa-mmr-sorted-variants-freebayes.vcf
 done
 
 echo "\n=== BWA+MMR fix completed! ===\n"
