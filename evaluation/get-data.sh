@@ -48,11 +48,6 @@ prepare_data() {
 prepare_data mtb 150 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/195/955/GCF_000195955.2_ASM19595v2/GCF_000195955.2_ASM19595v2_genomic.fna.gz
 get_reads SRR2818101 150 mtb/real-data/back-mutate
 
-
-# Saccharomyces cerevisiae S288C (baker's yeast)
-prepare_data yeast 150 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
-get_reads ERR1938683 150 yeast/real-data/back-mutate
-
 # Escherichia coli
 prepare_data ecoli 100 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
 get_reads ERR022075 100 yeast/real-data/back-mutate
@@ -60,6 +55,10 @@ get_reads ERR022075 100 yeast/real-data/back-mutate
 mv yeast/real-data/back-mutate/reads.fq yeast/real-data/back-mutate/all-reads.fq
 seqtk sample -s100 yeast/real-data/back-mutate/all-reads.fq 2500000 > yeast/real-data/back-mutate/reads.fq
 #wget ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR022/ERR022075/ERR022075_1.fastq.gz
+
+# Saccharomyces cerevisiae S288C (baker's yeast)
+prepare_data yeast 150 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
+get_reads ERR1938683 150 yeast/real-data/back-mutate
 
 # Human chromosome 19 GRCh38.p7 assembly
 #prepare_data human-chr19 100 http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr19.fa.gz

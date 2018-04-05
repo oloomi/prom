@@ -24,7 +24,7 @@ cd ${dir}ecoli/simulated-data/middle-supermax
 sh ${script_path}experiment.sh -s -m 150
 
 cd ${dir}ecoli/real-data/back-mutate
-sh ${script_path}experiment.sh -r -b 150
+sh ${script_path}experiment.sh -r -b 100
 
 # Running experiments
 cd ${dir}yeast/simulated-data/begin-supermax
@@ -34,4 +34,4 @@ cd ${dir}yeast/simulated-data/middle-supermax
 sh ${script_path}experiment.sh -s -m 150
 
 cd ${dir}yeast/real-data/back-mutate
-sh ${script_path}experiment.sh -r -b 100
+sh ${script_path}experiment.sh -r -b 150
