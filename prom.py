@@ -18,11 +18,11 @@ def float_prob(num_str):
         raise argparse.ArgumentTypeError("{} is not in range [0, 1]".format(num))
     return num
 
-parser = argparse.ArgumentParser(usage='\n\tpython3 remu.py -i <input.sam> -r <reference.fa> [-o <output.sam>]\n' +
-                                       'help:\n\tpython3 remu.py -h',
+parser = argparse.ArgumentParser(usage='\n\tpython3 prom.py -i <input.sam> -g <reference.fa> [-o <output.sam>]\n' +
+                                       'help:\n\tpython3 prom.py -h',
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
                                  description=textwrap.dedent('''\
-                                 REMU: REsolving MUltimappings in Read Mapping
+                                 PROM (Probabilistic Resolution Of Multi-mapping)
                                  by Mohammad Oloomi (smh.oloomi@gmail.com)\n'''),
                                  epilog='')
 parser.add_argument('-i', '--input', required=True, help='Input SAM file that contains all read mappings')
@@ -33,7 +33,7 @@ parser.add_argument('-r', '--runs', default=10, type=int, help='Number of runs (
 parser.add_argument('-t', '--threshold', default=0.02, type=float_prob,
                     help='Threshold for probability difference between equally good mappings (default: 0.02)')
 # Software version
-parser.add_argument('-v', '--version', action='version', version='REMU 1.0.0', help='Software version')
+parser.add_argument('-v', '--version', action='version', version='PROM 1.0.0', help='Software version')
 args = parser.parse_args()
 
 if args.input and args.genome:

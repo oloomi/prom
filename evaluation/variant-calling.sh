@@ -14,7 +14,7 @@ file_path="./mappings/bowtie/"
 alignment_files="bowtie-mapping-best-match-sorted
 bowtie-mapping-report-all-sorted
 bowtie-mmr-sorted
-bowtie-remu-sorted"
+bowtie-prom-sorted"
 
 
 for file in ${alignment_files}
@@ -27,7 +27,7 @@ file_path="./mappings/bwa/"
 alignment_files="bwa-mapping-best-match-sorted
 bwa-mapping-report-all-sorted
 bwa-mmr-sorted
-bwa-remu-sorted"
+bwa-prom-sorted"
 
 
 for file in ${alignment_files}

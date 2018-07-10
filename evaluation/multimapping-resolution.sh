@@ -27,15 +27,15 @@ samtools index ${sam_file}-sorted.bam
 
 echo "\n=== Bowtie + MMR multi-mapping resolution completed! ===\n"
 
-# REMU method
-/usr/bin/time -v -o ${outfile}-remu-time-log.txt remu.py -g ${ref_genome} -i ${alignments_sam}.sam -o ${outfile}-remu.sam -r 10 | tee ${outfile}-remu-log.txt
+# PROM method
+/usr/bin/time -v -o ${outfile}-prom-time-log.txt prom.py -g ${ref_genome} -i ${alignments_sam}.sam -o ${outfile}-prom.sam -r 10 | tee ${outfile}-prom-log.txt
 
-sam_file=${outfile}-remu
+sam_file=${outfile}-prom
 samtools view -bS ${sam_file}.sam -o ${sam_file}.bam
 samtools sort ${sam_file}.bam -o ${sam_file}-sorted.bam
 samtools index ${sam_file}-sorted.bam
 
-echo "\n=== Bowtie + REMU multi-mapping resolution completed! ===\n"
+echo "\n=== Bowtie + PROM multi-mapping resolution completed! ===\n"
 
 # ----------- BWA ----------
 alignments="./mappings/bwa/bwa-mapping-report-all-sorted"
@@ -53,12 +53,12 @@ samtools index ${sam_file}-sorted.bam
 
 echo "\n=== BWA + MMR multi-mapping resolution completed! ===\n"
 
-# REMU method
-/usr/bin/time -v -o ${outfile}-remu-time-log.txt remu.py -g ${ref_genome} -i ${alignments_sam}.sam -o ${outfile}-remu.sam -r 10 | tee ${outfile}-remu-log.txt
+# PROM method
+/usr/bin/time -v -o ${outfile}-prom-time-log.txt prom.py -g ${ref_genome} -i ${alignments_sam}.sam -o ${outfile}-prom.sam -r 10 | tee ${outfile}-prom-log.txt
 
-sam_file=${outfile}-remu
+sam_file=${outfile}-prom
 samtools view -bS ${sam_file}.sam -o ${sam_file}.bam
 samtools sort ${sam_file}.bam -o ${sam_file}-sorted.bam
 samtools index ${sam_file}-sorted.bam
 
-echo "\n=== BWA + REMU multi-mapping resolution completed! ===\n"
+echo "\n=== BWA + PROM multi-mapping resolution completed! ===\n"
