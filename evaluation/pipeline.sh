@@ -1,37 +1,38 @@
 #!/bin/bash
+# Running all scripts
+# Run this script in the specific experiment folder
 
-dir=`pwd`/
+# sh pipeline.sh -s -b 150
+# sh pipeline.sh -s -m 150
+# sh pipeline.sh -r -b 100
+
 script_path="$( cd "$(dirname "$0")" ; pwd -P )/"
 
-# Preparing data
-sh ${script_path}get-data.sh
+# Simulated data
+if [ "$1" = "-s" ]; then
+  # Mutations in the beginning of repeats
+  if [ "$2" = "-b" ]; then
+    python3 ${script_path}"evaluation.py" -sb $3
+  # Mutations in the middle of repeats
+  elif [ "$2" = "-m" ]; then
+    python3 ${script_path}"evaluation.py" -sm $3
+  else
+    echo "Type of simulation required!"
+  fi
+# Real data
+elif [ "$1" = "-r" ]; then
+  if [ "$2" = "-b" ]; then
+    python3 ${script_path}"evaluation.py" -rb $3
+  fi
+else
+  echo "Invalid argument in pipeline.sh!"
+fi
 
-# Running experiments
-cd ${dir}mtb/simulated-data/begin-supermax
-sh ${script_path}experiment.sh -s -b 150
+sh ${script_path}"read-mapping.sh" $1 $3
+sh ${script_path}"multimapping-resolution.sh" $1 $3
+sh ${script_path}"variant-calling.sh" $1
+python3 ${script_path}"evaluation.py" -e
 
-cd ${dir}mtb/simulated-data/middle-supermax
-sh ${script_path}experiment.sh -s -m 150
+echo "\n=== Experiment completed! ===\n"
 
-cd ${dir}mtb/real-data/back-mutate
-sh ${script_path}experiment.sh -r -b 150
 
-# Running experiments
-cd ${dir}ecoli/simulated-data/begin-supermax
-sh ${script_path}experiment.sh -s -b 150
-
-cd ${dir}ecoli/simulated-data/middle-supermax
-sh ${script_path}experiment.sh -s -m 150
-
-cd ${dir}ecoli/real-data/back-mutate
-sh ${script_path}experiment.sh -r -b 100
-
-# Running experiments
-cd ${dir}yeast/simulated-data/begin-supermax
-sh ${script_path}experiment.sh -s -b 150
-
-cd ${dir}yeast/simulated-data/middle-supermax
-sh ${script_path}experiment.sh -s -m 150
-
-cd ${dir}yeast/real-data/back-mutate
-sh ${script_path}experiment.sh -r -b 150
