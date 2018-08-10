@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Run the following command in the experiment folder after all stages are finished
-# sh bwa-mmr-fix.sh [-s -r] [read_len]
+# sh bwa-mmr-fix-pipeline.sh [-s -r] [read_len]
 
 out_dir="./mappings/bwa/"
 file_prefix="bwa"
