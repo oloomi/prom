@@ -35,3 +35,7 @@ sh ${script_path}pipeline.sh -s -m 150
 
 cd ${dir}yeast/real-data/back-mutate
 sh ${script_path}pipeline.sh -r -b 150
+
+# Running BWA+MMR fix
+cd ${dir}
+sh ${script_path}bwa-mmr-fix.sh
