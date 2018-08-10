@@ -26,7 +26,7 @@ def bayesian_update(ref_genome_file, sam_file, output_file, num_runs, prob_thres
     multireads_dict, read_len, read_counts = read_all_mappings(sam_file, genome_seq, output_file,
                                                                initial_base_counts)
 
-    print("Number of reads with non {}M CIGAR: {}".format(read_len, len(read_counts['unsupported'])))
+    print("Number of reads with unsupported alignments: {}".format(len(read_counts['unsupported'])))
     print("Number of reads not mapped:", len(read_counts['unmapped']))
     total_reads = read_counts['unique'] + len(multireads_dict)
     print("Number of reads in use:", total_reads)
