@@ -61,7 +61,7 @@ seqtk sample -s100 yeast/real-data/back-mutate/all-reads.fq 2500000 > yeast/real
 # Saccharomyces cerevisiae S288C (baker's yeast)
 prepare_data yeast 150 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/146/045/GCF_000146045.2_R64/GCF_000146045.2_R64_genomic.fna.gz
 #get_reads ERR1938683 150 yeast/real-data/back-mutate
-get_reads_ena ERR022075 150 yeast/real-data/back-mutate ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR193/ERR1938683/ERR1938683_1.fastq.gz
+get_reads_ena ERR1938683 150 yeast/real-data/back-mutate ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR193/003/ERR1938683/ERR1938683_1.fastq.gz
 
 # Human chromosome 19 GRCh38.p7 assembly
 #prepare_data human-chr19 100 http://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/chr19.fa.gz
