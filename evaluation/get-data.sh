@@ -36,8 +36,8 @@ get_reads() {
 # run_id read_len dir url
 get_reads_ena() {
   wget $4 -P $3/reads/fastq
-  gunzip -c $3/reads/fastq/$1_1.fastq.gz
-  fastx_trimmer -l $2 -m $2 -Q33 -i $3/reads/fastq/$1_pass_1.fastq -o $3/reads/reads.fq
+  gunzip $3/reads/fastq/$1_1.fastq.gz
+  fastx_trimmer -l $2 -m $2 -Q33 -i $3/reads/fastq/$1_1.fastq -o $3/reads/reads.fq
 }
 
 prepare_data() {
@@ -54,7 +54,7 @@ get_reads SRR2818101 150 mtb/real-data/back-mutate
 # Escherichia coli
 prepare_data ecoli 100 ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz
 #get_reads ERR022075 100 yeast/real-data/back-mutate
-get_reads_ena ERR022075 100 yeast/real-data/back-mutate ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR022/ERR022075/ERR022075_1.fastq.gz
+get_reads_ena ERR022075 100 ecoli/real-data/back-mutate ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR022/ERR022075/ERR022075_1.fastq.gz
 mv yeast/real-data/back-mutate/reads.fq yeast/real-data/back-mutate/all-reads.fq
 seqtk sample -s100 yeast/real-data/back-mutate/all-reads.fq 2500000 > yeast/real-data/back-mutate/reads.fq
 
