@@ -54,7 +54,13 @@ python3 prom.py -h
 ```
 
 ## Citation
-PROM is currently in submission. 
+Oloomi, S. M. H. (2018). *The impact of multi-mappings in short read mapping* (Doctoral dissertation).
+
+@phdthesis{oloomi2018impact,
+  title={The impact of multi-mappings in short read mapping},
+  author={Oloomi, Seyed Mohammad Hossein},
+  year={2018}
+} 
 
 Please feel free to contact me (Mohammad) for any enquiries: [smh.oloomi@gmail.com](mailto:smh.oloomi@gmail.com)
  
