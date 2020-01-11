@@ -56,7 +56,7 @@ python3 prom.py -h
 ## Citation
 Oloomi, S. M. H. (2018). *The impact of multi-mappings in short read mapping* (Doctoral dissertation).
 
-Bibtex:
+BibTeX:
 ```latex
 @phdthesis{oloomi2018impact,
   title={The impact of multi-mappings in short read mapping},
